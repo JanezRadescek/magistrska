@@ -1,0 +1,2 @@
+# magistrska naloga
+avtor : JR
