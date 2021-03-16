@@ -1,0 +1,12 @@
+*.xmpi
+*.tex
+*.xmpdata
+*.toc
+*.synctex.gz
+*.out
+*.log
+*.blg
+*.aux
+*.bbl
+*.idx
+*.pdf
