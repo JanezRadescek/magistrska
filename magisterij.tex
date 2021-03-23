@@ -77,6 +77,12 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 
 % DRUGI TVOJI PAKETI:
 % tukaj
+% todo notes to comment the code when working in a group
+\usepackage{todonotes}
+\newcommand\mp[1]{\todo[inline,color=cyan]{#1 -MP}}	% comments by matija
+\newcommand\jr[1]{\todo[inline,color=orange]{#1 -JR}} % comments by janez
+
+%
 
 \setlength{\overfullrule}{50pt} % označi predlogo vrstico
 \pagestyle{plain}               % samo številka strani na dnu, nobene glave / noge
@@ -204,6 +210,8 @@ okolje itemize in ukaz plancite, saj je celotna literatura oštevilčena na konc
 Tukaj napišemo povzetek vsebine. Sem sodi razlaga vsebine in ne opis tega, kako je delo
 organizirano.
 
+
+
 \vfill
 \begin{center}
 \textbf{English translation of the title} \\[3mm] % prevod slovenskega naslova dela
@@ -228,6 +236,24 @@ the content and not the structure of your work.
 Napišite kratek zgodovinski in matematični uvod.  Pojasnite motivacijo za problem, kje
 nastopa, kje vse je bil obravnavan. Na koncu opišite tudi organizacijo dela -- kaj je v
 katerem razdelku.
+
+
+\section{Aeff prej}
+
+\section{Nove funkcionalnosti}
+
+\subsection{Rekurziven promise}
+
+\jr{prevod promise? Kadar je promise koncept je smiselno prevesti, kadar se nanašamo na konstrukt v aeff je pa to njegovo ime in zato ne prevedemo? }
+Kadar pričakujemo več signalov istega \jr{imena?} je lahko iz različnih razlogov za programerja priročno, če ima na voljo promise, ki se po potrebi ponovno namesti. Lahko da je namen promisa, da na vsakega sproži določene učinke. Lahko nam prihajajoči signal prinese pravo operacijo, vendar ne prave pripadajoče vrednosti zato promisa še nočemo izpolniti, in čakamo na naslednjega.
+
+To funkcionalnost smo do sedaj dosegli tako, da smo promise zapakirali v rekurzivno funkcijo. Sedaj lahko promise poimenujemo in znotraj promisa direktno ustvarimo novo kopijo promisa.  
+
+\subsection{Spawn}
+
+\section{Type system}
+
+\section{Interpreter}
 
 \section{Integrali po \texorpdfstring{$\omega$}{ω}-kompleksih}
 \subsection{Definicija}
