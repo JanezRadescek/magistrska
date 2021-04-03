@@ -1,0 +1,3 @@
+[submodule "aeff"]
+	path = aeff
+	url = git@github.com:JanezRadescek/aeff.git
