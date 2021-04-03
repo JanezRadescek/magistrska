@@ -245,11 +245,59 @@ katerem razdelku.
 \subsection{Rekurziven promise}
 
 \jr{prevod promise? Kadar je promise koncept je smiselno prevesti, kadar se nanašamo na konstrukt v aeff je pa to njegovo ime in zato ne prevedemo? }
-Kadar pričakujemo več signalov istega \jr{imena?} je lahko iz različnih razlogov za programerja priročno, če ima na voljo promise, ki se po potrebi ponovno namesti. Lahko da je namen promisa, da na vsakega sproži določene učinke. Lahko nam prihajajoči signal prinese pravo operacijo, vendar ne prave pripadajoče vrednosti zato promisa še nočemo izpolniti, in čakamo na naslednjega.
+\jr{Kaj na splošno z tujkami/angleškimi besedami?
+Slovar ??
+promise = obljuba
+guarded promise = ?
+abstraction = abstrakcija
+spawn = ?
+interpreter = interpreter
+type sistem = sistem tipov
+computation = izračun
+unit = enota
+Syntactic sugar = sintaktičen sladkor?
+if computation/statement = ?
+}
 
-To funkcionalnost smo do sedaj dosegli tako, da smo promise zapakirali v rekurzivno funkcijo. Sedaj lahko promise poimenujemo in znotraj promisa direktno ustvarimo novo kopijo promisa.  
+Kadar pričakujemo več signalov z isto operacijo je lahko iz različnih razlogov za programerja priročno, če ima na voljo promise, ki se po potrebi ponovno namesti. Lahko da je namen promisa, da na vsakega sproži določene učinke. Lahko nam prihajajoči signal prinese pravo operacijo, vendar ne prave pripadajoče vrednosti zato promisa še nočemo izpolniti, in čakamo na naslednjega.
+
+
+
+To funkcionalnost smo do sedaj dosegli tako, da smo promise zapakirali v rekurzivno funkcijo.
+
+\begin{primer}
+	let rec f =
+		promise (op x -> send op x; f(); return <<()>>) %lahko promise vrača unit? Mogoče kot sugar?
+		as \_ in ()
+\end{primer}
+
+Sedaj lahko obljubi dodamo ime lambda funkcije, ki sprejme enoto in ima v abstrakciji za izračun svežo kopijo obljube. To funkcijo lahko uporabimo znotraj pripadajoče obljube.
+
+\begin{definicija}
+	promise (op x k ↦→ M) as p in N
+\end{definicija}
+
+\begin{primer}
+	promise (op x k -> send op x; k())
+	as \_ in ()
+\end{primer}
+
+Že obstoječe guarded obljube so sedaj sintaktičen sladkor za obljubo ki zapakira izračun iz abstrakcije v if statement.
+\begin{definicija}
+
+	promise (op x k when x >= 0 -> send op x; k())
+	as \_ in ()
+	
+	-->
+	
+	promise (op x k -> if x > = then send op x; k() else k())
+	as \_ in ()
+\end{definicija}
+
 
 \subsection{Spawn}
+
+\subsection{Mobile}
 
 \section{Type system}
 
