@@ -77,9 +77,11 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 
 % DRUGI TVOJI PAKETI:
 % tukaj
+% \usepackage{lstlisting}
+
 % todo notes to comment the code when working in a group
 \usepackage{todonotes}
-\newcommand\mp[1]{\todo[inline,color=cyan]{#1 -MP}}	% comments by matija
+\newcommand\mP[1]{\todo[inline,color=cyan]{#1 -MP}}	% comments by matija
 \newcommand\jr[1]{\todo[inline,color=orange]{#1 -JR}} % comments by janez
 
 %
@@ -207,8 +209,9 @@ okolje itemize in ukaz plancite, saj je celotna literatura oštevilčena na konc
 \textbf{\naslovdela} \\[3mm]
 \textsc{Povzetek} \\[2mm]
 \end{center}
-Tukaj napišemo povzetek vsebine. Sem sodi razlaga vsebine in ne opis tega, kako je delo
-organizirano.
+%Tukaj napišemo povzetek vsebine. Sem sodi razlaga vsebine in ne opis tega, kako je delo
+%organizirano.
+
 
 
 
@@ -233,12 +236,24 @@ the content and not the structure of your work.
 \pagenumbering{arabic}  % in z arabskimi številkami
 
 \section{Uvod}
-Napišite kratek zgodovinski in matematični uvod.  Pojasnite motivacijo za problem, kje
-nastopa, kje vse je bil obravnavan. Na koncu opišite tudi organizacijo dela -- kaj je v
-katerem razdelku.
+%Napišite kratek zgodovinski in matematični uvod.  Pojasnite motivacijo za problem, kje
+%nastopa, kje vse je bil obravnavan. Na koncu opišite tudi organizacijo dela -- kaj je v
+%katerem razdelku.
+
+Vse pogosteje je zaželeno asinhrono izvajanje programa. 
+Nekateri programski jeziki, predvsem starejše verzije, nimajo direktno podpore za asinhrono izvajanje. 
+Veliko modernih jezikov, če ne drugega omogočajo tako imenovan POSIX. POSIX je API, ki na operacijskih sistemih, ki ga podpirajo, omogoča uporabo niti~\cite{posix}.
+Drugi programski jeziki kot so C++, Java... imajo kot del standardne knjižnice konstrukte, ki jim omogočajo paralelno izvajanje programa. Čeprav v ozadju običajno uporabljajo POSIX, so detajli skriti in zato bolj naravni za programerja. 
+Nekateri programski jeziki omogočajo asinhono izvajanje, vendar vsaj direktno ne omogočajo hkratnega izvajanja.
+Naprimer CPython ima tako imenovan GIL (global  interpreter lock)~\cite{gil}, ki preprečuje interpreterju, da bi izvajal več kot eno nit na enkrat.
+Le redki programski jeziki, recimo Go, pa so bili zasnovani z asinhronim programiranjem v mislih in imajo zato konstrukte potrebne za paralelno izvajanje vgrajene v jezik.
+
+Aeff~\cite{aeff} je ... 
 
 
 \section{Aeff prej}
+
+Aeff je programski jezik, ki 
 
 \section{Nove funkcionalnosti}
 
@@ -248,15 +263,18 @@ katerem razdelku.
 \jr{Kaj na splošno z tujkami/angleškimi besedami?
 Slovar ??
 promise = obljuba
-guarded promise = ?
+guarded promise = 
 abstraction = abstrakcija
 spawn = razplot?
 interpreter = interpreter
 type sistem = sistem tipov
 computation = izračun
 unit = enota
-Syntactic sugar = sintaktičen sladkor?
-if computation/statement = ?
+Syntactic sugar = sintaktičen sladkor
+if computation/statement = če izračun
+parallel = vzporedno/asinhrono (Izvajamo več thredov, lahko tudi samo ne enem jedru, ampak bistveno je da vsi thredu napredujejo v nekem smislu "enakomerno")
+concurent = hkratno (dejansko izvajamo istočasno na dveh ali več jedrih)
+thread = nit
 }
 
 Kadar pričakujemo več signalov z isto operacijo je lahko iz različnih razlogov za programerja priročno, če ima na voljo promise, ki se po potrebi ponovno namesti. Lahko da je namen promisa, da na vsakega sproži določene učinke. Lahko nam prihajajoči signal prinese pravo operacijo, vendar ne prave pripadajoče vrednosti zato promisa še nočemo izpolniti, in čakamo na naslednjega.
@@ -274,13 +292,13 @@ To funkcionalnost smo do sedaj dosegli tako, da smo promise zapakirali v rekurzi
 Sedaj lahko obljubi dodamo ime lambda funkcije, ki sprejme enoto in ima v abstrakciji za izračun svežo kopijo obljube. To funkcijo lahko uporabimo znotraj pripadajoče obljube.
 
 \begin{definicija}
-	promise (op x k ↦→ M) as p in N
+	promise (op x k -> M) as p in N
 \end{definicija}
 
-\begin{primer}
+\begin{lstlisting}
 	promise (op x k -> send op x; k())
 	as \_ in ()
-\end{primer}
+\end{lstlisting}
 
 Že obstoječe guarded obljube so sedaj sintaktičen sladkor za obljubo ki zapakira izračun iz abstrakcije v if statement.
 \begin{definicija}
