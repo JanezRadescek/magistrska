@@ -11,3 +11,6 @@
 *.idx
 *.pdf
 magisterij.pyg
+*.pygtex
+*.pygstyle
+*.pygstyle

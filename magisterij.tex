@@ -66,7 +66,7 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 % \usepackage{enumerate}     % več možnosti za sezname
 
 % Za barvanje source kode
-% \usepackage{minted}
+\usepackage{minted}
 % \renewcommand\listingscaption{Program}
 
 % Za pisanje psevdokode
@@ -77,7 +77,7 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 
 % DRUGI TVOJI PAKETI:
 % tukaj
-% \usepackage{lstlisting}
+\usepackage{listings}
 
 % todo notes to comment the code when working in a group
 \usepackage{todonotes}
@@ -108,7 +108,7 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 \newcommand{\R}{\mathbb R}
 \newcommand{\N}{\mathbb N}
 \newcommand{\Z}{\mathbb Z}
-\renewcommand{\C}{\mathbb C}
+\newcommand{\C}{\mathbb C}
 \newcommand{\Q}{\mathbb Q}
 
 % \DeclareMathOperator{\tr}{tr}  % morda potrebuješ operator za sled ali kaj drugega?
@@ -283,11 +283,13 @@ Kadar pričakujemo več signalov z isto operacijo je lahko iz različnih razlogo
 
 To funkcionalnost smo do sedaj dosegli tako, da smo promise zapakirali v rekurzivno funkcijo.
 
-\begin{primer}
-	let rec f =
-		promise (op x -> send op x; f(); return <<()>>) %lahko promise vrača unit? Mogoče kot sugar?
-		as \_ in ()
-\end{primer}
+
+
+\begin{minted}{ocaml}
+let rec f =
+	promise (op x -> send op x; f(); return <<()>>) 
+	as _ in ()
+\end{minted}
 
 Sedaj lahko obljubi dodamo ime lambda funkcije, ki sprejme enoto in ima v abstrakciji za izračun svežo kopijo obljube. To funkcijo lahko uporabimo znotraj pripadajoče obljube.
 
@@ -295,10 +297,10 @@ Sedaj lahko obljubi dodamo ime lambda funkcije, ki sprejme enoto in ima v abstra
 	promise (op x k -> M) as p in N
 \end{definicija}
 
-\begin{lstlisting}
+\begin{primer}
 	promise (op x k -> send op x; k())
 	as \_ in ()
-\end{lstlisting}
+\end{primer}
 
 Že obstoječe guarded obljube so sedaj sintaktičen sladkor za obljubo ki zapakira izračun iz abstrakcije v if statement.
 \begin{definicija}
