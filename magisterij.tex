@@ -67,7 +67,7 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 
 % Za barvanje source kode
 \usepackage{minted}
- \renewcommand\listingscaption{Program}
+\renewcommand\listingscaption{Program}
 
 % Za pisanje psevdokode
 % \usepackage{algpseudocode}  % za psevdokodo
@@ -79,10 +79,15 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 % tukaj
 \usepackage{listings}
 
+%\usepackage[dvipsnames]{xcolor}
+
+\definecolor{jcyan}{cmyk}{1, 0, 0.15, 0.05}
+\definecolor{jyellow}{cmyk}{0.8, 0, 0.4, 0}
 % todo notes to comment the code when working in a group
 \usepackage{todonotes}
-\newcommand\mP[1]{\todo[inline,color=cyan]{#1 -MP}}	% comments by matija
-\newcommand\jr[1]{\todo[inline,color=orange]{#1 -JR}} % comments by janez
+\newcommand\dic[1]{\todo[inline,color=yellow]{#1}}	% slovar
+\newcommand\mP[1]{\todo[inline,color=red]{#1 -MP}}	% comments by matija
+\newcommand\jR[1]{\todo[inline,color=jcyan]{#1 -JR}} % comments by janez
 
 %
 
@@ -110,6 +115,9 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 \newcommand{\Z}{\mathbb Z}
 \newcommand{\C}{\mathbb C}
 \newcommand{\Q}{\mathbb Q}
+
+\newcommand{\lae}{$\lambda_{\text{\ae}}$} % the name of the calculus
+\newcommand{\aeff}{Æff} % the name of the language
 
 % \DeclareMathOperator{\tr}{tr}  % morda potrebuješ operator za sled ali kaj drugega?
 
@@ -235,6 +243,32 @@ the content and not the structure of your work.
 \setcounter{page}{1}    % od sedaj naprej začni zopet z 1
 \pagenumbering{arabic}  % in z arabskimi številkami
 
+
+%Slovar
+%promise = obljuba
+%guarded promise = varovana obljuba
+%abstraction = abstrakcija
+%spawn = razplot? meni je lepše razcep ? 
+%interpreter = interpreter
+%type sistem = sistem tipov
+%computation = izračun
+%calculus = račun
+%unit = enota
+%Syntactic sugar = sintaktičen sladkor
+%if computation/statement = če izračun
+%parallel = vzporedno/asinhrono (Izvajamo več thredov, lahko tudi samo ne enem jedru, ampak bistveno je da vsi thredu napredujejo v nekem smislu "enakomerno". Logika program je razdeljena v več bolj ali manj neodvisnih enot threadov/procesov.)
+%concurent = hkratno (dejansko izvajamo istočasno na dveh ali več jedrih), ravno obratno tu sam program morda ni napisan v večih threadih. Toda morda compiler prepozna da sta dva načeloma zaporedna izračuna neodvisna in pretvori izvorno kodo v nekaj kar zna hkrati pognati na večih jedrih.
+%thread = nit
+%payload = tovor
+%mobile = mobilen
+%box/boxed = okvir/okvirjen     /škatla/paket ?
+%recursion = rekurzija
+%bidirectional = izmenjujočim /      dvostranski se lepše sliši?
+\jR{So zakomentirani prevodi vredu?}
+
+
+
+
 \section{Uvod}
 %Napišite kratek zgodovinski in matematični uvod.  Pojasnite motivacijo za problem, kje
 %nastopa, kje vse je bil obravnavan. Na koncu opišite tudi organizacijo dela -- kaj je v
@@ -243,47 +277,36 @@ the content and not the structure of your work.
 Vse pogosteje je zaželeno asinhrono izvajanje programa. 
 Nekateri programski jeziki, predvsem starejše verzije, nimajo direktno podpore za asinhrono izvajanje. 
 Veliko modernih jezikov, če ne drugega omogočajo tako imenovan POSIX. POSIX je API, ki na operacijskih sistemih, ki ga podpirajo, omogoča uporabo niti~\cite{posix}.
-Drugi programski jeziki kot so C++, Java... imajo kot del standardne knjižnice konstrukte, ki jim omogočajo paralelno izvajanje programa. Čeprav v ozadju običajno uporabljajo POSIX, so detajli skriti in zato bolj naravni za programerja. 
+Drugi programski jeziki kot so C++, Java... imajo kot del standardne knjižnice konstrukte, ki jim omogočajo paralelno izvajanje programa. Čeprav v ozadju mnogi uporabljajo POSIX, so detajli skriti in zato bolj naravni za programerja. 
 Nekateri programski jeziki omogočajo asinhono izvajanje, vendar vsaj direktno ne omogočajo hkratnega izvajanja.
-Naprimer CPython ima tako imenovan GIL (global  interpreter lock)~\cite{gil}, ki preprečuje interpreterju, da bi izvajal več kot eno nit na enkrat.
+Na primer CPython ima tako imenovan GIL (global  interpreter lock)~\cite{gil}, ki preprečuje interpreterju, da bi izvajal več kot eno nit na enkrat.
 Le redki programski jeziki, recimo Go, pa so bili zasnovani z asinhronim programiranjem v mislih in imajo zato konstrukte potrebne za paralelno izvajanje vgrajene v jezik.
 
-Aeff~\cite{aeff} je ... 
+Eden izmed njih je tudi jezik \aeff, ki sloni na računu imenovanem \lae~\cite{aeff}. Čepravi ma veliko lepih lastnostih pa še vedno potrebuje določene popravke in implementacije.
+
+Najprej si bomo v poglavju številka \ref{sec:lae} \jR{Tole se mi ne sliši prav. drugem poglavju. Ampak nimam pojma kako to narediti avtomatično z vsemi spoli skloni itd. ročno delat je pa tudi ...} pogledali že obstoječ račun \lae. V poglavju \ref{sec:nove-strukture} ga bomo razširili z rekurzivno obljubo, razcepom in \jR{Okvir??}. V poglavju \ref{sec:tipi} bomo naprej zamenjali obstoječ Hindley–Milnerjev sistem tipov z dvostranskim sistemom tipov. Nato pa ga bomo dopolnili z mobilnimi tipi. V poglavju \ref{sec:interpreter} bomo optimizirali interpreter z namenom zmanjšanja števila korakov. 
 
 
-\section{Aeff prej}
 
-Aeff je programski jezik, ki 
+\section{Račun $\lambda$\textsubscript{æ}}\label{sec:lae}
 
-\section{Nove funkcionalnosti}
+Račun \lae\ je ...
+
+\section{Nove funkcionalnosti}\label{sec:nove-strukture}
 
 \subsection{Rekurziven promise}
 
-\jr{prevod promise? Kadar je promise koncept je smiselno prevesti, kadar se nanašamo na konstrukt v aeff je pa to njegovo ime in zato ne prevedemo? }
-\jr{Kaj na splošno z tujkami/angleškimi besedami?
-	Slovar ??
-	promise = obljuba
-	guarded promise = 
-	abstraction = abstrakcija
-	spawn = razplot?
-	interpreter = interpreter
-	type sistem = sistem tipov
-	computation = izračun
-	unit = enota
-	Syntactic sugar = sintaktičen sladkor
-	if computation/statement = če izračun
-	parallel = vzporedno/asinhrono (Izvajamo več thredov, lahko tudi samo ne enem jedru, ampak bistveno je da vsi thredu napredujejo v nekem smislu "enakomerno")
-	concurent = hkratno (dejansko izvajamo istočasno na dveh ali več jedrih)
-	thread = nit
-	payload = tovor
-}
+\jR{prevod promise? Kadar je promise koncept je smiselno prevesti, kadar se nanašamo na konstrukt v aeff je pa to njegovo ime in zato ne prevedemo? }
+
+\mP{Tole še ni za oddati.}
 
 Kadar pričakujemo več signalov z isto operacijo je lahko iz različnih razlogov za programerja priročno, če ima na voljo obljubo, ki se po potrebi ponovno namesti. Lahko da je namen obljube, da na vsak signal sproži določene učinke. Lahko nam prihajajoči signal prinese pravo operacijo, vendar ne pravega pripadajočega tovora zato obljube še nočemo izpolniti, in čakamo na naslednjega.
 
-To funkcionalnost smo do sedaj dosegli tako, da smo obljubo zapakirali v rekurzivno funkcijo in po potrebi znotraj obljube ponovno klicali to funkcijo.
+To funkcionalnost smo do sedaj dosegli tako, da smo obljubo zapakirali v rekurzivno funkcijo in po potrebi znotraj obljube ponovno klicali to funkcij kot lahko vidimo v programu~\ref{prog:obljuba-v-rekurzivni-funkciji}.
 
 
 \begin{listing}[h]
+	\label{prog:obljuba-v-rekurzivni-funkciji}
 	\begin{minted}{ocaml}
 	let rec f =
 	promise (op x -> send op x; f(); return <<()>>) 
@@ -294,16 +317,23 @@ To funkcionalnost smo do sedaj dosegli tako, da smo obljubo zapakirali v rekurzi
 \end{listing}
 
 
+
 Sedaj lahko obljubi dodamo ime lambda funkcije, ki sprejme enoto in ima v abstrakciji za izračun svežo kopijo obljube. To funkcijo lahko uporabimo znotraj pripadajoče obljube.
 
 \begin{definicija}
 	promise (op x k -> M) as p in N
 \end{definicija}
 
-\begin{primer}
+
+\begin{listing}[h]
+	\label{prog:obljuba-v-rekurzivni-funkciji}
+	\begin{minted}{ocaml}
 	promise (op x k -> send op x; k())
-	as \_ in ()
-\end{primer}
+	as _ in ()
+	
+	\end{minted}
+	\caption{Ta program ima isti semantičen pomen kot~\ref{prog:obljuba-v-rekurzivni-funkciji} le da je tokrat napisan z rekurzivno obljubo. }
+\end{listing}
 
 Že obstoječe guarded obljube so sedaj sintaktičen sladkor za obljubo ki zapakira izračun iz abstrakcije v if statement.
 \begin{definicija}
@@ -322,9 +352,60 @@ Sedaj lahko obljubi dodamo ime lambda funkcije, ki sprejme enoto in ima v abstra
 
 \subsection{Mobile}
 
-\section{Type system}
+\section{Sistem tipov}\label{sec:tipi}
 
-\section{Interpreter}
+\section{Interpreter}\label{sec:interpreter}
+
+\jR{Na pdfju je tale stran zamaknjena v levo v primerjavi z prejšnjo in naslednjo. Zakaj? A je to nameno raradi tiska?}
+a
+
+b
+
+c
+
+č
+
+d
+
+e
+
+f
+
+g
+
+h
+
+i
+
+j
+
+k
+
+l
+
+m
+
+n
+
+o
+
+p
+
+r
+
+s
+
+š
+
+t
+
+u
+
+v
+
+z
+
+ž
 
 %\section{Integrali po \texorpdfstring{$\omega$}{ω}-kompleksih}
 %\subsection{Definicija}
