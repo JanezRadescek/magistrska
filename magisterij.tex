@@ -77,6 +77,14 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 
 % DRUGI TVOJI PAKETI:
 % tukaj
+
+
+
+\input{macros.tex}
+
+
+
+
 \usepackage{listings}
 
 %\usepackage[dvipsnames]{xcolor}
@@ -267,8 +275,11 @@ TODO
 %recursion = rekurzija
 %bidirectional = dvostranski?
 %small step semantics = op. sem. malih korakov
+%signal = signal
+%interrupt = prekinitev
+%handler = prestreznik
 
-\jR{So zakomentirani prevodi vredu?}
+\jR{So za komentirani prevodi v redu?}
 
 
 
@@ -286,15 +297,57 @@ Nekateri programski jeziki omogočajo asinhono izvajanje, vendar vsaj direktno n
 Na primer CPython ima tako imenovan GIL (global  interpreter lock)~\cite{gil}, ki preprečuje interpreterju, da bi izvajal več kot eno nit na enkrat.
 Le redki programski jeziki, recimo Go, pa so bili zasnovani z asinhronim programiranjem v mislih in imajo zato konstrukte potrebne za paralelno izvajanje vgrajene v jezik.
 
-Eden izmed njih je jezik \aeff, ki sloni na računu imenovanem \lae~\cite{aeff}. \aeff je interpretiran funkcijski jezik. Glavni namen \lae je pokazati, da je v ozadju asinhronih programskih jezikov lepa teorija.
+Eden izmed njih je jezik \aeff, ki sloni na računu imenovanem \lae~\cite{aeff}. \aeff je ne deterministični asinhron interpretiran funkcijski jezik. Glavni namen \lae je pokazati, da je v ozadju asinhronih programskih jezikov lepa teorija. V osnovni \jR{Na kateri verziji sem začel delati??} verziji \aeff omogoča asinhrono izvajanje izračunov, ki lahko po potrebi komunicirajo med sabo s pošiljanjem signalov. 
 
 Najprej si bomo v poglavju številka \ref{sec:lae} \jR{Tole se mi ne sliši prav. drugem poglavju. Ampak nimam pojma kako to narediti avtomatično z vsemi spoli skloni itd. ročno delat je pa tudi ...} pogledali že obstoječ račun \lae. V poglavju \ref{sec:nove-strukture} ga bomo razširili z rekurzivno obljubo, razcepom in \jR{Okvir??}. V poglavju \ref{sec:tipi} bomo naprej zamenjali obstoječ Hindley–Milnerjev sistem tipov z dvostranskim sistemom tipov. Nato pa ga bomo dopolnili z mobilnimi tipi. V poglavju \ref{sec:interpreter} bomo optimizirali interpreter z namenom zmanjšanja števila korakov. 
 
 
-
 \section{Račun $\lambda$\textsubscript{æ}}\label{sec:lae}
 
+
 \subsection{Vrednosti in izračuni}
+
+Izraze v \lae razdelimo na vrednosti in izračune. Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti}.
+
+\begin{figure}[tp]
+	\parbox{\textwidth}{
+		\centering
+		\small
+		\begin{align*}
+		\intertext{\textbf{Vrednosti}}
+		V, W
+		\bnfis& x                                       & &\text{spremenljivka} \\
+		\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          & &\text{enota in par} \\
+		\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      & &\text{leva in desna inkluzija} \\
+		\bnfor& \tmfun{x : X}{M}                        & &\text{funkcija} \\
+		\bnfor& \tmpromise V                            & &\text{izpolnjena obljuba}
+		\\[1ex]
+		\intertext{\textbf{Izračuni}}
+		M, N
+		\bnfis& \tmreturn{V}                            & &\text{vrnjena vrednost} \\
+		\bnfor& \tmlet{x}{M}{N}                         & &\text{zaporedje} \\
+		\bnfor& \tmletrec[: \tyfun{X}{\tycomp{Y}{(\o,\i)}}]{f}{x}{M}{N} & &\text{rekurzivna definicija} \\
+		\bnfor& V\,W                                    & &\text{aplikacija} \\
+		\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    & &\text{izločitev produkta} \\
+		\bnfor& \tmmatch[\tycomp{Z}{(\o,\i)}]{V}{}                        & &\text{je to sploh dovoljeno?} \\
+		\bnfor& \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}	& &\text{izločitev vsote} \\
+		\bnfor& \tmopout{op}{V}{M}       & &\text{signal} \\
+		\bnfor& \tmopin{op}{V}{M}          & &\text{prekinitev} \\
+		\bnfor& \tmwith{op}{x}{M}{p}{N}      & &\text{obljuba} \\
+		\bnfor& \tmawait{V}{x}{M}             & &\text{prestreznik prekinitve}
+		\end{align*}
+	} 
+	\caption{Vrednosti in izračuni.}
+	\label{fig:vrednosti}
+\end{figure}
+
+Vrednosti so sledeče.
+\begin{itemize}
+	\item spremenljivka ...
+\end{itemize}
+
+
+
 
 \subsection{Operacijska semantika}
 
@@ -302,7 +355,7 @@ Račun \lae\ je ...
 
 \section{Nove strukture}\label{sec:nove-strukture}
 
-\subsection{Rekurziven promise}
+\subsection{Rekurzivna obljuba}
 
 \jR{Kadar je promise koncept je smiselno prevesti, kadar se nanašamo na konstrukt v aeff je pa to njegovo ime in zato ne prevedemo? }
 
@@ -343,7 +396,7 @@ Sedaj lahko obljubi dodamo ime lambda funkcije, ki sprejme enoto in ima v abstra
 	\caption{Ta program ima isti semantičen pomen kot~\ref{prog:obljuba-v-rekurzivni-funkciji} le da je tokrat napisan z rekurzivno obljubo. }
 \end{listing}
 
-Že obstoječe guarded obljube so sedaj sintaktičen sladkor za obljubo ki zapakira izračun iz abstrakcije v if statement.
+Že obstoječe varovane obljube so sedaj sintaktičen sladkor za obljubo, ki zapakira izračun iz abstrakcije v če izračun.
 \begin{definicija}
 
 	promise (op x k when x >= 0 -> send op x; k())

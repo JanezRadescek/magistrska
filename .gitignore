@@ -1,5 +1,4 @@
 *.xmpi
-*.tex
 *.xmpdata
 *.toc
 *.synctex.gz
@@ -17,3 +16,4 @@ magisterij.pyg
 *.fls
 *.fdb_latexmk
 magisterij.ilg
+__latexindent_temp.tex
