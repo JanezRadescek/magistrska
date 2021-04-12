@@ -219,7 +219,7 @@ okolje itemize in ukaz plancite, saj je celotna literatura oštevilčena na konc
 \end{center}
 %Tukaj napišemo povzetek vsebine. Sem sodi razlaga vsebine in ne opis tega, kako je delo
 %organizirano.
-
+V delu si pogledamo programski jezik \aeff\ in račun \lae\ na katerem temelji. Račun \lae razširimo z rekurzivno obljubo, razcepom in \jR{Box/Unbox}. \jR{Ground} tipe nadomestimo z mobilnimi tipi, ki nam omogočajo pošiljanje tipov za katere prej nebi zmogli pokazati da so varni. Obstoječi sistem tipov nadomestimo z dvostranskim sistemom, ki predvsem izboljša sporočila v primeru napak. Dokažemo izreka o napredku in ohranitvi za razširjen \lae. Ne deterministično operacijsko semantiko malih korakov nadomestimo z deterministično big.SMALL semantiko in pokažemo, da je prejšnji v nekem smislu ekvivalentna.
 
 
 
@@ -229,8 +229,9 @@ okolje itemize in ukaz plancite, saj je celotna literatura oštevilčena na konc
 \textsc{Abstract}\\[2mm]
 \end{center}
 
-An abstract of the work is written here. This includes a short description of
-the content and not the structure of your work.
+%An abstract of the work is written here. This includes a short description of
+%the content and not the structure of your work.
+TODO
 
 \vfill\noindent
 \textbf{Math.~Subj.~Class.~(2010):} oznake kot 74B05, 65N99, na voljo so na naslovu
@@ -260,10 +261,13 @@ the content and not the structure of your work.
 %concurent = hkratno (dejansko izvajamo istočasno na dveh ali več jedrih), ravno obratno tu sam program morda ni napisan v večih threadih. Toda morda compiler prepozna da sta dva načeloma zaporedna izračuna neodvisna in pretvori izvorno kodo v nekaj kar zna hkrati pognati na večih jedrih.
 %thread = nit
 %payload = tovor
+%Ground type = prizemljen/osnovni?
 %mobile = mobilen
 %box/boxed = okvir/okvirjen     /škatla/paket ?
 %recursion = rekurzija
-%bidirectional = izmenjujočim /      dvostranski se lepše sliši?
+%bidirectional = dvostranski?
+%small step semantics = op. sem. malih korakov
+
 \jR{So zakomentirani prevodi vredu?}
 
 
@@ -282,7 +286,7 @@ Nekateri programski jeziki omogočajo asinhono izvajanje, vendar vsaj direktno n
 Na primer CPython ima tako imenovan GIL (global  interpreter lock)~\cite{gil}, ki preprečuje interpreterju, da bi izvajal več kot eno nit na enkrat.
 Le redki programski jeziki, recimo Go, pa so bili zasnovani z asinhronim programiranjem v mislih in imajo zato konstrukte potrebne za paralelno izvajanje vgrajene v jezik.
 
-Eden izmed njih je tudi jezik \aeff, ki sloni na računu imenovanem \lae~\cite{aeff}. Čepravi ma veliko lepih lastnostih pa še vedno potrebuje določene popravke in implementacije.
+Eden izmed njih je jezik \aeff, ki sloni na računu imenovanem \lae~\cite{aeff}. \aeff je interpretiran funkcijski jezik. Glavni namen \lae je pokazati, da je v ozadju asinhronih programskih jezikov lepa teorija.
 
 Najprej si bomo v poglavju številka \ref{sec:lae} \jR{Tole se mi ne sliši prav. drugem poglavju. Ampak nimam pojma kako to narediti avtomatično z vsemi spoli skloni itd. ročno delat je pa tudi ...} pogledali že obstoječ račun \lae. V poglavju \ref{sec:nove-strukture} ga bomo razširili z rekurzivno obljubo, razcepom in \jR{Okvir??}. V poglavju \ref{sec:tipi} bomo naprej zamenjali obstoječ Hindley–Milnerjev sistem tipov z dvostranskim sistemom tipov. Nato pa ga bomo dopolnili z mobilnimi tipi. V poglavju \ref{sec:interpreter} bomo optimizirali interpreter z namenom zmanjšanja števila korakov. 
 
@@ -290,13 +294,17 @@ Najprej si bomo v poglavju številka \ref{sec:lae} \jR{Tole se mi ne sliši prav
 
 \section{Račun $\lambda$\textsubscript{æ}}\label{sec:lae}
 
+\subsection{Vrednosti in izračuni}
+
+\subsection{Operacijska semantika}
+
 Račun \lae\ je ...
 
-\section{Nove funkcionalnosti}\label{sec:nove-strukture}
+\section{Nove strukture}\label{sec:nove-strukture}
 
 \subsection{Rekurziven promise}
 
-\jR{prevod promise? Kadar je promise koncept je smiselno prevesti, kadar se nanašamo na konstrukt v aeff je pa to njegovo ime in zato ne prevedemo? }
+\jR{Kadar je promise koncept je smiselno prevesti, kadar se nanašamo na konstrukt v aeff je pa to njegovo ime in zato ne prevedemo? }
 
 \mP{Tole še ni za oddati.}
 
@@ -350,13 +358,29 @@ Sedaj lahko obljubi dodamo ime lambda funkcije, ki sprejme enoto in ima v abstra
 
 \subsection{Spawn}
 
+\jR{Na pdfju je tale stran zamaknjena v levo v primerjavi z prejšnjo in naslednjo. Zakaj? A je to nameno raradi tiska?}
+
 \subsection{Mobile}
 
 \section{Sistem tipov}\label{sec:tipi}
 
+\subsection{HM}
+
+\subsection{Bidirectional}
+
+\
+
 \section{Interpreter}\label{sec:interpreter}
 
-\jR{Na pdfju je tale stran zamaknjena v levo v primerjavi z prejšnjo in naslednjo. Zakaj? A je to nameno raradi tiska?}
+\subsection{operacijska semantika prej}
+
+\subsection{izboljšave}
+
+Pokazat da, če naredimo korak v nek izračun, obstaja zaporedje korakov v prejšnji, ki vodijo v isti izračun.
+
+Pokazati da potrebujemo "manj korakov" 
+
+
 a
 
 b
