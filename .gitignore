@@ -8,7 +8,7 @@
 *.aux
 *.bbl
 *.idx
-*.pdf
+magisterij.pdf
 magisterij.pyg
 *.pygtex
 *.pygstyle
@@ -17,3 +17,5 @@ magisterij.pyg
 *.fdb_latexmk
 magisterij.ilg
 __latexindent_temp.tex
+
+#excluded files/folders

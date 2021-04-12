@@ -127,7 +127,7 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 \newcommand{\lae}{$\lambda_{\text{\ae}}$} % the name of the calculus
 \newcommand{\aeff}{Æff} % the name of the language
 
-% \DeclareMathOperator{\tr}{tr}  % morda potrebuješ operator za sled ali kaj drugega?
+% \DeclareMathOperator{\tr}{tr}  % morda potrebuješ operator za sled ali kaj drugega??
 
 % bold matematika znotraj \textbf{ }, tudi v naslovih, kot \omega spodaj
 \makeatletter \g@addto@macro\bfseries{\boldmath} \makeatother
@@ -257,7 +257,7 @@ TODO
 %promise = obljuba
 %guarded promise = varovana obljuba
 %abstraction = abstrakcija
-%spawn = razplot? meni je lepše razcep ? 
+%spawn = razplot?? meni je lepše razcep ??
 %interpreter = interpreter
 %type sistem = sistem tipov
 %computation = izračun
@@ -269,17 +269,19 @@ TODO
 %concurent = hkratno (dejansko izvajamo istočasno na dveh ali več jedrih), ravno obratno tu sam program morda ni napisan v večih threadih. Toda morda compiler prepozna da sta dva načeloma zaporedna izračuna neodvisna in pretvori izvorno kodo v nekaj kar zna hkrati pognati na večih jedrih.
 %thread = nit
 %payload = tovor
-%Ground type = prizemljen/osnovni?
+%Ground type = prizemljen/osnovni??
 %mobile = mobilen
-%box/boxed = okvir/okvirjen     /škatla/paket ?
+%box/boxed = okvir/okvirjen     /škatla/paket ??
 %recursion = rekurzija
-%bidirectional = dvostranski?
+%bidirectional = dvostranski??
 %small step semantics = op. sem. malih korakov
 %signal = signal
 %interrupt = prekinitev
 %handler = prestreznik
+%pattern matching = ??
+%substitution = zamenjava ??
 
-\jR{So za komentirani prevodi v redu?}
+\jR{So za komentirani prevodi v redu??}
 
 
 
@@ -307,9 +309,34 @@ Najprej si bomo v poglavju številka \ref{sec:lae} \jR{Tole se mi ne sliši prav
 
 \subsection{Vrednosti in izračuni}
 
-Izraze v \lae razdelimo na vrednosti in izračune. Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti}.
+Izraze v \lae razdelimo na vrednosti in izračune. 
 
-\begin{figure}[tp]
+Vrednosti so sledeče.
+\begin{itemize}
+	\item Spremenljivka. Simbolično ime, ki bo zamenjano z vrednostjo med izvajanjem.
+	\item konstante??
+	\item anotated??
+	\item Vsota predstavlja poenostavljen Variant??
+	\item funkcija ali lambda??
+	\item zakaj imamo v članku rekurzivno funkcijo med izračuni ??
+	\
+\end{itemize}
+
+Izračuni so sledeči.
+\begin{itemize}
+	\item return
+	\item zaporedje
+	\item aplikacija
+	\item match ni prvi match samo "razpakiranje vrednosti", drugi neveljaven in tretji edini "pravi" match??
+	\item odhajajoči signal
+	\item prihajajoči signal       zakaj je to v članku interrupt?? 
+	\item prestreznik
+	\item blokada
+\end{itemize}
+
+Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti}.
+
+\begin{figure}[hp]
 	\parbox{\textwidth}{
 		\centering
 		\small
@@ -329,22 +356,17 @@ Izraze v \lae razdelimo na vrednosti in izračune. Pripadajočo sintakso vidimo 
 		\bnfor& \tmletrec[: \tyfun{X}{\tycomp{Y}{(\o,\i)}}]{f}{x}{M}{N} & &\text{rekurzivna definicija} \\
 		\bnfor& V\,W                                    & &\text{aplikacija} \\
 		\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    & &\text{izločitev produkta} \\
-		\bnfor& \tmmatch[\tycomp{Z}{(\o,\i)}]{V}{}                        & &\text{je to sploh dovoljeno?} \\
+		\bnfor& \tmmatch[\tycomp{Z}{(\o,\i)}]{V}{}                        & &\text{je to sploh dovoljeno??} \\
 		\bnfor& \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}	& &\text{izločitev vsote} \\
-		\bnfor& \tmopout{op}{V}{M}       & &\text{signal} \\
-		\bnfor& \tmopin{op}{V}{M}          & &\text{prekinitev} \\
-		\bnfor& \tmwith{op}{x}{M}{p}{N}      & &\text{obljuba} \\
-		\bnfor& \tmawait{V}{x}{M}             & &\text{prestreznik prekinitve}
+		\bnfor& \tmopout{op}{V}{M}       & &\text{odhajajoči signal} \\
+		\bnfor& \tmopin{op}{V}{M}          & &\text{prihajajoči signal } \\
+		\bnfor& \tmwith{op}{x}{M}{p}{N}      & &\text{prestreznik} \\
+		\bnfor& \tmawait{V}{x}{M}             & &\text{blokada}
 		\end{align*}
 	} 
 	\caption{Vrednosti in izračuni.}
 	\label{fig:vrednosti}
 \end{figure}
-
-Vrednosti so sledeče.
-\begin{itemize}
-	\item spremenljivka ...
-\end{itemize}
 
 
 
@@ -357,7 +379,7 @@ Račun \lae\ je ...
 
 \subsection{Rekurzivna obljuba}
 
-\jR{Kadar je promise koncept je smiselno prevesti, kadar se nanašamo na konstrukt v aeff je pa to njegovo ime in zato ne prevedemo? }
+\jR{Kadar je promise koncept je smiselno prevesti, kadar se nanašamo na konstrukt v aeff je pa to njegovo ime in zato ne prevedemo?? }
 
 \mP{Tole še ni za oddati.}
 
@@ -411,7 +433,7 @@ Sedaj lahko obljubi dodamo ime lambda funkcije, ki sprejme enoto in ima v abstra
 
 \subsection{Spawn}
 
-\jR{Na pdfju je tale stran zamaknjena v levo v primerjavi z prejšnjo in naslednjo. Zakaj? A je to nameno raradi tiska?}
+\jR{Na pdfju je tale stran zamaknjena v levo v primerjavi z prejšnjo in naslednjo. Zakaj? A je to nameno raradi tiska??}
 
 \subsection{Mobile}
 
