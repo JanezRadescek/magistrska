@@ -227,7 +227,7 @@ okolje itemize in ukaz plancite, saj je celotna literatura oštevilčena na konc
 \end{center}
 %Tukaj napišemo povzetek vsebine. Sem sodi razlaga vsebine in ne opis tega, kako je delo
 %organizirano.
-V delu si pogledamo programski jezik \aeff\ in račun \lae\ na katerem temelji. Račun \lae razširimo z rekurzivno obljubo, razcepom in \jR{Box/Unbox}. \jR{Ground} tipe nadomestimo z mobilnimi tipi, ki nam omogočajo pošiljanje tipov za katere prej nebi zmogli pokazati da so varni. Obstoječi sistem tipov nadomestimo z dvostranskim sistemom, ki predvsem izboljša sporočila v primeru napak. Dokažemo izreka o napredku in ohranitvi za razširjen \lae. Ne deterministično operacijsko semantiko malih korakov nadomestimo z deterministično big.SMALL semantiko in pokažemo, da je prejšnji v nekem smislu ekvivalentna.
+V delu si pogledamo programski jezik \aeff\ in račun \lae\ na katerem temelji. Račun \lae razširimo z rekurzivno obljubo, razcepom in \jR{Box/Unbox}. \jR{Ground} tipe nadomestimo z mobilnimi tipi, ki nam omogočajo pošiljanje tipov za katere prej nebi zmogli pokazati da so varni. Obstoječi sistem tipov nadomestimo z dvostranskim sistemom, ki predvsem izboljša sporočila v primeru napak. Dokažemo izreka o napredku in ohranitvi za razširjen \lae. Ne deterministično operacijsko semantiko malih korakov nadomestimo z deterministično \jR{big.SMALL kak} semantiko in pokažemo, da je prejšnji v nekem smislu ekvivalentna.
 
 
 
@@ -275,16 +275,17 @@ TODO
 %recursion = rekurzija
 %bidirectional = dvostranski??
 %small step semantics = op. sem. malih korakov
-%signal = signal
-%interrupt = prekinitev
+%signal = odhajajoči signal
+%interrupt = prihajajoči signal        zakaj nista signal/interupt bolj simetrična??           prekinitev
 %handler = prestreznik
-%pattern matching = ??
+%pattern matching = izločitev vzorca??
 %substitution = zamenjava ??
+%await = blokada
 
 \jR{So za komentirani prevodi v redu??}
 
 
-
+\jR{So naslovi vredu?}
 
 \section{Uvod}
 %Napišite kratek zgodovinski in matematični uvod.  Pojasnite motivacijo za problem, kje
@@ -299,9 +300,16 @@ Nekateri programski jeziki omogočajo asinhono izvajanje, vendar vsaj direktno n
 Na primer CPython ima tako imenovan GIL (global  interpreter lock)~\cite{gil}, ki preprečuje interpreterju, da bi izvajal več kot eno nit na enkrat.
 Le redki programski jeziki, recimo Go, pa so bili zasnovani z asinhronim programiranjem v mislih in imajo zato konstrukte potrebne za paralelno izvajanje vgrajene v jezik.
 
-Eden izmed njih je jezik \aeff, ki sloni na računu imenovanem \lae~\cite{aeff}. \aeff je ne deterministični asinhron interpretiran funkcijski jezik. Glavni namen \lae je pokazati, da je v ozadju asinhronih programskih jezikov lepa teorija. V osnovni \jR{Na kateri verziji sem začel delati??} verziji \aeff omogoča asinhrono izvajanje izračunov, ki lahko po potrebi komunicirajo med sabo s pošiljanjem signalov. 
+Eden izmed njih je jezik \aeff{}, ki sloni na računu imenovanem \lae~\cite{aeff}. \aeff{} je ne deterministični asinhron interpretiran funkcijski jezik. Glavni namen \lae{} je pokazati, da je v ozadju asinhronih programskih jezikov lepa teorija. V osnovni verziji \aeff{} omogoča asinhrono izvajanje izračunov, ki lahko po potrebi komunicirajo med sabo s pošiljanjem signalov. 
 
-Najprej si bomo v poglavju številka \ref{sec:lae} \jR{Tole se mi ne sliši prav. drugem poglavju. Ampak nimam pojma kako to narediti avtomatično z vsemi spoli skloni itd. ročno delat je pa tudi ...} pogledali že obstoječ račun \lae. V poglavju \ref{sec:nove-strukture} ga bomo razširili z rekurzivno obljubo, razcepom in \jR{Okvir??}. V poglavju \ref{sec:tipi} bomo naprej zamenjali obstoječ Hindley–Milnerjev sistem tipov z dvostranskim sistemom tipov. Nato pa ga bomo dopolnili z mobilnimi tipi. V poglavju \ref{sec:interpreter} bomo optimizirali interpreter z namenom zmanjšanja števila korakov. 
+\jR{Katere izreke/trditve si želimo od \lae??
+
+V katerih stvareh, ki jih lahko dokažemo, se \lae razlikuje od preostalih jezikov?? Mar nismo še zmeraj samo turing complete in zato nič boljši??
+
+V katerih stvareh, ki jih lahko dokažemo, je razširjen \lae boljši od prejšnjega??
+Ne poznam definicije lepše kode, kaj šele dokazati.}
+
+Najprej si bomo v poglavju številka \ref{sec:lae} \jR{Najprej si bomo v drugem poglavju pogledali... Ampak nimam pojma kako to narediti avtomatično, ročno delat je pa tudi ...} pogledali že obstoječ račun \lae{}. V poglavju \ref{sec:nove-strukture} ga bomo razširili z rekurzivno obljubo, razcepom in \jR{Okvir}. V poglavju \ref{sec:tipi} bomo naprej zamenjali obstoječ Hindley–Milnerjev sistem tipov z dvostranskim sistemom tipov. Nato pa ga bomo dopolnili z mobilnimi tipi. V poglavju \ref{sec:interpreter} bomo optimizirali interpreter z namenom zmanjšanja števila korakov. 
 
 
 \section{Račun $\lambda$\textsubscript{æ}}\label{sec:lae}
@@ -336,6 +344,16 @@ Izračuni so sledeči.
 
 Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti}.
 
+\jR{prevajam tudi sintakso ??
+	
+	Katere stvari se v članku predpostavlja, da se jih ve??
+	
+	Katere stvari lahko v magistrski predpostavim, da se jih ve??
+	
+	Zakaj se tipi pojavijo že tukaj, če do tipov še nismo prišli??}
+
+
+
 \begin{figure}[hp]
 	\parbox{\textwidth}{
 		\centering
@@ -353,10 +371,10 @@ Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti}.
 		M, N
 		\bnfis& \tmreturn{V}                            & &\text{vrnjena vrednost} \\
 		\bnfor& \tmlet{x}{M}{N}                         & &\text{zaporedje} \\
-		\bnfor& \tmletrec[: \tyfun{X}{\tycomp{Y}{(\o,\i)}}]{f}{x}{M}{N} & &\text{rekurzivna definicija} \\
+		\bnfor& \tmletrec[: \tyfun{X}{Y}]{f}{x}{M}{N} & &\text{rekurzivna definicija} \\
 		\bnfor& V\,W                                    & &\text{aplikacija} \\
 		\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    & &\text{izločitev produkta} \\
-		\bnfor& \tmmatch[\tycomp{Z}{(\o,\i)}]{V}{}                        & &\text{je to sploh dovoljeno??} \\
+		\bnfor& \tmmatch[]{V}{}                        & &\text{je to sploh dovoljeno??} \\
 		\bnfor& \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}	& &\text{izločitev vsote} \\
 		\bnfor& \tmopout{op}{V}{M}       & &\text{odhajajoči signal} \\
 		\bnfor& \tmopin{op}{V}{M}          & &\text{prihajajoči signal } \\
@@ -439,17 +457,16 @@ Sedaj lahko obljubi dodamo ime lambda funkcije, ki sprejme enoto in ima v abstra
 
 \section{Sistem tipov}\label{sec:tipi}
 
-\subsection{HM}
+\subsection{Hindley–Milner}
 
 \subsection{Bidirectional}
 
-\
 
 \section{Interpreter}\label{sec:interpreter}
 
 \subsection{operacijska semantika prej}
 
-\subsection{izboljšave}
+\subsection{potem}
 
 Pokazat da, če naredimo korak v nek izračun, obstaja zaporedje korakov v prejšnji, ki vodijo v isti izračun.
 
