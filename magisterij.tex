@@ -84,7 +84,6 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 
 
 
-
 \usepackage{listings}
 
 %\usepackage[dvipsnames]{xcolor}
@@ -257,8 +256,8 @@ TODO
 %promise = obljuba
 %guarded promise = varovana obljuba
 %abstraction = abstrakcija
-%spawn = razplot?? meni je lepše razcep ??
-%interpreter = interpreter
+%spawn = razplod?? meni je lepše razcep/ ??
+%interpreter = tolmač
 %type sistem = sistem tipov
 %computation = izračun
 %calculus = račun
@@ -269,50 +268,63 @@ TODO
 %concurent = hkratno (dejansko izvajamo istočasno na dveh ali več jedrih), ravno obratno tu sam program morda ni napisan v večih threadih. Toda morda compiler prepozna da sta dva načeloma zaporedna izračuna neodvisna in pretvori izvorno kodo v nekaj kar zna hkrati pognati na večih jedrih.
 %thread = nit
 %payload = tovor
-%Ground type = prizemljen/osnovni??
+%Ground type = prizemljen/osnovni/temeljni??
 %mobile = mobilen
 %box/boxed = okvir/okvirjen     /škatla/paket ??
 %recursion = rekurzija
-%bidirectional = dvostranski??
+%bidirectional = dvostranski/dvosmerni??
 %small step semantics = op. sem. malih korakov
 %signal = odhajajoči signal
 %interrupt = prihajajoči signal        zakaj nista signal/interupt bolj simetrična??           prekinitev
 %handler = prestreznik
-%pattern matching = izločitev vzorca??
-%substitution = zamenjava ??
+%pattern matching = izločitev vzorca / ujemanje vzorca??
+%substitution = substitucija zamenjava ??
 %await = blokada
 
-\jR{So za komentirani prevodi v redu??}
 
-
-\jR{So naslovi vredu?}
+%Katere izreke/trditve si želimo od \lae?? varnost in vse potrebno za dokaz le tega.
+%prevajam tudi sintakso ?? NE
+%Katere stvari lahko v magistrski predpostavim, da se jih ve?? poglej kaj je že bilo v prejšnjih magistrskih
+%Zakaj se tipi pojavijo že tukaj, če do tipov še nismo prišli?? They are part of syntax. They dont have semantics yet
 
 \section{Uvod}
 %Napišite kratek zgodovinski in matematični uvod.  Pojasnite motivacijo za problem, kje
 %nastopa, kje vse je bil obravnavan. Na koncu opišite tudi organizacijo dela -- kaj je v
 %katerem razdelku.
 
-Vse pogosteje je zaželeno asinhrono izvajanje programa. 
-Nekateri programski jeziki, predvsem starejše verzije, nimajo direktno podpore za asinhrono izvajanje. 
+Običajen program je sestavljen iz zaporedja preprostih manjših korakov, ki jih izvajamo enega za drugim. Izvajanje program $P$ lahko predstavimo z urejeno $n$ terico
+$$S_s = (k_1, k_2,...,k_i,..., k_n).$$
+Program je končan, ko so izvedeni vsi koraki. Rezultat končnega programa je običajno rezultat zadnjega koraka. Dve izvajanji programa sta ekvivalentni, če sta njuna rezultata enaka. Kadar se korak $k_i$ začne izvajati, šele ko so se v celoti izvedli vsi koraki $k_1,...,k_{i-1}$, takemu programu pravimo, da je sinhron ali sekvenčen. Če vsak korak potrebuje enoto časa, da se izvede, in korake izvajamo sekvenčno v istem vrstnem redu kot so v $S$ se korak $k_i$ izvede ob času $i$. Koraka $k_i$ in $k_{i+j}$ sta odvisna drug od drugega, kadar se rezultat $k_{i+j}$ spreminja v odvisnosti od rezultata $k_i$ ali kadar se rezultat $k_i+j$ spreminja v odvisnosti od ali je bil $k_i$ izveden prej hkrati ali po $k_{i+j}$. Sicer sta neodvisna. Na primer korak $k_3$, ki vrne spremenljivko $a$ je odvisen od koraka $k_4$, ki poveča $a$ za 1, saj se $k_3$ spremeni, če ga izvedemo za korakom $k_4$. V primeru, da sta korak $k_i$ in $k_{i-1}$ neodvisna, lahko zamenjamo njun vrstni red izvajanja, ne da bi se rezultat kakega koraka spremenil in posledično delovanje celotnega programa.
+Če korake izvajamo sekvenčno, z zamenjavo vrstnega reda izvajanja korakov nismo pridobili na času, saj je skupno število korakov v programu ostalo nespremenjeno. Vseeno pa to pomeni, da imamo več možnosti v zaporedju izvajanja programa kamor lahko damo korak $k_i$, da dobimo želeni končen program, kar lahko programerju prihrani čas za razmislek, kam točno ga mora postaviti.
+
+
+Program $P$ se lahko izvaja tudi drugače. Namesto da se na enkrat izvede le en korak, se izvede nekaj korakov. Novo izvajanje programa lahko predstavimo z urejeno $n$-terico ne praznih množic korakov. 
+$$S_p = (t_1, t_2, ... , t_m),\ t_i = \{ k_{1(i)},...k_{l(i)} \}.$$
+Koraki v množici $t_i$ se izvedejo ob času $i$. Kadar vsaj ena množica $t_i$ vsebuje vsaj dva ali več korakov, programu pravimo da je asinhron ali paralelen. V primeru, da so $t_i = \{k_i\}$, sta izvajanji $S_p$ in $S_s$ ekvivalentni.
+Če je korak $k_j \in t_i$ neodvisen od vseh preostalih korakov iz $t_{i-1}$ ali $t_i$ v izvajanju $S_p$, bo izvajanje 
+$$\tilde{S_p} = (t_1, t_2, ... , t_{i-2}, \tilde{t}_{i-1}, \tilde{t}_i, t_{i+1}, ..., t_m),\ \tilde{t}_{i-1} =t_{i-1} \cup \{k_j\},\ \tilde{t}_i = t_i \setminus \{k_j\}$$ 
+ekvivalentno izvajanju $S_p$. 
+V primeru, da je $\tilde{t}_i$ prazna množica bo izvajanje 
+$$\hat{S_p} = (t_1, t_2, ... , t_{i-2}, \tilde{t}_{i-1}, t_{i+1}, ..., t_m)$$
+ekvivalentno prejšnjima dvema z bistveno razliko. Izvajanje $\hat{S_p}$ se konča enota časa prej, kot $S_p$ ali $\tilde{S_p}$. Dokler so pogoji izpolnjeni lahko ta postopek ponavljamo in dobimo izvajanja, ki so ekvivalentna prvotnemu, a bistveno se hitreje končajo. Slednje je glavni razlog, da si želimo paralelno izvajanje programa. 
+
+
+Da tudi v praksi dosežemo paralelno izvajanje programa, med drugim potrebujemo programski jezik, ki to omogoča. 
+Nekateri programski jeziki, predvsem starejše verzije, nimajo direktno podpore za paralelno izvajanje programa. 
 Veliko modernih jezikov, če ne drugega omogočajo tako imenovan POSIX. POSIX je API, ki na operacijskih sistemih, ki ga podpirajo, omogoča uporabo niti~\cite{posix}.
-Drugi programski jeziki kot so C++, Java... imajo kot del standardne knjižnice konstrukte, ki jim omogočajo paralelno izvajanje programa. Čeprav v ozadju mnogi uporabljajo POSIX, so detajli skriti in zato bolj naravni za programerja. 
-Nekateri programski jeziki omogočajo asinhono izvajanje, vendar vsaj direktno ne omogočajo hkratnega izvajanja.
-Na primer CPython ima tako imenovan GIL (global  interpreter lock)~\cite{gil}, ki preprečuje interpreterju, da bi izvajal več kot eno nit na enkrat.
-Le redki programski jeziki, recimo Go, pa so bili zasnovani z asinhronim programiranjem v mislih in imajo zato konstrukte potrebne za paralelno izvajanje vgrajene v jezik.
-
-Eden izmed njih je jezik \aeff{}, ki sloni na računu imenovanem \lae~\cite{aeff}. \aeff{} je ne deterministični asinhron interpretiran funkcijski jezik. Glavni namen \lae{} je pokazati, da je v ozadju asinhronih programskih jezikov lepa teorija. V osnovni verziji \aeff{} omogoča asinhrono izvajanje izračunov, ki lahko po potrebi komunicirajo med sabo s pošiljanjem signalov. 
-
-\jR{Katere izreke/trditve si želimo od \lae??
-
-V katerih stvareh, ki jih lahko dokažemo, se \lae razlikuje od preostalih jezikov?? Mar nismo še zmeraj samo turing complete in zato nič boljši??
-
-V katerih stvareh, ki jih lahko dokažemo, je razširjen \lae boljši od prejšnjega??
-Ne poznam definicije lepše kode, kaj šele dokazati.}
-
-Najprej si bomo v poglavju številka \ref{sec:lae} \jR{Najprej si bomo v drugem poglavju pogledali... Ampak nimam pojma kako to narediti avtomatično, ročno delat je pa tudi ...} pogledali že obstoječ račun \lae{}. V poglavju \ref{sec:nove-strukture} ga bomo razširili z rekurzivno obljubo, razcepom in \jR{Okvir}. V poglavju \ref{sec:tipi} bomo naprej zamenjali obstoječ Hindley–Milnerjev sistem tipov z dvostranskim sistemom tipov. Nato pa ga bomo dopolnili z mobilnimi tipi. V poglavju \ref{sec:interpreter} bomo optimizirali interpreter z namenom zmanjšanja števila korakov. 
+Drugi programski jeziki kot so C++, Java... imajo kot del standardne knjižnice konstrukte, ki jim omogočajo paralelno izvajanje programa. Čeprav v ozadju mnogi jeziki uporabljajo POSIX, so detajli skriti in zato bolj naravni za programerja. 
+Nekateri programski jeziki omogočajo mnoge konstrukte povezane s paralelnim programiranjem, vendar direktno ne omogočajo paralelnega izvajanja. Na primer CPython ima tako imenovan GIL (global  interpreter lock)~\cite{gil}, ki preprečuje tolmaču, da bi izvajal več kot eno nit na enkrat.
+Le redki programski jeziki, recimo Go, pa so bili zasnovani z paralelnim programiranjem v mislih in imajo zato konstrukte potrebne za paralelno izvajanje vgrajene v jezik.
 
 
-\section{Račun $\lambda$\textsubscript{æ}}\label{sec:lae}
+Eden izmed njih je tudi jezik \aeff{}, ki sloni na računu imenovanem \lae~\cite{aeff}. \aeff{} je ne deterministični asinhron interpretiran funkcijski jezik. Glavni namen \lae{} je pokazati, da je v ozadju asinhronih programskih jezikov lepa teorija. V osnovni verziji \aeff{} omogoča asinhrono izvajanje izračunov, ki lahko po potrebi komunicirajo med sabo s pošiljanjem signalov. 
+
+
+Najprej si bomo v poglavju \ref{sec:lae} pogledali že obstoječ račun \lae{}. V poglavju \ref{sec:nove-strukture} ga bomo razširili z rekurzivno obljubo, razcepom in \jR{Okvir}. V poglavju \ref{sec:tipi} bomo naprej zamenjali obstoječ Hindley–Milnerjev sistem tipov z dvostranskim sistemom tipov. Nato pa ga bomo dopolnili z mobilnimi tipi. V poglavju \ref{sec:interpreter} bomo optimizirali interpreter z namenom zmanjšanja števila korakov. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Račun \lae}\label{sec:lae}
 
 
 \subsection{Vrednosti in izračuni}
@@ -322,10 +334,9 @@ Izraze v \lae razdelimo na vrednosti in izračune.
 Vrednosti so sledeče.
 \begin{itemize}
 	\item Spremenljivka. Simbolično ime, ki bo zamenjano z vrednostjo med izvajanjem.
-	\item konstante??
-	\item anotated??
-	\item Vsota predstavlja poenostavljen Variant??
-	\item funkcija ali lambda??
+	\item konstante?? če ti paše jih dodaj
+	\item Vsota predstavlja poenostavljen Variant??ja
+	\item lambda??
 	\item zakaj imamo v članku rekurzivno funkcijo med izračuni ??
 	\
 \end{itemize}
@@ -335,22 +346,14 @@ Izračuni so sledeči.
 	\item return
 	\item zaporedje
 	\item aplikacija
-	\item match ni prvi match samo "razpakiranje vrednosti", drugi neveljaven in tretji edini "pravi" match??
+	\item match
 	\item odhajajoči signal
-	\item prihajajoči signal       zakaj je to v članku interrupt?? 
+	\item prihajajoči signal
 	\item prestreznik
 	\item blokada
 \end{itemize}
 
 Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti}.
-
-\jR{prevajam tudi sintakso ??
-	
-	Katere stvari se v članku predpostavlja, da se jih ve??
-	
-	Katere stvari lahko v magistrski predpostavim, da se jih ve??
-	
-	Zakaj se tipi pojavijo že tukaj, če do tipov še nismo prišli??}
 
 
 
@@ -386,12 +389,25 @@ Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti}.
 	\label{fig:vrednosti}
 \end{figure}
 
+%introduction
+%najprej vse stare star sinteks 
+
+%nov spawn evaluation, type, syntaks
+%nov mobile type evaluation, syntak
+
+%implementation kaj se razlikuje od teorije
+%future work
+
+%summy
 
 
 
 \subsection{Operacijska semantika}
 
 Račun \lae\ je ...
+
+
+
 
 \section{Nove strukture}\label{sec:nove-strukture}
 
@@ -448,164 +464,35 @@ Sedaj lahko obljubi dodamo ime lambda funkcije, ki sprejme enoto in ima v abstra
 	as \_ in ()
 \end{definicija}
 
+\subsection{Mobile}
 
 \subsection{Spawn}
 
 \jR{Na pdfju je tale stran zamaknjena v levo v primerjavi z prejšnjo in naslednjo. Zakaj? A je to nameno raradi tiska??}
 
-\subsection{Mobile}
-
-\section{Sistem tipov}\label{sec:tipi}
-
-\subsection{Hindley–Milner}
-
-\subsection{Bidirectional}
 
 
-\section{Interpreter}\label{sec:interpreter}
+\section{Implementacija}\label{sec:impl}
 
-\subsection{operacijska semantika prej}
+\subsection{Sistem tipov}\label{sec:tipi}
 
-\subsection{potem}
+\subsubsection{Hindley–Milner}
+
+\subsubsection{Bidirectional}
+
+
+\subsection{Interpreter}\label{sec:interpreter}
+
+\subsubsection{operacijska semantika prej}
+
+\subsubsection{potem}
 
 Pokazat da, če naredimo korak v nek izračun, obstaja zaporedje korakov v prejšnji, ki vodijo v isti izračun.
 
 Pokazati da potrebujemo "manj korakov" 
 
 
-a
 
-b
-
-c
-
-č
-
-d
-
-e
-
-f
-
-g
-
-h
-
-i
-
-j
-
-k
-
-l
-
-m
-
-n
-
-o
-
-p
-
-r
-
-s
-
-š
-
-t
-
-u
-
-v
-
-z
-
-ž
-
-%\section{Integrali po \texorpdfstring{$\omega$}{ω}-kompleksih}
-%\subsection{Definicija}
-%\begin{definicija}
-%  Neskončno zaporedje kompleksnih števil, označeno z $\omega = (\omega_1, \omega_2, \ldots)$,
-%  se imenuje \emph{$\omega$-kompleks}.\footnote{To ime je izmišljeno.}
-%
-%  Črni blok zgoraj je tam namenoma. Označuje, da \LaTeX{} ni znal vrstice prelomiti pravilno
-%  in vas na to opozarja. Preoblikujte stavek ali mu pomagajte deliti problematično besedo z
-%  ukazom \verb|\hyphenation{an-ti-ko-mu-ta-ti-ven}| v preambuli.
-%\end{definicija}
-%\begin{trditev}[Znano ime ali avtor]
-%  \label{trd:obstoj-omega}
-%  Obstaja vsaj en $\omega$-kompleks.
-%\end{trditev}
-%\begin{proof}
-%  Naštejmo nekaj primerov:
-%  \begin{align}
-%    \omega &= (0, 0, 0, \dots), \label{eq:zero-kompleks} \\
-%    \omega &= (1, i, -1, -i, 1, \ldots), \nonumber \\
-%    \omega &= (0, 1, 2, 3, \ldots). \nonumber \qedhere  % postavi QED na zadnjo vrstico enačbe
-%  \end{align}
-%\end{proof}
-
-%\section{Tehnični napotki za pisanje}
-
-%\subsection{Sklicevanje in citiranje}
-%Za sklice uporabljamo \verb|\ref|, za sklice na enačbe \verb|\eqref|, za citate \verb|\cite|. Pri
-%sklicevanju in citiranju sklicano številko povežemo s prejšnjo besedo z nedeljivim presledkom
-%$\sim$, kot npr.\ \verb|iz trditve~\ref{trd:obstoj-omega} vidimo|.
-%
-%\begin{primer}
-%  Zaporedje~\eqref{eq:zero-kompleks} iz dokaza trditve~\ref{trd:obstoj-omega} na
-%  strani~\pageref{trd:obstoj-omega} lahko najdemo tudi v Spletni enciklopediji zaporedij~\cite{oeis}.
-%  Citiramo lahko tudi bolj natančno~\cite[trditev 2.1, str.\ 23]{lebedev2009introduction}.
-%\end{primer}
-
-%\subsection{Okrajšave}
-%Pri uporabi okrajšav \LaTeX{} za piko vstavi predolg presledek, kot npr. tukaj. Zato se za vsako
-%piko, ki ni konec stavka doda presledek običajne širine z ukazom \verb*|\ |, kot npr.\ tukaj.
-%Primerjaj z okrajšavo zgoraj za razliko.
-
-%\subsection{Vstavljanje slik}
-%Sliko vstavimo v plavajočem okolju \texttt{figure}. Plavajoča okolja \emph{plavajo} po tekstu, in
-%jih lahko postavimo na vrh strani z opcijskim parametrom `\texttt{t}', na lokacijo, kjer je v kodi s
-%`\texttt{h}', in če to ne deluje, potem pa lahko rečete \LaTeX u, da ga \emph{res} želite tukaj,
-%kjer ste napisali, s `\texttt{h!}'. Lepo je da so vstavljene slike vektorske (recimo \texttt{.pdf}
-%ali \texttt{.eps} ali \texttt{.svg}) ali pa \texttt{.png} visoke resolucije (več kot
-%\unit[300]{dpi}).  Pod vsako sliko je napis in na vsako sliko se skličemo v besedilu. Primer
-%vektorske slike je na sliki~\ref{fig:sample}. Vektorsko sliko prepoznate tako, da močno
-%zoomate v sliko, in še vedno ostane gladka. Več informacij je na voljo na
-%\url{https://en.wikibooks.org/wiki/LaTeX/Floats,_Figures_and_Captions}. Če so slike bitne, kot na
-%primer slika~\ref{fig:image}, poskrbite, da so v dovolj visoki resoluciji.
-%
-%\begin{figure}[h]
-%  \centering
-%  \includegraphics[width=0.6\textwidth]{images/sample.pdf}
-%% \caption[caption za v kazalo]{Dolg caption pod sliko}
-%  \caption[Primer vektorske slike.]{Primer vektorske slike z oznakami v enaki pisavi, kot jo
-%     uporablja \LaTeX{}.  Narejena je s programom Inkscape, \LaTeX{} oznake so importane v
-%     Inkscape iz pomožnega PDF.}
-%  \label{fig:sample}
-%\end{figure}
-%
-%\begin{figure}[h]
-%  \centering
-%  \includegraphics[width=0.8\textwidth]{images/image.png}
-%  \caption[Primer bitne slike.]{Primer bitne slike, izvožene iz Matlaba. Poskrbite, da so slike v
-%  dovolj visoki resoluciji in da ne vsebujejo prosojnih elementov (to zahteva PDF/A-1b format).}
-%  \label{fig:image}
-%\end{figure}
-
-%\subsection{Kako narediti stvarno kazalo}
-%Dodate ukaze \verb|\index{polje}| na besede, kjer je pojavijo, kot tukaj\index{tukaj}.
-%Več o stvarnih kazalih je na voljo na \url{https://en.wikibooks.org/wiki/LaTeX/Indexing}.
-
-%\subsection{Navajanje literature}
-%Članke citiramo z uporabo \verb|\cite{label}|, \verb|\cite[text]{label}| ali pa več naenkrat s
-%\verb|\cite\{label1, label2}|. Tudi tukaj predhodno besedo in citat povežemo z nedeljivim presledkom
-%$\sim$. Na primer~\cite{chen2006meshless,liu2001point}, ali pa \cite{kibriya2007empirical}, ali pa
-%\cite[str.\ 12]{trobec2015parallel}, \cite[enačba (2.3)]{pereira2016convergence}.
-%Vnosi iz \verb|.bib| datoteke, ki niso citirani, se ne prikažejo v seznamu literature, zato jih
-%tukaj citiram.~\cite{vene2000categorical}, \cite{gregoric2017stopniceni}, \cite{slak2015induktivni},
-%\cite{nsphere}, \cite{kearsley1975linearly}, \cite{STtemplate}, \cite{NunbergerTand}.
 
 % Literatura:
 % Primer navajanja na http://www.fmf.uni-lj.si/storage/24240/LiteraturaM.pdf,
