@@ -256,7 +256,7 @@ TODO
 %promise = obljuba
 %guarded promise = varovana obljuba
 %abstraction = abstrakcija
-%spawn = razplod?? meni je lepše razcep/ ??
+%spawn = ??
 %interpreter = tolmač
 %type sistem = sistem tipov
 %computation = izračun
@@ -264,31 +264,38 @@ TODO
 %unit = enota
 %Syntactic sugar = sintaktičen sladkor
 %if computation/statement = če izračun
-%parallel = vzporedno/asinhrono (Izvajamo več thredov, lahko tudi samo ne enem jedru, ampak bistveno je da vsi thredu napredujejo v nekem smislu "enakomerno". Logika program je razdeljena v več bolj ali manj neodvisnih enot threadov/procesov.)
-%concurent = hkratno (dejansko izvajamo istočasno na dveh ali več jedrih), ravno obratno tu sam program morda ni napisan v večih threadih. Toda morda compiler prepozna da sta dva načeloma zaporedna izračuna neodvisna in pretvori izvorno kodo v nekaj kar zna hkrati pognati na večih jedrih.
+%parallel = vzporedno (Fizična implementacija ni tako bistvena)Logika program je razdeljena v več bolj ali manj neodvisnih enot threadov/procesov.)
 %thread = nit
 %payload = tovor
-%Ground type = prizemljen/osnovni/temeljni??
-%mobile = mobilen
-%box/boxed = okvir/okvirjen     /škatla/paket ??
+%Ground type = osnovni
+%mobile = prenosljiv
+%box/boxed = zavit,zavijanje,odvijanje
+%black box in types =  
 %recursion = rekurzija
-%bidirectional = dvostranski/dvosmerni??
+%bidirectional = dvosmerni?
 %small step semantics = op. sem. malih korakov
 %signal = odhajajoči signal
-%interrupt = prihajajoči signal        zakaj nista signal/interupt bolj simetrična??           prekinitev
+%interrupt = prihajajoči signal          prekinitev
 %handler = prestreznik
-%pattern matching = izločitev vzorca / ujemanje vzorca??
-%substitution = substitucija zamenjava ??
+%pattern matching = ujemanje vzorca
+%substitution = substitucija
+%substitute = substituirati
 %await = blokada
 %source code = izvorna koda
 %machine code = strojna koda
+%shared memory = skupni spomin
+%context = kontekst
+%true/false = resnica/neresnica
 
-%Katere izreke/trditve si želimo od \lae?? varnost in vse potrebno za dokaz le tega.
-%prevajam tudi sintakso ?? NE
-%Katere stvari lahko v magistrski predpostavim, da se jih ve?? poglej kaj je že bilo v prejšnjih magistrskih
-%Zakaj se tipi pojavijo že tukaj, če do tipov še nismo prišli?? They are part of syntax. They dont have semantics yet
 
-\section{Uvod}
+
+%prevajaj vse razen sintakse na slikcah.
+%Katere izreke/trditve si želimo od \lae? varnost in vse potrebno za dokaz le tega.
+%prevajam tudi sintakso? NE
+%Katere stvari lahko v magistrski predpostavim, da se jih ve? poglej kaj je že bilo v prejšnjih magistrskih
+%Zakaj se tipi pojavijo že tukaj, če do tipov še nismo prišli? They are part of syntax. They dont have semantics yet
+
+\section{Uvod} \label{sec:uvod}
 %Napišite kratek zgodovinski in matematični uvod.  Pojasnite motivacijo za problem, kje
 %nastopa, kje vse je bil obravnavan. Na koncu opišite tudi organizacijo dela -- kaj je v
 %katerem razdelku.
@@ -306,67 +313,79 @@ Privzeto je $\pi$ identična permutacija. Program je končan, ko so izvedeni vsi
 
 Program $P$ se lahko izvaja tudi drugače. Namesto da se na enkrat izvede le en korak, se izvede nekaj korakov. Novo izvajanje programa lahko predstavimo z urejeno $n$-terico ne praznih množic korakov. 
 $$S_p = (t_1, t_2, ... , t_m),\ t_i = \{ k_{1(i)},...k_{l(i)} \}.$$
-Koraki v množici $t_i$ se izvedejo ob času $i$. Kadar vsaj ena množica $t_i$ vsebuje vsaj dva ali več korakov, programu pravimo da je asinhron ali paralelen. V primeru, da so $t_i = \{k_i\}$, sta izvajanji $S_p$ in $S_s$ ekvivalentni.
+Koraki v množici $t_i$ se izvedejo ob času $i$. Kadar vsaj ena množica $t_i$ vsebuje vsaj dva ali več korakov, programu pravimo da je vzporeden. V primeru, da so $t_i = \{k_i\}$, sta izvajanji $S_p$ in $S_s$ ekvivalentni.
 Če je korak $k_j \in t_i$ neodvisen od vseh preostalih korakov iz $t_{i-1}$ ali $t_i$ v izvajanju $S_p$, bo izvajanje 
 $$\tilde{S_p} = (t_1, t_2, ... , t_{i-2}, \tilde{t}_{i-1}, \tilde{t}_i, t_{i+1}, ..., t_m),\ \tilde{t}_{i-1} =t_{i-1} \cup \{k_j\},\ \tilde{t}_i = t_i \setminus \{k_j\}$$ 
 ekvivalentno izvajanju $S_p$. 
 V primeru, da je $\tilde{t}_i$ prazna množica bo izvajanje 
 $$\hat{S_p} = (t_1, t_2, ... , t_{i-2}, \tilde{t}_{i-1}, t_{i+1}, ..., t_m)$$
-ekvivalentno prejšnjima dvema z bistveno razliko. Izvajanje $\hat{S_p}$ se konča enota časa prej, kot $S_p$ ali $\tilde{S_p}$. Dokler so pogoji izpolnjeni lahko ta postopek ponavljamo in dobimo izvajanja, ki so ekvivalentna prvotnemu, a bistveno, se hitreje končajo. Ta postopek se imenuje paralelizacija programa. Hitrejše izvajanje programa je glavni razlog, da si želimo paralelno izvajanje programa.
+ekvivalentno prejšnjima dvema z bistveno razliko. Izvajanje $\hat{S_p}$ se konča enota časa prej, kot $S_p$ ali $\tilde{S_p}$. Dokler so pogoji izpolnjeni lahko ta postopek ponavljamo in dobimo izvajanja, ki so ekvivalentna prvotnemu, a bistveno, se hitreje končajo.
+Hitrejše izvajanje programa je glavni razlog, da si želimo vzporedno izvajanje programa.
 
 
-Ugotoviti kateri koraki so med sabo neodvisni je v večini primerov netrivialno. Programski jezik ugotovi neodvisnost le na najbolj trivialnih primerih. Običajen pristop za reševanje tega problema je zato, da se korake razdeli v procese ali niti. Za koraka $k_i$ in $k_j$ se smatra da sta neodvisna, če pripadata različnemu procesu, razen v primeru ko eksplicitno označimo, da koraka sta odvisna. Sedaj ima programski jezik na voljo veliko več trivialnih korakov, ki jih zna paralelizirati.
+Ugotoviti kateri koraki so med sabo neodvisni je v večini primerov ne trivialno. Programski jezik ugotovi neodvisnost le na najbolj trivialnih primerih. Običajen pristop za reševanje tega problema je zato, da se korake razdeli v procese ali niti. Za koraka $k_i$ in $k_j$ se smatra da sta neodvisna, če pripadata različnemu procesu, razen v primeru ko eksplicitno označimo, da koraka sta odvisna. Sedaj ima programski jezik na voljo veliko več trivialnih korakov, ki jih zna narediti vzporedne. 
 
-Seveda imamo sedaj ne trivialen postopek delitve korakov v procese. Na uporabniku je, da v izvorni kodi označi kateri koraki pripadajo kateremu procesu. Da se ta postopek olajša kolikor je mogoče, je želeno od programskega jezika, da je ta postopek čim bolj jasen in enostaven.
+Seveda imamo sedaj ne trivialen postopek delitve korakov v procese in označevanje korakov iz različnih procesov, ki so odvisni med sabo. Nepravilna delitev v procese ali napačno označevanje odvisnosti korakov, lahko vodi v izvajanje programa, ki ne bo ekvivalentno prvotnemu. Da se ta postopek olajša kolikor je mogoče, je želeno od programskega jezika, da ima korake, ki naredijo ta postopek čim bolj enostaven in razumljiv. Iz tega razloga imajo nekateri programski jeziki zelo omejeno število različnih vrst korakov, ki so lahko odvisni od korakov izven istega procesa.
 
 
-%Da tudi v praksi dosežemo paralelno izvajanje programa, med drugim potrebujemo programski jezik, ki to omogoča. 
-Nekateri programski jeziki, predvsem starejše verzije, nimajo direktno podpore za paralelno izvajanje programa. 
+Nekateri programski jeziki, predvsem starejše verzije, nimajo direktno podpore za vzporedno izvajanje programa. 
 Veliko modernih jezikov, če ne drugega omogočajo tako imenovan POSIX. POSIX je API, ki na operacijskih sistemih, ki ga podpirajo, omogoča uporabo niti~\cite{posix}.
-Drugi programski jeziki kot so C++, Java... imajo kot del standardne knjižnice konstrukte, ki jim omogočajo paralelno izvajanje programa. Čeprav v ozadju mnogi jeziki uporabljajo POSIX, so detajli skriti in zato bolj naravni za programerja. 
-Nekateri programski jeziki omogočajo mnoge konstrukte povezane s paralelnim programiranjem, vendar direktno ne omogočajo paralelnega izvajanja. Na primer CPython ima tako imenovan GIL (global  interpreter lock)~\cite{gil}, ki preprečuje tolmaču, da bi izvajal več kot eno nit na enkrat.
-Le redki programski jeziki, recimo Go, pa so bili zasnovani z paralelnim programiranjem v mislih in imajo zato konstrukte potrebne za paralelno izvajanje vgrajene v jezik.
+Drugi programski jeziki kot so C++, Java... imajo kot del standardne knjižnice konstrukte, ki jim omogočajo vzporedno izvajanje programa. Čeprav v ozadju mnogi jeziki uporabljajo POSIX, so detajli skriti in zato bolj naravni za programerja. 
+Nekateri programski jeziki omogočajo mnoge konstrukte povezane s vzporednim programiranjem, vendar direktno ne omogočajo vzporednega izvajanja. Na primer CPython ima tako imenovan GIL (global  interpreter lock)~\cite{gil}, ki preprečuje tolmaču, da bi izvajal korake iz več kot ene nit na enkrat.
+Le redki programski jeziki, recimo Go, pa so bili zasnovani z vzporednim programiranjem v mislih in imajo zato konstrukte potrebne za vzporedno izvajanje vgrajene v jezik.
 
 
-Eden izmed njih je tudi jezik \aeff{}, ki sloni na računu imenovanem \lae~\cite{aeff}. \aeff{} je ne deterministični asinhron interpretiran funkcijski jezik. Glavni namen \lae{} je pokazati, da je v ozadju asinhronih programskih jezikov lepa teorija. V osnovni verziji \aeff{} omogoča asinhrono izvajanje izračunov, ki lahko po potrebi komunicirajo med sabo s pošiljanjem signalov. 
+Eden izmed njih je tudi jezik \aeff{}, ki sloni na računu imenovanem \lae~\cite{aeff}. \aeff{} je ne deterministični statično tipiziran tolmačen funkcijski jezik. Glavni namen \lae{} je pokazati, da je v ozadju vzporednih programskih jezikov lepa teorija. V osnovni verziji \aeff{} omogoča vzporedno izvajanje izračunov, ki lahko po potrebi komunicirajo med sabo s pošiljanjem signalov. 
 
 
-Najprej si bomo v poglavju \ref{sec:lae} pogledali že obstoječ račun \lae{}. V poglavju \ref{sec:nove-strukture} ga bomo razširili z rekurzivno obljubo, razcepom in \jR{Okvir}. V poglavju \ref{sec:tipi} bomo naprej zamenjali obstoječ Hindley–Milnerjev sistem tipov z dvostranskim sistemom tipov. Nato pa ga bomo dopolnili z mobilnimi tipi. V poglavju \ref{sec:interpreter} bomo optimizirali interpreter z namenom zmanjšanja števila korakov. 
+Najprej si bomo v poglavju \ref{sec:lae} pogledali že obstoječ račun \lae{}. V poglavju \ref{sec:razsirjen-lae} ga bomo razširili z rekurzivno obljubo, razcepom in \jR{Okvir}. V poglavju \ref{sec:impl} si bomo pogledali implementacijo. Obstoječ Hindley–Milnerjev sistem tipov smo zamenjali z dvosmernim sistemom tipov in obstoječ tolmač spremenil,i da omogoča nekoliko bolj optimalno izvajanje. Vse dele implementacije smo prilagodili tudi za razširjen \lae.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Račun \lae{}}\label{sec:lae}
 
+Lambda račun je preprost programski jezik, ki je \jR{Turing complete}.
+
+
+Račun \lae je razširjena verzija Lambda računa. Poleg standardnih izrazov vsebuje še izraze, ki poosebijo bistvo vzporednega programiranja z pošiljanjem sporočil. 
+%V marsikaterih programskih jezik se uporablja tako imenovan skupen pomnilnik. To je pomnilnik, do katerega lahko dostopata dva ali več procesov hkrati. Ker je delovanje programa lahko odvisno od vrstnega reda dostopa
 
 
 \subsection{Vrednosti in izračuni}
 
-Izraze v \lae razdelimo na vrednosti in izračune. 
+Račun \lae{} je formalen jezik. Izraze v \lae{} razdelimo na vrednosti in izračune. 
+
 
 Vrednosti so sledeče.
-\begin{itemize}
-	\item Spremenljivka. Simbolično ime, ki bo zamenjano z vrednostjo med izvajanjem.
-	\item konstante?? če ti paše jih dodaj
-	\item Vsota predstavlja poenostavljen Variant??ja
-	\item lambda??
-	\item zakaj imamo v članku rekurzivno funkcijo med izračuni ??
-	\
-\end{itemize}
+Konstante vrednosti naravna števila in logični vrednosti resnica in neresnica.
+% TOLE DODAJ ČE BO MAGISTRSKA PREKRATKA DA BODO DALJŠI DOKAZI :D in nekatere aritmetične in logične funkcije kot so $+$, $-$, $*$, $/$, $=$, $<$...
+Spremenljivke, ki so simbolična imena povezana z vrednostmi v danem kontekstu.
+Enota in par.
+leva in desna inkluzija vsote.
+Lambda abstrakcije.
+Rekurzivne lambda abstrakcije.
+Izpolnjena obljuba. Ta vrednost je edina zares nova. Označuje, da je bila obljuba izpolnjena z neko vrednostjo.
+
 
 Izračuni so sledeči.
-\begin{itemize}
-	\item return
-	\item zaporedje
-	\item aplikacija
-	\item match
-	\item odhajajoči signal
-	\item prihajajoči signal
-	\item prestreznik
-	\item blokada
-\end{itemize}
+Vrni ki drži neko vrednost.
+Zaporedje dveh izračunov.
+Aplikacija ki v prvi izraz substituira drugi izraz.
+Ujemanje ki glede na vzorec izraza izbere izračun. 
+odhajajoči signal. Vsebuje operacijo, pripadajoči tovor in 
+prihajajoči signal
+prestreznik
+blokada
 
-Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti}.
 
+Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti} v Backus-Naurjevi obliki (BNF).
+
+\jR{zakaj imajo funkcije sintakso za tip? Ali niso anotacije v ta namen??}
+
+
+%Kaj se zgodi če odstranimo match V with {} ??
+%Zakaj nimamo prazne vsote med vrednostmi??
+%Odveč če bo prvi in drugi odgovor dober. Vir prazne vsote so exceptni, errorji in neskončne rekurzije? Exceptionov nimamo v jeziku, errorjev nimamo ker imamo tipe, rekurzija lahko nikoli vrne poljuben tip. Pa naj nikoli vrne unit namesto da nikoli vrne prazno vsoto??
 
 
 \begin{figure}[hp]
@@ -376,10 +395,12 @@ Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti}.
 		\begin{align*}
 		\intertext{\textbf{Vrednosti}}
 		V, W
-		\bnfis& x                                       & &\text{spremenljivka} \\
+		\bnfis& n \bnfor\! \true \bnfor\! \false        & &\text{konstantne vrednosti} \\
+		\bnfor& x                                       & &\text{spremenljivka} \\
 		\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          & &\text{enota in par} \\
 		\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      & &\text{leva in desna inkluzija} \\
-		\bnfor& \tmfun{x : X}{M}                        & &\text{funkcija} \\
+		\bnfor& \tmfun{x}{M}                        & &\text{lambda} \\
+		\bnfor& \tmfunrec{f}{x}{M}                        & &\text{rekurzivna lambda} \\
 		\bnfor& \tmpromise V                            & &\text{izpolnjena obljuba}
 		\\[1ex]
 		\intertext{\textbf{Izračuni}}
@@ -388,9 +409,9 @@ Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti}.
 		\bnfor& \tmlet{x}{M}{N}                         & &\text{zaporedje} \\
 		\bnfor& \tmletrec[: \tyfun{X}{Y}]{f}{x}{M}{N} & &\text{rekurzivna definicija} \\
 		\bnfor& V\,W                                    & &\text{aplikacija} \\
-		\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    & &\text{izločitev produkta} \\
-		\bnfor& \tmmatch[]{V}{}                        & &\text{je to sploh dovoljeno??} \\
-		\bnfor& \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}	& &\text{izločitev vsote} \\
+		\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    & &\text{ujemanje produkta} \\
+		\bnfor& \tmmatch[]{V}{}                        & &\text{prazno ujemanje} \\
+		\bnfor& \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}	& &\text{ujemanje vsote} \\
 		\bnfor& \tmopout{op}{V}{M}       & &\text{odhajajoči signal} \\
 		\bnfor& \tmopin{op}{V}{M}          & &\text{prihajajoči signal } \\
 		\bnfor& \tmwith{op}{x}{M}{p}{N}      & &\text{prestreznik} \\
@@ -421,13 +442,12 @@ Račun \lae\ je ...
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Razširjen \lae{}}\label{sec:nove-strukture}
+\section{Razširjen \lae{}}\label{sec:razsirjen-lae}
 
 
 
 \subsection{Rekurzivna obljuba}
 
-\jR{Kadar je promise koncept je smiselno prevesti, kadar se nanašamo na konstrukt v aeff je pa to njegovo ime in zato ne prevedemo?? }
 
 \mP{Tole še ni za oddati.}
 

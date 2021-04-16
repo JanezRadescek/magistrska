@@ -115,8 +115,10 @@
 \newcommand{\tmpair}[2]{( #1 , #2 )} % ordered pair
 \newcommand{\tminl}[2][]{\tmkw{inl}_{#1}\,#2} % left injection
 \newcommand{\tminr}[2][]{\tmkw{inr}_{#1}\,#2} % right injection
-\newcommand{\tmfun}[2]{{\mathop{\tmkw{fun}}}\; (#1) \mapsto #2} % function abstraction
-\newcommand{\tmfunano}[2]{{\mathop{\tmkw{fun}}}\; #1 \mapsto #2} % function abstraction (no type annotation expected)
+%\newcommand{\tmfun}[2]{{\mathop{\tmkw{fun}}}\; (#1) \mapsto #2} % function abstraction
+%\newcommand{\tmfunano}[2]{{\mathop{\tmkw{fun}}}\; #1 \mapsto #2} % function abstraction (no type annotation expected)
+ \newcommand{\tmfun}[2]{{\mathop{\tmkw{fun}}}\; #1 \mapsto #2} % no annotation is now standard. Use annotated type if you want annotation.
+\newcommand{\tmfunrec}[3]{\tmkw{fun}\; \tmkw{rec}\; #1\; #2 \mapsto #3} % recursive abstraction
 \newcommand{\tmapp}[2]{#1\,#2} % application
 
 \newcommand{\tmreturn}[2][]{\tmkw{return}_{#1}\, #2} % pure computation
