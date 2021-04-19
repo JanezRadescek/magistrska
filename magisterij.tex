@@ -46,7 +46,7 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 \usepackage{amsmath,amssymb,amsfonts,amsthm} % matematični paketi
 \usepackage{graphicx}     % za slike
 \usepackage{emptypage}    % prazne strani so neoštevilčene, ampak so štete
-\usepackage{units}        % fizikalne enote kot \unit[12]{kg} s polovico nedeljivega presledka, glej primer v kodi
+%\usepackage{units}        % fizikalne enote kot \unit[12]{kg} s polovico nedeljivega presledka, glej primer v kodi
 \usepackage{makeidx}      % za stvarno kazalo, lahko zakomentiraš, če ne rabiš
 \makeindex                % za stvarno kazalo, lahko zakomentiraš, če ne rabiš
 % oblika strani
@@ -58,35 +58,19 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
   footskip=40pt     % pozicija številke strani
 ]{geometry}
 
-% VEČ ZANIMIVIH PAKETOV
-% \usepackage{array}      % več možnosti za tabele
-% \usepackage[list=true,listformat=simple]{subcaption}  % več kot ena slika na figure, omogoči slika 1a, slika 1b
-% \usepackage[all]{xy}    % diagrami
-% \usepackage{doi}        % za clickable DOI entrye v bibliografiji
-% \usepackage{enumerate}     % več možnosti za sezname
 
-% Za barvanje source kode
-\usepackage{minted}
-\renewcommand\listingscaption{Program}
-
-% Za pisanje psevdokode
-% \usepackage{algpseudocode}  % za psevdokodo
-% \usepackage{algorithm}
-% \floatname{algorithm}{Algoritem}
-% \renewcommand{\listalgorithmname}{Kazalo algoritmov}
 
 % DRUGI TVOJI PAKETI:
-% tukaj
 
 
+\usepackage{listings}
+\renewcommand{\lstlistingname}{Program}% Listing -> Program
+\renewcommand{\lstlistlistingname}{Kazalo Programov}% List of Listings -> Kazalo Programov
 
 \input{macros.tex}
 
 
 
-\usepackage{listings}
-
-%\usepackage[dvipsnames]{xcolor}
 
 \definecolor{jcyan}{cmyk}{1, 0, 0.15, 0.05}
 \definecolor{jyellow}{cmyk}{0.8, 0, 0.4, 0}
@@ -96,7 +80,6 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 \newcommand\mP[1]{\todo[inline,color=red]{#1 -MP}}	% comments by matija
 \newcommand\jR[1]{\todo[inline,color=jcyan]{#1 -JR}} % comments by janez
 
-%
 
 \setlength{\overfullrule}{50pt} % označi predlogo vrstico
 \pagestyle{plain}               % samo številka strani na dnu, nobene glave / noge
@@ -116,17 +99,7 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 
 \numberwithin{equation}{section}  % števec za enačbe zgleda kot (2.7) in se resetira v vsakem poglavju
 
-% Matematični ukazi
-\newcommand{\R}{\mathbb R}
-\newcommand{\N}{\mathbb N}
-\newcommand{\Z}{\mathbb Z}
-\newcommand{\C}{\mathbb C}
-\newcommand{\Q}{\mathbb Q}
 
-\newcommand{\lae}{$\lambda_{\text{\ae}}$} % the name of the calculus
-\newcommand{\aeff}{Æff} % the name of the language
-
-% \DeclareMathOperator{\tr}{tr}  % morda potrebuješ operator za sled ali kaj drugega??
 
 % bold matematika znotraj \textbf{ }, tudi v naslovih, kot \omega spodaj
 \makeatletter \g@addto@macro\bfseries{\boldmath} \makeatother
@@ -286,6 +259,7 @@ TODO
 %shared memory = skupni spomin
 %context = kontekst
 %true/false = resnica/neresnica
+%runtime error = ??
 
 
 
@@ -372,13 +346,13 @@ Vrni ki drži neko vrednost.
 Zaporedje dveh izračunov.
 Aplikacija ki v prvi izraz substituira drugi izraz.
 Ujemanje ki glede na vzorec izraza izbere izračun. 
-odhajajoči signal. Vsebuje operacijo, pripadajoči tovor in 
-prihajajoči signal
-prestreznik
+Odhajajoči signal vsebuje operacijo, pripadajočo vrednost imenovano tovor in izračun.
+Prihajajoči signal vsebuje operacijo, pripadajočo vrednost imenovano tovor in izračun.
+prestreznik 
 blokada
 
 
-Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti} v Backus-Naurjevi obliki (BNF).
+Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 
 \jR{zakaj imajo funkcije sintakso za tip? Ali niso anotacije v ta namen??}
 
@@ -407,7 +381,7 @@ Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti} v Backus-Naurjevi obli
 		M, N
 		\bnfis& \tmreturn{V}                            & &\text{vrnjena vrednost} \\
 		\bnfor& \tmlet{x}{M}{N}                         & &\text{zaporedje} \\
-		\bnfor& \tmletrec[: \tyfun{X}{Y}]{f}{x}{M}{N} & &\text{rekurzivna definicija} \\
+	%	\bnfor& \tmletrec[: \tyfun{X}{Y}]{f}{x}{M}{N} & &\text{rekurzivna definicija} \\
 		\bnfor& V\,W                                    & &\text{aplikacija} \\
 		\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    & &\text{ujemanje produkta} \\
 		\bnfor& \tmmatch[]{V}{}                        & &\text{prazno ujemanje} \\
@@ -416,22 +390,15 @@ Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti} v Backus-Naurjevi obli
 		\bnfor& \tmopin{op}{V}{M}          & &\text{prihajajoči signal } \\
 		\bnfor& \tmwith{op}{x}{M}{p}{N}      & &\text{prestreznik} \\
 		\bnfor& \tmawait{V}{x}{M}             & &\text{blokada}
+			\\[1ex]
+		\intertext{\textbf{Procesi}}
+		P \bnfis & ...
 		\end{align*}
 	} 
-	\caption{Vrednosti in izračuni.}
-	\label{fig:vrednosti}
+	\caption{Vrednosti, izračuni in procesi.}
+	\label{fig:izrazi}
 \end{figure}
 
-%introduction
-%najprej vse stare star sinteks 
-
-%nov spawn evaluation, type, syntaks
-%nov mobile type evaluation, syntak
-
-%implementation kaj se razlikuje od teorije
-%future work
-
-%summy
 
 
 
@@ -439,6 +406,69 @@ Pripadajočo sintakso vidimo na sliki~\ref{fig:vrednosti} v Backus-Naurjevi obli
 
 Račun \lae\ je ...
 
+...
+
+Določenih kombinacij izrazov nimamo v operacijski semantiki, ker niso smiselne. Recimo ...
+%aplikacija konstantne funkcije $+$ na enoti. Problem nastane, ker je domena funkcije $+$ števila, čeprav ni nikjer eksplicitno zapisana. Enota ni število. Zato aplikacija $+$ na enoti ni smiselna.
+Če \lae pride do izračuna za katerega nima pravila v operacijski semantiki se ustavi. Večina programskih jezikov bi na tem mestu vrnila runtime error.
+%V aeff interpreterju je povno assertov, ki bi se sprožili, če bi dobili recimo "true + ()". Kaj točno pa lae naredil?
+
+\subsection{Sistem tipov}
+
+Runtime errorji niso zaželjeni, saj se je program, do takrat ko se sprožijo, potencialno izvajal že zelo dolgo.
+Da se jim izognemo, uvedemo sistem tipov. Izraze razdelimo v množice. Množice poimenujemo. Imenu množice rečemo tip. Ko izraz $M$ damo v množico $A$, rečemo, da smo izrazu $M$ dodelili tip $A$ ali da ima $M$ tip $A$. 
+Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
+
+
+%Zakaj rabimo tip i/o operacij, ki jih bomo morda sprožili??
+\begin{figure}[tb]
+	\parbox{\textwidth}{
+		\centering
+		\small
+		\begin{align*}
+		\text{Osnovni tipi vrednosti $A$, $B$}
+		\bnfis& \tysym{int} \,\bnfor\! \tysym{bool} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \,\bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B}
+		\\%[1ex]
+		\text{Tipi vrednosti $X$, $Y$}
+		\bnfis& A \,\bnfor\! \tyfun{X}{Y} \,\bnfor\! \typromise{X}
+		\\
+		\text{Tip izračuna} \bnfis& \tycomp{X}
+		\end{align*}
+	} 
+	\caption{Tipi}
+	\label{fig:tipi}
+\end{figure}
+
+
+
+V nekem smislu smo uvedli ekvivalenčno relacijo in sedaj gledamo samo še predstavnika razreda.
+ 
+
+...
+
+Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku nam zagotavlja, da ne moremo dobiti runtime, če imamo tipe, kot smo jih definirali.
+
+\begin{izrek}[Izrek o varnosti]
+	Če ima izračun $M$ tip, potem je "varen".
+\end{izrek}
+
+
+\begin{izrek}[Izrek o napredku]
+	Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ vrednost ali pa lahko naredi korak v izraz $M^*$.
+\end{izrek}
+
+\begin{proof}
+	Če je izraz $M$ vrednost smo končali. Sicer dokazujemo 
+\end{proof}
+
+
+\begin{izrek}[Izrek o ohranitvi]
+	Če ima izraz $M$ v okolju $\Gamma$ tip $A$ in naredi korak v izraz $M^*$ ima $M^*$ v okolju $\Gamma$ tip $A$.
+\end{izrek}
+
+\begin{proof}
+	Left fo the reader as an exercise :D
+\end{proof}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -456,16 +486,11 @@ Kadar pričakujemo več signalov z isto operacijo je lahko iz različnih razlogo
 To funkcionalnost smo do sedaj dosegli tako, da smo obljubo zapakirali v rekurzivno funkcijo in po potrebi znotraj obljube ponovno klicali to funkcij kot lahko vidimo v programu~\ref{prog:obljuba-v-rekurzivni-funkciji}.
 
 
-\begin{listing}[h]
-	\label{prog:obljuba-v-rekurzivni-funkciji}
-	\begin{minted}{ocaml}
+\begin{lstlisting}[caption={Obljuba v rekurzivni funkciji.},label={prog:obljuba-v-rekurzivni-funkciji}]
 	let rec f =
 	promise (op x -> send op x; f(); return <<()>>) 
 	as _ in ()
-	
-	\end{minted}
-	\caption{Obljuba v rekurzivni funkciji.}
-\end{listing}
+\end{lstlisting}
 
 
 
@@ -475,18 +500,13 @@ Sedaj lahko obljubi dodamo ime lambda funkcije, ki sprejme enoto in ima v abstra
 	promise (op x k -> M) as p in N
 \end{definicija}
 
-
-\begin{listing}[h]
-	\label{prog:obljuba-v-rekurzivni-funkciji}
-	\begin{minted}{ocaml}
+Program~\ref{prog:rekurzivna-obljuba} ima isti semantičen pomen kot~\ref{prog:obljuba-v-rekurzivni-funkciji} le da je tokrat napisan z rekurzivno obljubo.
+\begin{lstlisting}[caption={Rekurzivna obljuba.},label={prog:rekurzivna-obljuba}]
 	promise (op x k -> send op x; k())
 	as _ in ()
-	
-	\end{minted}
-	\caption{Ta program ima isti semantičen pomen kot~\ref{prog:obljuba-v-rekurzivni-funkciji} le da je tokrat napisan z rekurzivno obljubo. }
-\end{listing}
+\end{lstlisting}
 
-Že obstoječe varovane obljube so sedaj sintaktičen sladkor za obljubo, ki zapakira izračun iz abstrakcije v če izračun.
+Prejšnje obstoječe varovane obljube so sedaj sintaktičen sladkor za obljubo, ki zapakira izračun iz abstrakcije v če izračun.
 \begin{definicija}
 
 	promise (op x k when x >= 0 -> send op x; k())

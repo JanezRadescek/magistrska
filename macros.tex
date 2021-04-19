@@ -9,6 +9,9 @@
 
 \newcommand{\lambdaAEff}{$\lambda_{\text{\ae}}$} % the name of the calculus
 
+\newcommand{\lae}{$\lambda_{\text{\ae}}$} %shorter name
+\newcommand{\aeff}{Æff} % the name of the language
+
 % BNF grammars
 \newcommand{\bnfis}{\mathrel{\;{:}{:}{=}\ }}
 \newcommand{\bnfor}{\mathrel{\;\big|\ \ }}
@@ -91,7 +94,8 @@
 
 %% Computation types
 
-\newcommand{\tycomp}[2]{#1 \at #2} % computation type
+%\newcommand{\tycomp}[2]{#1 \at #2} % computation type
+\newcommand{\tycomp}[1]{#1 \at} % computation type. No o/i
 
 %% Process types
 
@@ -117,7 +121,7 @@
 \newcommand{\tminr}[2][]{\tmkw{inr}_{#1}\,#2} % right injection
 %\newcommand{\tmfun}[2]{{\mathop{\tmkw{fun}}}\; (#1) \mapsto #2} % function abstraction
 %\newcommand{\tmfunano}[2]{{\mathop{\tmkw{fun}}}\; #1 \mapsto #2} % function abstraction (no type annotation expected)
- \newcommand{\tmfun}[2]{{\mathop{\tmkw{fun}}}\; #1 \mapsto #2} % no annotation is now standard. Use annotated type if you want annotation.
+\newcommand{\tmfun}[2]{{\mathop{\tmkw{fun}}}\; #1 \mapsto #2} % no annotation is now standard. Use annotated type if you want annotation.
 \newcommand{\tmfunrec}[3]{\tmkw{fun}\; \tmkw{rec}\; #1\; #2 \mapsto #3} % recursive abstraction
 \newcommand{\tmapp}[2]{#1\,#2} % application
 
