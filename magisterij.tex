@@ -260,7 +260,7 @@ TODO
 %context = kontekst
 %true/false = resnica/neresnica
 %runtime error = ??
-
+%Partition of a set = partiticija množice ??
 
 
 %prevajaj vse razen sintakse na slikcah.
@@ -315,6 +315,8 @@ Eden izmed njih je tudi jezik \aeff{}, ki sloni na računu imenovanem \lae~\cite
 Najprej si bomo v poglavju \ref{sec:lae} pogledali že obstoječ račun \lae{}. V poglavju \ref{sec:razsirjen-lae} ga bomo razširili z rekurzivno obljubo, razcepom in \jR{Okvir}. V poglavju \ref{sec:impl} si bomo pogledali implementacijo. Obstoječ Hindley–Milnerjev sistem tipov smo zamenjali z dvosmernim sistemom tipov in obstoječ tolmač spremenil,i da omogoča nekoliko bolj optimalno izvajanje. Vse dele implementacije smo prilagodili tudi za razširjen \lae.
 
 
+%Kakšna je točna relacija med računom in programskim jezikom? Jezik je implementacija računa??
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Račun \lae{}}\label{sec:lae}
 
@@ -354,13 +356,14 @@ blokada
 
 Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 
-\jR{zakaj imajo funkcije sintakso za tip? Ali niso anotacije v ta namen??}
+%zakaj imajo funkcije sintakso za tip? Ali niso anotacije v ta namen??
 
 
 %Kaj se zgodi če odstranimo match V with {} ??
 %Zakaj nimamo prazne vsote med vrednostmi??
 %Odveč če bo prvi in drugi odgovor dober. Vir prazne vsote so exceptni, errorji in neskončne rekurzije? Exceptionov nimamo v jeziku, errorjev nimamo ker imamo tipe, rekurzija lahko nikoli vrne poljuben tip. Pa naj nikoli vrne unit namesto da nikoli vrne prazno vsoto??
 
+%Jaz nebi delil na sekvenčni in vzporedni del??
 
 \begin{figure}[hp]
 	\parbox{\textwidth}{
@@ -392,14 +395,19 @@ Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 		\bnfor& \tmawait{V}{x}{M}             & &\text{blokada}
 			\\[1ex]
 		\intertext{\textbf{Procesi}}
-		P \bnfis & ...
+	%	P \bnfis & ...
+		  P, Q
+		\bnfis & \tmrun M & & \text{run} \\
+		\bnfor & \tmpar P Q & & \text{vzporedna procesa} \\
+		\bnfor & \tmopout{op}{V}{P} & & \text{hmmm} \\
+		\bnfor & \tmopin{op}{V}{P} & & \text{hmmm}
 		\end{align*}
 	} 
 	\caption{Vrednosti, izračuni in procesi.}
 	\label{fig:izrazi}
 \end{figure}
 
-
+%Dobro ime za process, ki ima i/o signal
 
 
 \subsection{Operacijska semantika}
@@ -418,6 +426,9 @@ Določenih kombinacij izrazov nimamo v operacijski semantiki, ker niso smiselne.
 Runtime errorji niso zaželjeni, saj se je program, do takrat ko se sprožijo, potencialno izvajal že zelo dolgo.
 Da se jim izognemo, uvedemo sistem tipov. Izraze razdelimo v množice. Množice poimenujemo. Imenu množice rečemo tip. Ko izraz $M$ damo v množico $A$, rečemo, da smo izrazu $M$ dodelili tip $A$ ali da ima $M$ tip $A$. 
 Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
+
+%Ali se razdelitev elementov v nmnožice ne imenuje particija??
+
 
 
 %Zakaj rabimo tip i/o operacij, ki jih bomo morda sprožili??
@@ -518,11 +529,9 @@ Prejšnje obstoječe varovane obljube so sedaj sintaktičen sladkor za obljubo, 
 	as \_ in ()
 \end{definicija}
 
-\subsection{Mobile}
+\subsection{Prenosljivi tipi}
 
 \subsection{Spawn}
-
-\jR{Na pdfju je tale stran zamaknjena v levo v primerjavi z prejšnjo in naslednjo. Zakaj? A je to nameno raradi tiska??}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -537,7 +546,7 @@ Prejšnje obstoječe varovane obljube so sedaj sintaktičen sladkor za obljubo, 
 
 \subsection{Tolmač}\label{sec:interpreter}
 
-\subsubsection{operacijska semantika prej}
+\subsubsection{prej}
 
 \subsubsection{potem}
 
