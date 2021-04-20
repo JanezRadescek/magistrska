@@ -7,9 +7,9 @@
 % NASLEDNJE UKAZE USTREZNO POPRAVI
 \newcommand{\program}{Matematika} % ime studijskega programa
 \newcommand{\imeavtorja}{Janez~Radešček} % ime avtorja
-\newcommand{\imementorja}{doc.~dr.~Pretnar Matija} % akademski naziv in ime mentorja, uporabi poln naziv, prof.~dr.~, doc.~dr., ali izr.~prof.~dr.
-\newcommand{\imesomentorja}{} % akademski naziv in ime somentorja, če ga imate
-\newcommand{\naslovdela}{Naslov vašega dela}
+\newcommand{\imementorja}{doc.~dr.~Pretnar~Matija} % akademski naziv in ime mentorja, uporabi poln naziv, prof.~dr.~, doc.~dr., ali izr.~prof.~dr.
+\newcommand{\imesomentorja}{asist.~raz.~dr.~Danel~Ahman} % akademski naziv in ime somentorja, če ga imate
+\newcommand{\naslovdela}{Asinhroni algebrajski učinki}
 \newcommand{\letnica}{2021} % letnica magistriranja
 \newcommand{\opis}{Delo obravnava integracijo po ω-kompleksih, njene lastnosti in posplošitve
 na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati matematičnih simbolov v $ $.
@@ -137,7 +137,7 @@ FAKULTETA ZA MATEMATIKO IN FIZIKO\\[5mm]
   \large
   Magistrsko delo \\[1cm]
   Mentor: \imementorja \\[2mm] % ustrezno popravi spol
-%   Somentor: \imesomentorja   % dodaj, če potrebno
+  Somentor: \imesomentorja   % dodaj, če potrebno
 \end{center}
 \vfill
 
@@ -169,26 +169,23 @@ Zahvaljujem se \dots
 
 \section*{Program dela}
 \addcontentsline{toc}{section}{Program dela} % dodajmo v kazalo
-Mentor naj napiše program dela skupaj z osnovno literaturo. Na literaturo se
-lahko sklicuje kot~\cite{lebedev2009introduction}, \cite{gurtin1982introduction},
-\cite{zienkiewicz2000finite}, \cite{STtemplate}.
+%Mentor naj napiše program dela skupaj z osnovno literaturo. Na literaturo se
+%lahko sklicuje kot~\cite{lebedev2009introduction}, \cite{gurtin1982introduction},
+%\cite{zienkiewicz2000finite}, \cite{STtemplate}.
 
 \section*{Osnovna literatura}
-Literatura mora biti tukaj posebej samostojno navedena (po pomembnosti) in ne
-le citirana. V tem razdelku literature ne oštevilčimo po svoje, ampak uporabljamo
-okolje itemize in ukaz plancite, saj je celotna literatura oštevilčena na koncu.
+%Literatura mora biti tukaj posebej samostojno navedena (po pomembnosti) in ne
+%le citirana. V tem razdelku literature ne oštevilčimo po svoje, ampak uporabljamo
+%okolje itemize in ukaz plancite, saj je celotna literatura oštevilčena na koncu.
 \begin{itemize}
-  \plancite{lebedev2009introduction}
-  \plancite{gurtin1982introduction}
-  \plancite{zienkiewicz2000finite}
   \plancite{STtemplate}
 \end{itemize}
 
 \vspace{2cm}
 \hspace*{\fill} Podpis mentorja: \phantom{prostor za podpis}
 
-% \vspace{2cm}
-% \hspace*{\fill} Podpis somentorja: \phantom{prostor za podpis}
+ \vspace{2cm}
+ \hspace*{\fill} Podpis somentorja: \phantom{prostor za podpis}
 
 \cleardoublepage
 \pdfbookmark[1]{Povzetek}{abstract}
@@ -229,7 +226,7 @@ TODO
 %promise = obljuba
 %guarded promise = varovana obljuba
 %abstraction = abstrakcija
-%spawn = ??
+%spawn =  ??
 %interpreter = tolmač
 %type sistem = sistem tipov
 %computation = izračun
@@ -427,8 +424,8 @@ Runtime errorji niso zaželjeni, saj se je program, do takrat ko se sprožijo, p
 Da se jim izognemo, uvedemo sistem tipov. Izraze razdelimo v množice. Množice poimenujemo. Imenu množice rečemo tip. Ko izraz $M$ damo v množico $A$, rečemo, da smo izrazu $M$ dodelili tip $A$ ali da ima $M$ tip $A$. 
 Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 
-%Ali se razdelitev elementov v nmnožice ne imenuje particija??
-
+%Ali se razdelitev elementov v nmnožice ne imenuje particija?? 
+%
 
 
 %Zakaj rabimo tip i/o operacij, ki jih bomo morda sprožili??

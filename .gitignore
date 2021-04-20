@@ -17,6 +17,8 @@ magisterij.pyg
 *.fdb_latexmk
 magisterij.ilg
 __latexindent_temp.tex
-
-#excluded files/folders
 magisterij.ind
+predstavitev.snm
+predstavitev.pdf
+predstavitev.nav
+predstavitev.vrb
