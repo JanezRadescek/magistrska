@@ -261,6 +261,10 @@ TODO
 %runtime error = ??
 %Partition of a set = partiticija množice ??
 %typing rules = pravila za tipe
+%interupt propagation = širitev prekinitve
+%signal hoisting = dvig signala
+%broadcasting = oddajanje signala
+%evaluation context rule
 
 
 %prevajaj vse razen sintakse na slikcah.
@@ -664,72 +668,81 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 		\coopinfer{TyComp-Return}{
 			\Gamma \types V : X
 		}{
-			\Gamma \types \tmreturn{V} : X
+			\Gamma \types \tmreturn{V} : \tycomp{X}{(\o,\i)}
 		}
 		\qquad
 		\coopinfer{TyComp-Let}{
-			\Gamma \types M : X
+			\Gamma \types M : \tycomp{X}{(\o,\i)}
 			\\
-			\Gamma, x \of X \types N : Y
+			\Gamma, x \of X \types N : \tycomp{Y}{(\o,\i)} %Zakaj imata M in N iste operacije ki jih lahko sprožita/prestrežeta??
 		}{
 			\Gamma \types
-			\tmlet{x}{M}{N} : Y
+			\tmlet{x}{M}{N} : \tycomp{Y}{(\o,\i)}
 		}
 		\\
 		\coopinfer{TyComp-Apply}{
-			\Gamma \types V : \tyfun{X}{Y} \\
+			\Gamma \types V : \tyfun{X}{\tycomp{Y}{(\o,\i)}} \\
 			\Gamma \types W : X
 		}{
-			\Gamma \types \tmapp{V}{W} : Y
+			\Gamma \types \tmapp{V}{W} : \tycomp{Y}{(\o,\i)}
 		}
-		\qquad
+		\quad
 		\coopinfer{TyComp-MatchPair}{
 			\Gamma \types V : \typrod{X}{Y} \\
-			\Gamma, x \of X, y \of Y \types M : Z
+			\Gamma, x \of X, y \of Y \types M : \tycomp{Z}{(\o,\i)}
 		}{
-			\Gamma \types \tmmatch{V}{\tmpair{x}{y} \mapsto M} : Z
+			\Gamma \types \tmmatch{V}{\tmpair{x}{y} \mapsto M} : \tycomp{Z}{(\o,\i)}
 		}
 		\\
 		\coopinfer{TyComp-MatchEmpty}{
 			\Gamma \types V : \tyempty
 		}{
-			\Gamma \types \tmmatch[Z]{V}{} : Z
+			\Gamma \types \tmmatch[\tycomp{Z}{(\o,\i)}]{V}{} : \tycomp{Z}{(\o,\i)}
 		}
-		\qquad
+		\quad
 		\coopinfer{TyComp-MatchSum}{
 			\Gamma \types V : X + Y \\\\
-			\Gamma, x \of X \types M : Z \\
-			\Gamma, y \of Y \types N : Z \\
+			\Gamma, x \of X \types M : \tycomp{Z}{(\o,\i)} \\
+			\Gamma, y \of Y \types N : \tycomp{Z}{(\o,\i)} \\
 		}{
-			\Gamma \types \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N} : Z
+			\Gamma \types \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N} : \tycomp{Z}{(\o,\i)}
 		}
 		\\
 		\coopinfer{TyComp-Signal}{
+			\op \in \o \\
 			\Gamma \types V : A_\op \\
-			\Gamma \types M : X 
+			\Gamma \types M : \tycomp{X}{(\o,\i)} 
 		}{
-			\Gamma \types \tmopout{op}{V}{M} : X
+			\Gamma \types \tmopout{op}{V}{M} : \tycomp{X}{(\o,\i)}
 		}
 		\qquad
 		\coopinfer{TyComp-Interrupt}{
 			\Gamma \types V : A_\op \\
-			\Gamma \types M : X 
+			\Gamma \types M : \tycomp{X}{(\o,\i)} 
 		}{
-			\Gamma \types \tmopin{op}{V}{M} : X
+			\Gamma \types \tmopin{op}{V}{M} : \tycomp{X}{\opincomp {op} (\o,\i)}
 		}
 		\\
 		\coopinfer{TyComp-Promise}{
-			\Gamma, x \of A_\op \types M : \typromise X \\
-			\Gamma, p \of \typromise X \types N : Y 
+			\i\, (\op) = ({\o'} , {\i'}) \\
+			\Gamma, x \of A_\op \types M : \tycomp{\typromise X}{(\o',\i')} \\
+			\Gamma, p \of \typromise X \types N : \tycomp{Y}{(\o,\i)} 
 		}{
-			\Gamma \types \tmwith{op}{x}{M}{p}{N} : Y
+			\Gamma \types \tmwith{op}{x}{M}{p}{N} : \tycomp{Y}{(\o,\i)}
 		}
 		\\
 		\coopinfer{TyComp-Await}{
 			\Gamma \types V : \typromise X \\
-			\Gamma, x \of X \types M : Y 
+			\Gamma, x \of X \types M : \tycomp{Y}{(\o,\i)} 
 		}{
-			\Gamma \types \tmawait{V}{x}{M} : Y
+			\Gamma \types \tmawait{V}{x}{M} : \tycomp{Y}{(\o,\i)}
+		}
+		\qquad
+		\coopinfer{TyComp-Subsume}{
+			\Gamma \types M : \tycomp{X}{(\o, \i)} \\
+			(\o,\i) \order {O \times I} (\o',\i')
+		}{
+			\Gamma \types M : \tycomp{X}{(\o', \i')}
 		}
 	\end{mathpar}
 	\caption{Computation typing rules.}

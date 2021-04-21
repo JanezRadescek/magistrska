@@ -127,6 +127,9 @@
 \newcommand{\tmfunrecano}[3]{\tmkw{fun}\; \tmkw{rec}\; #1\; #2 \mapsto #3} % recursive abstraction (no type annotation expected)
 \newcommand{\tmapp}[2]{#1\,#2} % application
 
+\newcommand{\tmboxed}[1]{[#1]} % boxed value
+\newcommand{\tmunbox}[3]{\tmkw{unbox}\; \tmboxed{#1}\; \tmkw{as} \; #2 \; \tmkw{in}\;#3} % unbox comand
+
 \newcommand{\tmreturn}[2][]{\tmkw{return}_{#1}\, #2} % pure computation
 \newcommand{\tmlet}[3]{\tmkw{let}\; #1 = #2 \;\tmkw{in}\; #3} % let-binding
 \newcommand{\tmletrec}[5][]{\tmkw{let}\;\tmkw{rec}\; #2\; #3 #1 = #4 \;\tmkw{in}\; #5} % recursive definitions
@@ -142,6 +145,7 @@
 \newcommand{\tmawait}[3]{\tmkw{await}\;#1\;\tmkw{until}\;\tmpromise{#2}\;\tmkw{in}\;#3} % awaiting for a promise to be completed
 
 \newcommand{\tmwith}[5]{\tmkw{promise}\; (\tm{#1}\; #2 \mapsto #3)\; \tmkw{as}\; #4\; \tmkw{in}\; #5} % interrupt hook
+\newcommand{\tmwithrec}[6]{\tmkw{promise}\; (\tm{#1}\; #2\; (#3) \mapsto (#4))\; \tmkw{as}\; #5\; \tmkw{in}\; #6} % interrupt hook
 %\newcommand{\tmwith}[6]{\tmkw{promise}\; (\tm{#1}\; #2 \mapsto #3)\; \tmkw{as}\; #4 \of \typromise{#5}\; \tmkw{in}\; #6} % interrupt hook
 
 \newcommand{\tmrun}[1]{\tmkw{run}\; #1} % running a computation as a process
