@@ -99,7 +99,8 @@
 
 %% Process types
 
-\newcommand{\tyrun}[3]{#1 \att (#2,#3)} % type of the run M process
+%\newcommand{\tyrun}[3]{#1 \att (#2,#3)} % type of the run M process
+\newcommand{\tyrun}[1]{#1 \att} % type of the run M process
 \newcommand{\typar}[2]{#1 \mathbin{\tmkw{\vert\vert}}  #2} % type of parallel processes
 \newcommand{\tyC}{C} % meta variable ranging over process types
 \newcommand{\tyD}{D} % meta variable ranging over process types
@@ -109,7 +110,7 @@
 \newcommand{\tm}[1]{\mathsf{#1}} % the source code font
 
 %
-\definecolor{keywordColor}{cmyk}{0.9, 0.4, 0.1, 0.2}
+\definecolor{keywordColor}{cmyk}{0.9, 0.4, 0.1, 0.2} % i dont have that color otherwise
 \newcommand{\tmkw}[1]{\tm{\color{keywordColor}#1}} % source code keyword, colored
 
 \newcommand{\tmpromise}[1]{\langle #1 \rangle} % completed promise
@@ -119,10 +120,11 @@
 \newcommand{\tmpair}[2]{( #1 , #2 )} % ordered pair
 \newcommand{\tminl}[2][]{\tmkw{inl}_{#1}\,#2} % left injection
 \newcommand{\tminr}[2][]{\tmkw{inr}_{#1}\,#2} % right injection
-%\newcommand{\tmfun}[2]{{\mathop{\tmkw{fun}}}\; (#1) \mapsto #2} % function abstraction
-%\newcommand{\tmfunano}[2]{{\mathop{\tmkw{fun}}}\; #1 \mapsto #2} % function abstraction (no type annotation expected)
-\newcommand{\tmfun}[2]{{\mathop{\tmkw{fun}}}\; #1 \mapsto #2} % no annotation is now standard. Use annotated type if you want annotation.
-\newcommand{\tmfunrec}[3]{\tmkw{fun}\; \tmkw{rec}\; #1\; #2 \mapsto #3} % recursive abstraction
+\newcommand{\tmfun}[2]{{\mathop{\tmkw{fun}}}\; (#1) \mapsto #2} % function abstraction
+\newcommand{\tmfunano}[2]{{\mathop{\tmkw{fun}}}\; #1 \mapsto #2} % function abstraction (no type annotation expected)
+%\newcommand{\tmfun}[2]{{\mathop{\tmkw{fun}}}\; #1 \mapsto #2} % no annotation is now standard. Use annotated type if you want annotation.
+\newcommand{\tmfunrec}[3]{\tmkw{fun}\; \tmkw{rec}\; #1\; (#2) \mapsto #3} % recursive abstraction
+\newcommand{\tmfunrecano}[3]{\tmkw{fun}\; \tmkw{rec}\; #1\; #2 \mapsto #3} % recursive abstraction (no type annotation expected)
 \newcommand{\tmapp}[2]{#1\,#2} % application
 
 \newcommand{\tmreturn}[2][]{\tmkw{return}_{#1}\, #2} % pure computation
@@ -161,6 +163,7 @@
 
 \newcommand{\sub}{\sqsubseteq} % subtyping relation
 
+\definecolor{rulenameColor}{cmyk}{0.1, 0.1, 0.1, 0.4} % i dont have that color otherwise
 \newcommand{\coopinfer}[3]{\inferrule*[Lab={\color{rulenameColor}#1}]{#2}{#3}}
 
 %%% Meta-theory

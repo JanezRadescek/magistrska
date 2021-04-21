@@ -95,12 +95,14 @@ return c
 		
 		TODO prevedi primer v aeff
 		
+		Programski jezik 
+		
 		%Da se izognemo problemu kaj z 4. korakom aeff ne omogoča uporabe spremenljivk iz drugih procesov.
 		%Kadar bi radi da nek korak le je odvisen od koraka iz drugega procesa to dosežemo s pomočjo efektov. 
 		
 	\end{frame}
 
-	\begin{frame}{\lae{}}
+	\begin{frame}{izrazi}
 		
 		\begin{columns}[T]
 			\begin{column}{0.27\textwidth}
@@ -168,19 +170,181 @@ return c
 
 
 
-	\begin{frame}{Razširitev}
+	\begin{frame}{operacijska semantika}
+		\begin{columns}[T]
+			\begin{column}{0.27\textwidth}
+				\begin{figure}[hp]
+					\parbox{\textwidth}{
+						\centering
+						\tiny
+						\begin{align*}
+						\intertext{\textbf{Vrednosti}}
+						V, W
+						\bnfis& n \bnfor\! \true \bnfor\! \false        \\
+						\bnfor& x                                       \\
+						\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          \\
+						\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      \\
+						\bnfor& \tmfun{x}{M}                        \\
+						\bnfor& \tmfunrec{f}{x}{M}                   \\
+						\bnfor& \tmpromise V                           
+						\end{align*}
+					} 
+				\end{figure}
+			\end{column}
 		
-		Za dano $n$-terico $(z_1,...,z_n)$ kompleksnih števil iz enotskega diska, kjer so elementi paroma različni, in dano $n$-terico $(w_1,...,w_n)$ kompleksnih števil Pick-Nevalinnov problem sprašuje po potrebnih in zadostnih pogojih na ta števila, da obstaja holomorfna funkcija $f$ na enotskem disku po absolutni vrednosti pod 1, ki interpolira dane podatke: $f(z_i) = w_i$ za $i = 1,...,n$. 
+			\begin{column}{0.32\textwidth}
+				\begin{figure}[hp]
+					\parbox{\textwidth}{
+						\centering
+						\tiny
+						\begin{align*}
+						\intertext{\textbf{Izračuni}}
+						M, N
+						\bnfis& \tmreturn{V}                             \\
+						\bnfor& \tmlet{x}{M}{N}                          \\
+						\bnfor& V\,W                                   \\
+						\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    \\
+						\bnfor& \tmmatch[]{V}{}                         \\
+						\bnfor& \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}	\\
+						\bnfor& \tmopout{op}{V}{M}       \\
+						\bnfor& \tmopin{op}{V}{M}          \\
+						\bnfor& \tmwith{op}{x}{M}{p}{N}      \\
+						\bnfor& \tmawait{V}{x}{M}           
+						\end{align*}
+					} 
+				\end{figure}
+			\end{column}
+		
+			\begin{column}{0.42\textwidth}
+				\begin{figure}[hp]
+					\parbox{\textwidth}{
+						\centering
+						\tiny
+						\begin{align*}
+						\intertext{\textbf{Procesi}}
+						P, Q
+						\bnfis & \tmrun M & & \text{proces} \\
+						\bnfor & \tmpar P Q & & \text{vzporedna procesa} \\
+						\bnfor & \tmopout{op}{V}{P} & & \text{proces z signalom} \\
+						\bnfor & \tmopin{op}{V}{P}  & & \text{proces z prekinitvijo}
+						\end{align*}
+					} 
+				\end{figure}
+			\end{column}
+		\end{columns}	
+	\end{frame}
 
-		\begin{definicija}
-			Naj bo $n$-terica točk $(a_1,...,a_n) \subset A$, kjer so elementi paroma različni in $n$-terica točk $(b_1,...,b_n) \subset B$. Interpolacija je funkcija $f:A \rightarrow B$ za katero velja: $f(a_i) = b_i$. Za tako funkcijo  $f$ pravimo da interpolira $(a_1,...,a_n)$ v  $(b_1,...,b_n)$.
-		\end{definicija}
+	\begin{frame}{tipi}
+		\begin{figure}[tb]
+			\parbox{\textwidth}{
+				\centering
+				\small
+				\begin{align*}
+				\text{Osnovni tipi vrednosti $A$, $B$}
+				\bnfis& \tysym{int} \,\bnfor\! \tysym{bool} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \,\bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B}
+				\\%[1ex]
+				\text{Tipi vrednosti $X$, $Y$}
+				\bnfis& A \,\bnfor\! \tyfun{X}{Y} \,\bnfor\! \typromise{X}
+				\\
+				\text{Tip izračuna} \bnfis& \tycomp{X}
+				\end{align*}
+			}
+		\end{figure}
+	\end{frame}
+
+	\begin{frame}{pravila za tipe}
+		\begin{columns}[T]
+			\begin{column}{0.27\textwidth}
+				\begin{figure}[hp]
+					\parbox{\textwidth}{
+						\centering
+						\tiny
+						\begin{align*}
+						\intertext{\textbf{Vrednosti}}
+						V, W
+						\bnfis& n \bnfor\! \true \bnfor\! \false        \\
+						\bnfor& x                                       \\
+						\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          \\
+						\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      \\
+						\bnfor& \tmfun{x}{M}                        \\
+						\bnfor& \tmfunrec{f}{x}{M}                   \\
+						\bnfor& \tmpromise V                           
+						\end{align*}
+					} 
+				\end{figure}
+			\end{column}
+			
+			\begin{column}{0.32\textwidth}
+				\begin{figure}[hp]
+					\parbox{\textwidth}{
+						\centering
+						\tiny
+						\begin{align*}
+						\intertext{\textbf{Izračuni}}
+						M, N
+						\bnfis& \tmreturn{V}                             \\
+						\bnfor& \tmlet{x}{M}{N}                          \\
+						\bnfor& V\,W                                   \\
+						\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    \\
+						\bnfor& \tmmatch[]{V}{}                         \\
+						\bnfor& \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}	\\
+						\bnfor& \tmopout{op}{V}{M}       \\
+						\bnfor& \tmopin{op}{V}{M}          \\
+						\bnfor& \tmwith{op}{x}{M}{p}{N}      \\
+						\bnfor& \tmawait{V}{x}{M}           
+						\end{align*}
+					} 
+				\end{figure}
+			\end{column}
+			
+			\begin{column}{0.42\textwidth}
+				\begin{figure}[hp]
+					\parbox{\textwidth}{
+						\centering
+						\tiny
+						\begin{align*}
+						\intertext{\textbf{Procesi}}
+						P, Q
+						\bnfis & \tmrun M & & \text{proces} \\
+						\bnfor & \tmpar P Q & & \text{vzporedna procesa} \\
+						\bnfor & \tmopout{op}{V}{P} & & \text{proces z signalom} \\
+						\bnfor & \tmopin{op}{V}{P}  & & \text{proces z prekinitvijo}
+						\end{align*}
+					} 
+				\end{figure}
+			\end{column}
+		\end{columns}	
+	\end{frame}
+
+	
+	\begin{frame}{Napredek}
+		
+		\begin{izrek}[o napredku]
+			Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ vrednost ali pa lahko naredi korak v izraz $M^*$.
+		\end{izrek}
+		
+		\begin{proof}
+			... 
+		\end{proof}
+		
+	\end{frame}
+
+	
+		
+	\begin{frame}{Ohranitev}
+				
+		\begin{izrek}[o ohranitvi]
+			Če ima izraz $M$ v okolju $\Gamma$ tip $A$ in naredi korak v izraz $M^*$, ima $M^*$ v okolju $\Gamma$ tip $A$.
+		\end{izrek}
+		
+		\begin{proof}
+			%Left for the reader as an exercise :D
+		\end{proof}
 		
 	\end{frame}
 
 
-
-	\begin{frame}{Zaključek}
+	\begin{frame}{Razširitev}
 		
 		Za dano $n$-terico $(z_1,...,z_n)$ kompleksnih števil iz enotskega diska, kjer so elementi paroma različni, in dano $n$-terico $(w_1,...,w_n)$ kompleksnih števil Pick-Nevalinnov problem sprašuje po potrebnih in zadostnih pogojih na ta števila, da obstaja holomorfna funkcija $f$ na enotskem disku po absolutni vrednosti pod 1, ki interpolira dane podatke: $f(z_i) = w_i$ za $i = 1,...,n$. 
 

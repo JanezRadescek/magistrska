@@ -62,6 +62,7 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 
 % DRUGI TVOJI PAKETI:
 
+\usepackage{mathpartir} % inference rules
 
 \usepackage{listings}
 \renewcommand{\lstlistingname}{Program}% Listing -> Program
@@ -258,6 +259,7 @@ TODO
 %true/false = resnica/neresnica
 %runtime error = ??
 %Partition of a set = partiticija množice ??
+%typing rules = pravila za tipe
 
 
 %prevajaj vse razen sintakse na slikcah.
@@ -270,8 +272,6 @@ TODO
 %Napišite kratek zgodovinski in matematični uvod.  Pojasnite motivacijo za problem, kje
 %nastopa, kje vse je bil obravnavan. Na koncu opišite tudi organizacijo dela -- kaj je v
 %katerem razdelku.
-
-%uporabljam programer ali uporabnik??
 
 
 Če zelo poenostavimo postopek nastajanja program, potem nastane tako, da se v programskem jeziku napiše zaporedje ukazov, ki se jih izvaja enega za drugim. Program $P$ lahko predstavimo z urejeno $n$-terico 
@@ -373,8 +373,8 @@ Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 		\bnfor& x                                       & &\text{spremenljivka} \\
 		\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          & &\text{enota in par} \\
 		\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      & &\text{leva in desna inkluzija} \\
-		\bnfor& \tmfun{x}{M}                        & &\text{lambda} \\
-		\bnfor& \tmfunrec{f}{x}{M}                        & &\text{rekurzivna lambda} \\
+		\bnfor& \tmfun{x : X}{M}                        & &\text{lambda} \\
+		\bnfor& \tmfunrec{f}{x : X}{M}                        & &\text{rekurzivna lambda} \\
 		\bnfor& \tmpromise V                            & &\text{izpolnjena obljuba}
 		\\[1ex]
 		\intertext{\textbf{Izračuni}}
@@ -434,13 +434,16 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 		\centering
 		\small
 		\begin{align*}
-		\text{Osnovni tipi vrednosti $A$, $B$}
-		\bnfis& \tysym{int} \,\bnfor\! \tysym{bool} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \,\bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B}
+		\text{Osnovni tipi vrednosti $A_\op$, $B_\op$}
+		\bnfis & \tysym{int} \,\bnfor\! \tysym{bool} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \\
+		\bnfor & \typrod{A_\op}{B_\op} \,\bnfor\! \tysum{A_\op}{B_\op}
 		\\%[1ex]
-		\text{Tipi vrednosti $X$, $Y$}
-		\bnfis& A \,\bnfor\! \tyfun{X}{Y} \,\bnfor\! \typromise{X}
+		\text{Tipi vrednosti $A$, $B$}
+		\bnfis & A_\op \,\bnfor\! \tyfun{X}{Y} \,\bnfor\! \typromise{X}
 		\\
-		\text{Tip izračuna} \bnfis& \tycomp{X}
+		\text{Tip izračuna $I$} \bnfis& \tycomp{X}
+		\\
+		\text{Tip procesa \tyC, \tyD}  \bnfis & \tyrun{X} \,\bnfor\! \typar{\tyC}{\tyD}
 		\end{align*}
 	} 
 	\caption{Tipi}
@@ -449,7 +452,163 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 
 
 
-V nekem smislu smo uvedli ekvivalenčno relacijo in sedaj gledamo samo še predstavnika razreda.
+\begin{figure}[tp]
+	\centering
+	\small
+	\begin{mathpar}
+		\coopinfer{Tip-Cons}{
+		}{
+			\Gamma \types n : int
+		}
+		\qquad
+		\coopinfer{Tip-Cons}{
+		}{
+			\Gamma \types true : bool
+		}
+		\qquad
+		\coopinfer{Tip-Cons}{
+		}{
+			\Gamma \types false : bool
+		}
+		\quad
+		\coopinfer{Tip-Var}{
+		}{
+			\Gamma, x \of X, \Gamma' \types x : X
+		}
+		\quad
+		\coopinfer{Tip-Unit}{
+		}{
+			\Gamma \types \tmunit : \tyunit
+		}
+		\\
+		\coopinfer{Tip-Pair}{
+			\Gamma \types V : X \\
+			\Gamma \types W : Y
+		}{
+			\Gamma \types \tmpair{V}{W} : \typrod{X}{Y}
+		}
+		\quad
+		\coopinfer{Tip-Promise}{
+			\Gamma \types V : X
+		}{
+			\Gamma \types \tmpromise V : \typromise X
+		}
+		\quad
+		\coopinfer{Tip-Inl}{
+			\Gamma \types V : X
+		}{
+			\Gamma \types \tminl[Y]{V} : X + Y
+		}
+		\quad
+		\coopinfer{Tip-Inr}{
+			\Gamma \types W : Y
+		}{
+			\Gamma \types \tminr[X]{W} : X + Y
+		}
+		\\
+		\coopinfer{Tip-Fun}{
+			\Gamma, x \of X \types M : Y
+		}{
+			\Gamma \types \tmfun{x : X}{M} : \tyfun{X}{Y}
+		}
+		\quad
+		\coopinfer{Tip-Fun-Rec}{
+			\Gamma, x \of X \types M : Y
+		}{
+			\Gamma \types \tmfunrec{f}{x : X}{M} : \tyfun{X}{Y}
+		}
+	\end{mathpar}
+	\caption{Value typing rules.}
+	\label{fig:value-typing-rules}
+\end{figure}
+
+\begin{figure}[tp]
+	\centering
+	\small
+	\begin{mathpar}
+		\coopinfer{TyComp-Return}{
+			\Gamma \types V : X
+		}{
+			\Gamma \types \tmreturn{V} : X
+		}
+		\qquad
+		\coopinfer{TyComp-Let}{
+			\Gamma \types M : X
+			\\
+			\Gamma, x \of X \types N : Y
+		}{
+			\Gamma \types
+			\tmlet{x}{M}{N} : Y
+		}
+		\\
+		\coopinfer{TyComp-Apply}{
+			\Gamma \types V : \tyfun{X}{Y} \\
+			\Gamma \types W : X
+		}{
+			\Gamma \types \tmapp{V}{W} : Y
+		}
+		\qquad
+		\coopinfer{TyComp-MatchPair}{
+			\Gamma \types V : \typrod{X}{Y} \\
+			\Gamma, x \of X, y \of Y \types M : Z
+		}{
+			\Gamma \types \tmmatch{V}{\tmpair{x}{y} \mapsto M} : Z
+		}
+		\\
+		\coopinfer{TyComp-MatchEmpty}{
+			\Gamma \types V : \tyempty
+		}{
+			\Gamma \types \tmmatch[Z]{V}{} : Z
+		}
+		\qquad
+		\coopinfer{TyComp-MatchSum}{
+			\Gamma \types V : X + Y \\\\
+			\Gamma, x \of X \types M : Z \\
+			\Gamma, y \of Y \types N : Z \\
+		}{
+			\Gamma \types \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N} : Z
+		}
+		\\
+		\coopinfer{TyComp-Signal}{
+			\Gamma \types V : A_\op \\
+			\Gamma \types M : X 
+		}{
+			\Gamma \types \tmopout{op}{V}{M} : X
+		}
+		\qquad
+		\coopinfer{TyComp-Interrupt}{
+			\Gamma \types V : A_\op \\
+			\Gamma \types M : X 
+		}{
+			\Gamma \types \tmopin{op}{V}{M} : X
+		}
+		\\
+		\coopinfer{TyComp-Promise}{
+			\Gamma, x \of A_\op \types M : \typromise X \\
+			\Gamma, p \of \typromise X \types N : \tycomp{Y}{(\o,\i)} 
+		}{
+			\Gamma \types \tmwith{op}{x}{M}{p}{N} : \tycomp{Y}{(\o,\i)}
+		}
+		\\
+		\coopinfer{TyComp-Await}{
+			\Gamma \types V : \typromise X \\
+			\Gamma, x \of X \types M : \tycomp{Y}{(\o,\i)} 
+		}{
+			\Gamma \types \tmawait{V}{x}{M} : \tycomp{Y}{(\o,\i)}
+		}
+		\qquad
+		\coopinfer{TyComp-Subsume}{
+			\Gamma \types M : \tycomp{X}{(\o, \i)} \\
+			(\o,\i) \order {O \times I} (\o',\i')
+		}{
+			\Gamma \types M : \tycomp{X}{(\o', \i')}
+		}
+	\end{mathpar}
+	\caption{Computation typing rules.}
+	\label{fig:computation-typing-rules}
+\end{figure}
+
+%V nekem smislu smo uvedli ekvivalenčno relacijo in sedaj gledamo samo še predstavnika razreda.
  
 
 ...
@@ -462,20 +621,20 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 
 
 \begin{izrek}[Izrek o napredku]
-	Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ vrednost ali pa lahko naredi korak v izraz $M^*$.
+	Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ rezultat ali pa lahko naredi korak v izraz $M^*$.
 \end{izrek}
 
 \begin{proof}
-	Če je izraz $M$ vrednost smo končali. Sicer dokazujemo 
+	Če je izraz $M$ rezultat smo končali. Sicer dokazujemo 
 \end{proof}
 
 
 \begin{izrek}[Izrek o ohranitvi]
-	Če ima izraz $M$ v okolju $\Gamma$ tip $A$ in naredi korak v izraz $M^*$ ima $M^*$ v okolju $\Gamma$ tip $A$.
+	Če ima izraz $M$ v okolju $\Gamma$ tip $A$ in naredi korak v izraz $M^*$, ima $M^*$ v okolju $\Gamma$ tip $A$.
 \end{izrek}
 
 \begin{proof}
-	Left fo the reader as an exercise :D
+	%Left for the reader as an exercise :D
 \end{proof}
 
 
