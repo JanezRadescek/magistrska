@@ -2,9 +2,13 @@
 \usepackage[slovene]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{listings}
-\usetheme{Montpellier}
+
+\usetheme{Montpellier} %beamer
 \usecolortheme{beaver}
+
+\usepackage{listings} %koda
+\usepackage{mathpartir} % inference rules
+\usepackage{mathtools} % mathllap
 
 
 % bold matematika znotraj \textbf{ }, tudi v naslovih, kot \omega spodaj
@@ -170,150 +174,367 @@ return c
 
 
 
-	\begin{frame}{operacijska semantika}
-		\begin{columns}[T]
-			\begin{column}{0.27\textwidth}
-				\begin{figure}[hp]
-					\parbox{\textwidth}{
-						\centering
-						\tiny
-						\begin{align*}
-						\intertext{\textbf{Vrednosti}}
-						V, W
-						\bnfis& n \bnfor\! \true \bnfor\! \false        \\
-						\bnfor& x                                       \\
-						\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          \\
-						\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      \\
-						\bnfor& \tmfun{x}{M}                        \\
-						\bnfor& \tmfunrec{f}{x}{M}                   \\
-						\bnfor& \tmpromise V                           
-						\end{align*}
-					} 
-				\end{figure}
-			\end{column}
-		
-			\begin{column}{0.32\textwidth}
-				\begin{figure}[hp]
-					\parbox{\textwidth}{
-						\centering
-						\tiny
-						\begin{align*}
-						\intertext{\textbf{Izračuni}}
-						M, N
-						\bnfis& \tmreturn{V}                             \\
-						\bnfor& \tmlet{x}{M}{N}                          \\
-						\bnfor& V\,W                                   \\
-						\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    \\
-						\bnfor& \tmmatch[]{V}{}                         \\
-						\bnfor& \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}	\\
-						\bnfor& \tmopout{op}{V}{M}       \\
-						\bnfor& \tmopin{op}{V}{M}          \\
-						\bnfor& \tmwith{op}{x}{M}{p}{N}      \\
-						\bnfor& \tmawait{V}{x}{M}           
-						\end{align*}
-					} 
-				\end{figure}
-			\end{column}
-		
-			\begin{column}{0.42\textwidth}
-				\begin{figure}[hp]
-					\parbox{\textwidth}{
-						\centering
-						\tiny
-						\begin{align*}
-						\intertext{\textbf{Procesi}}
-						P, Q
-						\bnfis & \tmrun M & & \text{proces} \\
-						\bnfor & \tmpar P Q & & \text{vzporedna procesa} \\
-						\bnfor & \tmopout{op}{V}{P} & & \text{proces z signalom} \\
-						\bnfor & \tmopin{op}{V}{P}  & & \text{proces z prekinitvijo}
-						\end{align*}
-					} 
-				\end{figure}
-			\end{column}
-		\end{columns}	
-	\end{frame}
-
-	\begin{frame}{tipi}
-		\begin{figure}[tb]
-			\parbox{\textwidth}{
-				\centering
-				\small
-				\begin{align*}
-				\text{Osnovni tipi vrednosti $A$, $B$}
-				\bnfis& \tysym{int} \,\bnfor\! \tysym{bool} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \,\bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B}
-				\\%[1ex]
-				\text{Tipi vrednosti $X$, $Y$}
-				\bnfis& A \,\bnfor\! \tyfun{X}{Y} \,\bnfor\! \typromise{X}
-				\\
-				\text{Tip izračuna} \bnfis& \tycomp{X}
-				\end{align*}
-			}
+	\begin{frame}{Standardna operacijska semantika}
+		\begin{figure}[tp]
+			\tiny
+			\begin{align*}
+			\tmapp{(\tmfun{x \of X}{M})}{V} &\reduces M[V/x]
+			\\
+			\tmapp{(\tmfunrec{f}{x \of X}{M})}{V} &\reduces M[V/x, (\tmfunrec{f}{x \of X}{M})/f]
+			\\
+			\tmlet{x}{(\tmreturn V)}{N} &\reduces N[V/x]
+			\\
+			\tmmatch{\tmpair{V}{W}}{\tmpair{x}{y} \mapsto M} &\reduces M[V/x, W/y]
+			\\
+			\mathllap{\tmmatch{(\tminl[Y]{V})}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}} &\reduces	M[V/x]
+			\\
+			\mathllap{\tmmatch{(\tminr[X]{W})}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}} &\reduces	N[W/y]
+			\end{align*}
 		\end{figure}
 	\end{frame}
 
-	\begin{frame}{pravila za tipe}
-		\begin{columns}[T]
-			\begin{column}{0.27\textwidth}
-				\begin{figure}[hp]
-					\parbox{\textwidth}{
-						\centering
-						\tiny
-						\begin{align*}
-						\intertext{\textbf{Vrednosti}}
-						V, W
-						\bnfis& n \bnfor\! \true \bnfor\! \false        \\
-						\bnfor& x                                       \\
-						\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          \\
-						\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      \\
-						\bnfor& \tmfun{x}{M}                        \\
-						\bnfor& \tmfunrec{f}{x}{M}                   \\
-						\bnfor& \tmpromise V                           
-						\end{align*}
-					} 
-				\end{figure}
-			\end{column}
+
+	\begin{frame}{\lae operacijska semantika}
+		\begin{figure}[tp]
+			\tiny
+			\begin{align*}
+			\intertext{\textbf{Algebraicity of signals and interrupt handlers}}
+			\tmlet{x}{(\tmopout{op}{V}{M})}{N} &\reduces \tmopout{op}{V}{\tmlet{x}{M}{N}}
+			\\
+			\tmlet{x}{(\tmwith{op}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwith{op}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
+			\\[1ex]
+			\intertext{\textbf{Commutativity of signals with interrupt handlers}}
+			\tmwith{op}{x}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}}
+			\\[1ex]
+			\intertext{\textbf{Interrupt propagation}}
+			\tmopin{op}{V}{\tmreturn W} &\reduces \tmreturn W
+			\\
+			\tmopin{op}{V}{\tmopout{op'}{W}{M}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{M}}
+			\\
+			\tmopin{op}{V}{\tmwith{op}{x}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x]}{\tmopin{op}{V}{N}}
+			\\
+			\tmopin{op'}{V}{\tmwith{op}{x}{M}{p}{N}} &\reduces \tmwith{op}{x}{M}{p}{\tmopin{op'}{V}{N}}
+			\quad {\color{rulenameColor}(\op \neq \op')}
+			\\[1ex]
+			\intertext{\quad\,\textbf{Awaiting a promise to be fulfilled}}
+			\tmawait{\tmpromise V}{x}{M} &\reduces M[V/x]
+			\end{align*}
+		\end{figure}
+	\end{frame}
+
+	
+	\begin{frame}{\lae operacijska semantika}
+		\vspace{-2ex}
+		\begin{minipage}[t]{\textwidth}
+			\tiny
+			\centering
+			\begin{align*}
+			\shortintertext{\textbf{Evaluation context rule}}
+			\coopinfer{}{
+				M \reduces N
+			}{
+				\E[M] \reduces \E[N]
+			}
+			\end{align*}
+			\vspace{-10ex}
+		\end{minipage}
+		
+		\begin{figure}[tp]
+			\tiny
+			\begin{align*}
+				\shortintertext{\textbf{where}}
+				\text{$\E$}
+				\bnfis [~]
+				\bnfor \tmlet{x}{\E}{N}
+				\bnfor \tmopout{op}{V}{\E}
+				\bnfor \tmopin{op}{V}{\E}
+				\bnfor \tmwith{op}{x}{M}{p}{\E}
+			\end{align*}
+			\vspace{-10ex}
+		\end{figure}
+	\end{frame}
+
+
+	\begin{frame}
+		\begin{figure}[tp]
+			\parbox{\textwidth}{
+				\centering
+				\tiny
+				\begin{minipage}[t]{0.4\textwidth}
+					\centering
+					\begin{align*}
+					\shortintertext{\textbf{Individual computations}}
+					\coopinfer{}{
+						M \reduces N
+					}{
+						\tmrun M \reduces \tmrun N
+					}
+					\end{align*}
+				\end{minipage}
+				\qquad
+				\begin{minipage}[t]{0.4\textwidth}
+					\centering
+					\begin{align*}
+					\shortintertext{\textbf{Interrupt propagation}}
+					\tmopin{op}{V}{\tmrun M} &\reduces \tmrun {(\tmopin{op}{V}{M})}
+					\\
+					\tmopin{op}{V}{\tmpar P Q} &\reduces \tmpar {\tmopin{op}{V}{P}} {\tmopin{op}{V}{Q}}
+					\\
+					\tmopin{op}{V}{\tmopout{op'}{W}{P}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{P}}
+					\end{align*}
+				\end{minipage}
 			
-			\begin{column}{0.32\textwidth}
-				\begin{figure}[hp]
-					\parbox{\textwidth}{
-						\centering
-						\tiny
-						\begin{align*}
-						\intertext{\textbf{Izračuni}}
-						M, N
-						\bnfis& \tmreturn{V}                             \\
-						\bnfor& \tmlet{x}{M}{N}                          \\
-						\bnfor& V\,W                                   \\
-						\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    \\
-						\bnfor& \tmmatch[]{V}{}                         \\
-						\bnfor& \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}	\\
-						\bnfor& \tmopout{op}{V}{M}       \\
-						\bnfor& \tmopin{op}{V}{M}          \\
-						\bnfor& \tmwith{op}{x}{M}{p}{N}      \\
-						\bnfor& \tmawait{V}{x}{M}           
-						\end{align*}
-					} 
-				\end{figure}
-			\end{column}
-			
-			\begin{column}{0.42\textwidth}
-				\begin{figure}[hp]
-					\parbox{\textwidth}{
-						\centering
-						\tiny
-						\begin{align*}
-						\intertext{\textbf{Procesi}}
-						P, Q
-						\bnfis & \tmrun M & & \text{proces} \\
-						\bnfor & \tmpar P Q & & \text{vzporedna procesa} \\
-						\bnfor & \tmopout{op}{V}{P} & & \text{proces z signalom} \\
-						\bnfor & \tmopin{op}{V}{P}  & & \text{proces z prekinitvijo}
-						\end{align*}
-					} 
-				\end{figure}
-			\end{column}
-		\end{columns}	
+				
+				
+				%%%%
+				
+				\begin{minipage}[t]{0.4\textwidth}
+					\centering
+					\begin{align*}
+					\shortintertext{\textbf{Signal hoisting}}
+					\tmrun {(\tmopout{op}{V}{M})}  &\reduces \tmopout{op}{V}{\tmrun M}
+					\end{align*}
+				\end{minipage}
+				\qquad
+				\begin{minipage}[t]{0.4\textwidth}
+					\centering
+					\begin{align*}
+					\shortintertext{\textbf{Broadcasting}}
+					\tmpar{\tmopout{op}{V}{P}}{Q} &\reduces \tmopout{op}{V}{\tmpar{P}{\tmopin{op}{V}{Q}}}
+					\\
+					\tmpar{P}{\tmopout{op}{V}{Q}} &\reduces \tmopout{op}{V}{\tmpar{\tmopin{op}{V}{P}}{Q}}
+					\end{align*}
+				\end{minipage}
+				
+				%%%%
+		
+				\begin{align*}
+				\shortintertext{\quad\textbf{Evaluation context rule}}
+				\quad
+				\coopinfer{}{
+					P \reduces Q
+				}{
+					\F[P] \reduces \F[Q]
+				}
+				\end{align*}
+				\vspace{-8ex}
+				\begin{align*}
+				\shortintertext{\textbf{where}\vspace{1ex}}
+				\text{$\F$}
+				\bnfis& [~]
+				\bnfor \tmpar \F Q \bnfor\! \tmpar P \F
+				\bnfor \tmopout{op}{V}{\F}
+				\bnfor \tmopin{op}{V}{\F}
+				\end{align*}
+			} 
+		\end{figure}
+	\end{frame}
+
+
+	\begin{frame}{tipi}
+	\begin{figure}[tb]
+		\parbox{\textwidth}{
+			\centering
+			\tiny
+			\begin{align*}
+			\text{Osnovni tipi vrednosti $A_\op$, $B_\op$}
+			\bnfis & \tysym{int} \,\bnfor\! \tysym{bool} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \\
+			\bnfor & \typrod{A_\op}{B_\op} \,\bnfor\! \tysum{A_\op}{B_\op}
+			\\%[1ex]
+			\text{Tipi vrednosti $A$, $B$}
+			\bnfis & A_\op \, \bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B} \,\bnfor\! \tyfun{A}{B} \,\bnfor\! \typromise{A}
+			\\
+			\text{Tip izračuna} \bnfis& \tycomp{A}
+			\\
+			\text{Tip procesa \tyC, \tyD}  \bnfis & \tyrun{A} \,\bnfor\! \typar{\tyC}{\tyD}
+			\end{align*}
+		} 
+	\end{figure}
+	\end{frame}
+
+	\begin{frame}{pravila za tipe vrednosti}
+		\begin{figure}[tp]
+			\centering
+			\tiny
+			\begin{mathpar}
+				\coopinfer{}{
+				}{
+					\Gamma \types n : \tysym{int}
+				}
+				\qquad
+				\coopinfer{}{
+				}{
+					\Gamma \types \true : \tysym{bool}
+				}
+				\qquad
+				\coopinfer{}{
+				}{
+					\Gamma \types \false : \tysym{bool}
+				}
+				\quad
+				\coopinfer{}{
+				}{
+					\Gamma, x \of A, \Gamma' \types x : A
+				}
+				\quad
+				\coopinfer{}{
+				}{
+					\Gamma \types \tmunit : \tyunit
+				}
+				\\
+				\coopinfer{}{
+					\Gamma \types V : A \\
+					\Gamma \types W : B
+				}{
+					\Gamma \types \tmpair{V}{W} : \typrod{A}{B}
+				}
+				\quad
+				\coopinfer{}{
+					\Gamma \types V : A
+				}{
+					\Gamma \types \tmpromise V : \typromise A
+				}
+				\quad
+				\coopinfer{}{
+					\Gamma \types V : A
+				}{
+					\Gamma \types \tminl[B]{V} : A + B
+				}
+				\quad
+				\coopinfer{}{
+					\Gamma \types W : B
+				}{
+					\Gamma \types \tminr[A]{W} : A + B
+				}
+				\\
+				\coopinfer{}{
+					\Gamma, x \of A \types M : B
+				}{
+					\Gamma \types \tmfun{x : A}{M} : \tyfun{A}{B}
+				}
+				\quad
+				\coopinfer{}{
+					\Gamma, x \of A \types M : B
+				}{
+					\Gamma \types \tmfunrec{f}{x : A}{M} : \tyfun{A}{B}
+				}
+			\end{mathpar}
+		\end{figure}
+	\end{frame}
+
+	\begin{frame}{pravila za tipe računov}
+		\begin{figure}[tp]
+			\centering
+			\tiny
+			\begin{mathpar}
+				\coopinfer{}{
+					\Gamma \types V : X
+				}{
+					\Gamma \types \tmreturn{V} : X
+				}
+				\qquad
+				\coopinfer{}{
+					\Gamma \types M : X
+					\\
+					\Gamma, x \of X \types N : Y
+				}{
+					\Gamma \types
+					\tmlet{x}{M}{N} : Y
+				}
+				\qquad
+				\coopinfer{}{
+					\Gamma \types V : \tyfun{X}{Y} \\
+					\Gamma \types W : X
+				}{
+					\Gamma \types \tmapp{V}{W} : Y
+				}
+				\\
+				\coopinfer{}{
+					\Gamma \types V : \typrod{X}{Y} \\
+					\Gamma, x \of X, y \of Y \types M : Z
+				}{
+					\Gamma \types \tmmatch{V}{\tmpair{x}{y} \mapsto M} : Z
+				}
+				\qquad
+				\coopinfer{}{
+					\Gamma \types V : \tyempty
+				}{
+					\Gamma \types \tmmatch[Z]{V}{} : Z
+				}
+				\\
+				\coopinfer{}{
+					\Gamma \types V : X + Y \\\\
+					\Gamma, x \of X \types M : Z \\
+					\Gamma, y \of Y \types N : Z \\
+				}{
+					\Gamma \types \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N} : Z
+				}
+				\\
+				\coopinfer{}{
+					\Gamma \types V : A_\op \\
+					\Gamma \types M : X 
+				}{
+					\Gamma \types \tmopout{op}{V}{M} : X
+				}
+				\qquad
+				\coopinfer{}{
+					\Gamma \types V : A_\op \\
+					\Gamma \types M : X 
+				}{
+					\Gamma \types \tmopin{op}{V}{M} : X
+				}
+				\\
+				\coopinfer{}{
+					\Gamma, x \of A_\op \types M : \typromise X \\
+					\Gamma, p \of \typromise X \types N : Y 
+				}{
+					\Gamma \types \tmwith{op}{x}{M}{p}{N} : Y
+				}
+				\\
+				\coopinfer{}{
+					\Gamma \types V : \typromise X \\
+					\Gamma, x \of X \types M : Y 
+				}{
+					\Gamma \types \tmawait{V}{x}{M} : Y
+				}
+			\end{mathpar}
+		\end{figure}
+	\end{frame}
+
+
+	\begin{frame}{pravila za tipe procesov}
+		\begin{figure}[tp]
+			\centering
+			\small
+			\begin{mathpar}
+				\coopinfer{}{
+					\Gamma \types M : \tycomp{A}
+				}{
+					\Gamma \types \tmrun{M} : \tyrun{A}
+				}
+				\quad
+				\coopinfer{}{
+					\Gamma \types P : \tyC \\
+					\Gamma \types Q : \tyD
+				}{
+					\Gamma \types \tmpar{P}{Q} : \typar{\tyC}{\tyD}
+				}
+				\\
+				\coopinfer{}{
+					\Gamma \types V : A_\op \\
+					\Gamma \types P : \tyC 
+				}{
+					\Gamma \types \tmopout{op}{V}{P} : \tyC
+				}
+				\quad
+				\coopinfer{}{
+					\Gamma \types V : A_\op \\
+					\Gamma \types P : \tyC 
+				}{
+					\Gamma \types \tmopin{op}{V}{P} : \tyC
+				}  
+			\end{mathpar}
+		\end{figure}
 	\end{frame}
 
 	

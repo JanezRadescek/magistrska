@@ -63,6 +63,7 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 % DRUGI TVOJI PAKETI:
 
 \usepackage{mathpartir} % inference rules
+\usepackage{mathtools} % mathllap
 
 \usepackage{listings}
 \renewcommand{\lstlistingname}{Program}% Listing -> Program
@@ -411,7 +412,141 @@ Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 
 Račun \lae\ je ...
 
-...
+
+\begin{figure}[tp]
+	\small
+	\begin{align*}
+	\intertext{\textbf{Standard computation rules}}
+	\tmapp{(\tmfun{x \of X}{M})}{V} &\reduces M[V/x]
+	\\
+	\tmlet{x}{(\tmreturn V)}{N} &\reduces N[V/x]
+	\\
+	\tmmatch{\tmpair{V}{W}}{\tmpair{x}{y} \mapsto M} &\reduces M[V/x, W/y]
+	\\
+	\mathllap{\tmmatch{(\tminl[Y]{V})}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}} &\reduces	M[V/x]
+	\\
+	\mathllap{\tmmatch{(\tminr[X]{W})}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}} &\reduces	N[W/y]
+	\\
+	\tmletrec[: \tyfun{X\!}{\tycomp{\!Y\!}{\!(\o,\i)}}]{f}{x}{M}{N}  &\reduces
+	N[\tmfun{x \of X}{\tmletrec[: \tyfun{X\!}{\tycomp{\!Y\!}{\!(\o,\i)}}]{f}{x}{M}{M}}/f]
+	\\[1ex]
+	\intertext{\textbf{Algebraicity of signals and interrupt handlers}}
+	\tmlet{x}{(\tmopout{op}{V}{M})}{N} &\reduces \tmopout{op}{V}{\tmlet{x}{M}{N}}
+	\\
+	\tmlet{x}{(\tmwith{op}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwith{op}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
+	\\[1ex]
+	\intertext{\textbf{Commutativity of signals with interrupt handlers}}
+	\tmwith{op}{x}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}}
+	\\[1ex]
+	\intertext{\textbf{Interrupt propagation}}
+	\tmopin{op}{V}{\tmreturn W} &\reduces \tmreturn W
+	\\
+	\tmopin{op}{V}{\tmopout{op'}{W}{M}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{M}}
+	\\
+	\tmopin{op}{V}{\tmwith{op}{x}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x]}{\tmopin{op}{V}{N}}
+	\\
+	\tmopin{op'}{V}{\tmwith{op}{x}{M}{p}{N}} &\reduces \tmwith{op}{x}{M}{p}{\tmopin{op'}{V}{N}}
+	\quad {\color{rulenameColor}(\op \neq \op')}
+	\\[-6ex]
+	\end{align*}
+	
+	\begin{minipage}[t]{0.4\textwidth}
+		\begin{align*}
+		\intertext{\quad\,\textbf{Awaiting a promise to be fulfilled}}
+		\tmawait{\tmpromise V}{x}{M} \reduces M[V/x]
+		\end{align*}
+	\end{minipage}
+	
+	\begin{minipage}[t]{0.4\textwidth}
+		\centering
+		\begin{align*}
+		\intertext{\textbf{Evaluation context rule}}
+		\coopinfer{}{
+			M \reduces N
+		}{
+			\E[M] \reduces \E[N]
+		}
+		\end{align*}
+		\vspace{-4ex}
+	\end{minipage}
+	
+	\begin{align*}
+	\intertext{\textbf{where}\vspace{1ex}}
+	\text{$\E$}
+	\bnfis [~]
+	\bnfor \tmlet{x}{\E}{N}
+	\bnfor \tmopout{op}{V}{\E}
+	\bnfor \tmopin{op}{V}{\E} 
+	\bnfor \tmwith{op}{x}{M}{p}{\E}
+	\end{align*}
+	
+	\caption{Operacijska semantika malih korakov.}
+	\label{fig:small-step-semantics-of-computations}
+\end{figure}
+
+
+
+
+\begin{figure}[tp]
+	\parbox{\textwidth}{
+		\centering
+		\small
+		\begin{minipage}[t]{0.4\textwidth}
+			\centering
+			\begin{align*}
+			\intertext{\textbf{Individual computations}}
+			\coopinfer{}{
+				M \reduces N
+			}{
+				\tmrun M \reduces \tmrun N
+			}
+			\end{align*}
+			\begin{align*}
+			\intertext{\textbf{Signal hoisting}}
+			\tmrun {(\tmopout{op}{V}{M})}  &\reduces \tmopout{op}{V}{\tmrun M}
+			\\[1ex]
+			\intertext{\textbf{Broadcasting}}
+			\tmpar{\tmopout{op}{V}{P}}{Q} &\reduces \tmopout{op}{V}{\tmpar{P}{\tmopin{op}{V}{Q}}}
+			\\
+			\tmpar{P}{\tmopout{op}{V}{Q}} &\reduces \tmopout{op}{V}{\tmpar{\tmopin{op}{V}{P}}{Q}}
+			\end{align*}
+			\vspace{-1ex}
+		\end{minipage}
+		\qquad
+		\begin{minipage}[t]{0.4\textwidth}
+			\centering
+			\begin{align*}
+			\intertext{\textbf{Interrupt propagation}}
+			\tmopin{op}{V}{\tmrun M} &\reduces \tmrun {(\tmopin{op}{V}{M})}
+			\\
+			\tmopin{op}{V}{\tmpar P Q} &\reduces \tmpar {\tmopin{op}{V}{P}} {\tmopin{op}{V}{Q}}
+			\\
+			\tmopin{op}{V}{\tmopout{op'}{W}{P}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{P}}
+			\end{align*}
+			\begin{align*}
+			\intertext{\quad\textbf{Evaluation context rule}}
+			\quad
+			\coopinfer{}{
+				P \reduces Q
+			}{
+				\F[P] \reduces \F[Q]
+			}
+			\end{align*}
+		\end{minipage}
+		\begin{align*}
+		\intertext{\textbf{where}\vspace{1ex}}
+		\text{$\F$}
+		\bnfis& [~]
+		\bnfor \tmpar \F Q \bnfor\! \tmpar P \F
+		\bnfor \tmopout{op}{V}{\F}
+		\bnfor \tmopin{op}{V}{\F}
+		\end{align*}
+	} 
+	\caption{Small-step operational semantics of parallel processes.}
+	\label{fig:processes}
+\end{figure}
+
+
 
 Določenih kombinacij izrazov nimamo v operacijski semantiki, ker niso smiselne. Recimo ...
 %aplikacija konstantne funkcije $+$ na enoti. Problem nastane, ker je domena funkcije $+$ števila, čeprav ni nikjer eksplicitno zapisana. Enota ni število. Zato aplikacija $+$ na enoti ni smiselna.
@@ -439,11 +574,11 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 		\bnfor & \typrod{A_\op}{B_\op} \,\bnfor\! \tysum{A_\op}{B_\op}
 		\\%[1ex]
 		\text{Tipi vrednosti $A$, $B$}
-		\bnfis & A_\op \,\bnfor\! \tyfun{X}{Y} \,\bnfor\! \typromise{X}
+		\bnfis & A_\op \, \bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B} \,\bnfor\! \tyfun{A}{B} \,\bnfor\! \typromise{A}
 		\\
-		\text{Tip izračuna $I$} \bnfis& \tycomp{X}
+		\text{Tip izračuna} \bnfis& \tycomp{A}
 		\\
-		\text{Tip procesa \tyC, \tyD}  \bnfis & \tyrun{X} \,\bnfor\! \typar{\tyC}{\tyD}
+		\text{Tip procesa \tyC, \tyD}  \bnfis & \tyrun{A} \,\bnfor\! \typar{\tyC}{\tyD}
 		\end{align*}
 	} 
 	\caption{Tipi}
@@ -585,27 +720,56 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 		\\
 		\coopinfer{TyComp-Promise}{
 			\Gamma, x \of A_\op \types M : \typromise X \\
-			\Gamma, p \of \typromise X \types N : \tycomp{Y}{(\o,\i)} 
+			\Gamma, p \of \typromise X \types N : Y 
 		}{
-			\Gamma \types \tmwith{op}{x}{M}{p}{N} : \tycomp{Y}{(\o,\i)}
+			\Gamma \types \tmwith{op}{x}{M}{p}{N} : Y
 		}
 		\\
 		\coopinfer{TyComp-Await}{
 			\Gamma \types V : \typromise X \\
-			\Gamma, x \of X \types M : \tycomp{Y}{(\o,\i)} 
+			\Gamma, x \of X \types M : Y 
 		}{
-			\Gamma \types \tmawait{V}{x}{M} : \tycomp{Y}{(\o,\i)}
-		}
-		\qquad
-		\coopinfer{TyComp-Subsume}{
-			\Gamma \types M : \tycomp{X}{(\o, \i)} \\
-			(\o,\i) \order {O \times I} (\o',\i')
-		}{
-			\Gamma \types M : \tycomp{X}{(\o', \i')}
+			\Gamma \types \tmawait{V}{x}{M} : Y
 		}
 	\end{mathpar}
 	\caption{Computation typing rules.}
 	\label{fig:computation-typing-rules}
+\end{figure}
+
+\begin{figure}[tp]
+	\centering
+	\small
+	\begin{mathpar}
+		\coopinfer{TyProc-Run}{
+			\Gamma \types M : \tycomp{X}{(\o,\i)}
+		}{
+			\Gamma \types \tmrun{M} : \tyrun{X}{\o}{\i}
+		}
+		\quad
+		\coopinfer{TyProc-Par}{
+			\Gamma \types P : \tyC \\
+			\Gamma \types Q : \tyD
+		}{
+			\Gamma \types \tmpar{P}{Q} : \typar{\tyC}{\tyD}
+		}
+		\quad
+		\coopinfer{TyProc-Signal}{
+			\op \in \mathsf{signals\text{-}of}{(\tyC)} \\\\
+			\Gamma \types V : A_\op \\
+			\Gamma \types P : \tyC 
+		}{
+			\Gamma \types \tmopout{op}{V}{P} : \tyC
+		}
+		\quad
+		\coopinfer{TyProc-Interrupt}{
+			\Gamma \types V : A_\op \\
+			\Gamma \types P : \tyC 
+		}{
+			\Gamma \types \tmopin{op}{V}{P} : \opincomp{op}{\tyC}
+		}  
+	\end{mathpar}
+	\caption{Process typing rules.}
+	\label{fig:process-typing-rules}
 \end{figure}
 
 %V nekem smislu smo uvedli ekvivalenčno relacijo in sedaj gledamo samo še predstavnika razreda.
