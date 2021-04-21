@@ -382,7 +382,7 @@
 			\tiny
 			\begin{align*}
 			\intertext{Operacije}
-			(op_1, A_{op_1}),\, (op_2, A_{op_2}),\, ... ,\, (op_n, A_{op_k})
+			(op_1, \bar{A}_{op_1}),\, (op_2, \bar{A}_{op_2}),\, ... ,\, (op_n, \bar{A}_{op_k})
 			\end{align*}
 			\vspace{-15ex}
 		\end{figure}
@@ -579,11 +579,13 @@
 
 
 	\begin{frame}{Rezultati}
-		TODO
+		TODO vrednosti + await
 	\end{frame}
 
 	
 	\begin{frame}{Napredek}
+			
+		TODO morda še kakšne leme
 		
 		\begin{izrek}[o napredku]
 			Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ rezultat ali pa lahko naredi korak v izraz $M^*$.
@@ -591,8 +593,7 @@
 		
 		\begin{proof}
 			... 
-			Dokazujemo z indukcijo na izpeljavo tipa tipa $A$.
-			Zadnji 
+			Dokazujemo z indukcijo na izpeljavo tipa tipa $A$. TODO
 		\end{proof}
 		
 	\end{frame}
@@ -699,7 +700,7 @@
 	
 	\begin{frame}{Implementacija}
 		\begin{enumerate}
-			\item sistem tipov
+			\item dvosmerni sistem tipov
 			%Je kakšen boljši razlog za uvedbo bidirectional type sistem v trenutni verziji kot malo boljši izpis napake?
 			\item operacijska semantika
 		\end{enumerate}
