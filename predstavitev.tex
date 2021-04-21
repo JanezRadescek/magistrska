@@ -45,13 +45,13 @@
 		\begin{enumerate}
 			\item<1-> Običajen program je sekvenčen. 
 			%Imamo neke korake, ki jih izvajamo v določenem zaporedju enega za drugim.
-			\begin{lstlisting}[numbers=left]
+		\begin{lstlisting}[numbers=left]
 a = 2
 b = 5
 c = a + b
 a = 4
 return c
-			\end{lstlisting}
+		\end{lstlisting}
 			\item<2-> Da bi pohitrili izvajanje, bi radi vzporeden program.
 			%Namesto, da naenkrat izvajamo samo en korak, jih lahko več hkrati.
 			%Določene korake moramo izvesti kasneje kot določene druge korake. 
@@ -59,7 +59,7 @@ return c
 			%Bolj kompliciran
 			%V splšnem ni enostavno ugotoviti kateri koraki so med sabo odvisni. 
 
-		\end{enumerate}
+	\end{enumerate}
 		
 		
 		
@@ -68,35 +68,102 @@ return c
 	\end{frame}
 
 
-\begin{frame}[fragile]{Uvod}
+	\begin{frame}[fragile]{Uvod}
+		
+		Standardni pristop je zato sledeč.
+		\begin{enumerate}
+			\item Korake razporedimo v procese.
+			\item Vsi koraki znotraj enega procesa se smatrajo za odvisne in se zato izvedejo sekvenčno.
+			\item Za korake iz različnih procesov smatramo da so neodvisni, razen če jih posebej označimo.
+		\end{enumerate}
 	
-	Standardni pristop je zato sledeč.
-	\begin{enumerate}
-		\item Korake razporedimo v procese.
-		\item Vsi koraki znotraj enega procesa so odvisni.
-		\item Za korake iz različnih procesov smatramo da so neodvisni, razen če jih posebej označimo.
-	\end{enumerate}
+		\begin{align*}
+		&1\ a = 2       &2\ b = 5 \\
+		&3\ c = a + b\ \ : 2& \\
+		&4\ a = 4      &\\
+		&5\ return\ c   &\\
+		\end{align*}
 	
-	\begin{lstlisting}[numbers=left]
-a = 2 p1
-b = 5 p2
-c = a + b p1, 2 
-a = 4 p1
-return c p1
-	\end{lstlisting}
-	Potrebujemo nekaj
-	
-\end{frame}
+		%Problem ugotoviti kateri koraki so odvisni med sabo, smo prevedli na problem delitve korakov v procese.
+		%Če korake napačno razdelimo v procese lahko dobimo program z drugačnim rezultatom ali celo takega ki ima napako.
+		
+	\end{frame}
 
+	\begin{frame}[fragile]{\aeff{}}
+		V jeziku potrebujemo nekaj, da lahko razdelimo korake v procese in naredimo korake iz različnih procesov odvisne.
+		
+		
+		TODO prevedi primer v aeff
+		
+		%Da se izognemo problemu kaj z 4. korakom aeff ne omogoča uporabe spremenljivk iz drugih procesov.
+		%Kadar bi radi da nek korak le je odvisen od koraka iz drugega procesa to dosežemo s pomočjo efektov. 
+		
+	\end{frame}
 
-	\begin{frame}{\lae}
-	
-		Za dano $n$-terico $(z_1,...,z_n)$ kompleksnih števil iz enotskega diska, kjer so elementi paroma različni, in dano $n$-terico $(w_1,...,w_n)$ kompleksnih števil Pick-Nevalinnov problem sprašuje po potrebnih in zadostnih pogojih na ta števila, da obstaja holomorfna funkcija $f$ na enotskem disku po absolutni vrednosti pod 1, ki interpolira dane podatke: $f(z_i) = w_i$ za $i = 1,...,n$. 
-
-		\begin{definicija}<2->
-			Naj bo $n$-terica točk $(a_1,...,a_n) \subset A$, kjer so elementi paroma različni in $n$-terica točk $(b_1,...,b_n) \subset B$. Interpolacija je funkcija $f:A \rightarrow B$ za katero velja: $f(a_i) = b_i$. Za tako funkcijo  $f$ pravimo da interpolira $(a_1,...,a_n)$ v  $(b_1,...,b_n)$.
-		\end{definicija}
-	
+	\begin{frame}{\lae{}}
+		
+		\begin{columns}[T]
+			\begin{column}{0.27\textwidth}
+				\begin{figure}[hp]
+					\parbox{\textwidth}{
+						\centering
+						\tiny
+						\begin{align*}
+						\intertext{\textbf{Vrednosti}}
+						V, W
+						\bnfis& n \bnfor\! \true \bnfor\! \false        \\
+						\bnfor& x                                       \\
+						\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          \\
+						\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      \\
+						\bnfor& \tmfun{x}{M}                        \\
+						\bnfor& \tmfunrec{f}{x}{M}                   \\
+						\bnfor& \tmpromise V                           
+						\end{align*}
+					} 
+				\end{figure}
+			\end{column}
+		
+			\begin{column}{0.32\textwidth}
+				\begin{figure}[hp]
+					\parbox{\textwidth}{
+						\centering
+						\tiny
+						\begin{align*}
+						\intertext{\textbf{Izračuni}}
+						M, N
+						\bnfis& \tmreturn{V}                             \\
+						\bnfor& \tmlet{x}{M}{N}                          \\
+						\bnfor& V\,W                                   \\
+						\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    \\
+						\bnfor& \tmmatch[]{V}{}                         \\
+						\bnfor& \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}	\\
+						\bnfor& \tmopout{op}{V}{M}       \\
+						\bnfor& \tmopin{op}{V}{M}          \\
+						\bnfor& \tmwith{op}{x}{M}{p}{N}      \\
+						\bnfor& \tmawait{V}{x}{M}           
+						\end{align*}
+					} 
+				\end{figure}
+			\end{column}
+		
+			\begin{column}{0.42\textwidth}
+				\begin{figure}[hp]
+					\parbox{\textwidth}{
+						\centering
+						\tiny
+						\begin{align*}
+						\intertext{\textbf{Procesi}}
+						P, Q
+						\bnfis & \tmrun M & & \text{proces} \\
+						\bnfor & \tmpar P Q & & \text{vzporedna procesa} \\
+						\bnfor & \tmopout{op}{V}{P} & & \text{proces z signalom} \\
+						\bnfor & \tmopin{op}{V}{P}  & & \text{proces z prekinitvijo}
+						\end{align*}
+					} 
+				\end{figure}
+			\end{column}
+		\end{columns}
+		
 	\end{frame}
 
 

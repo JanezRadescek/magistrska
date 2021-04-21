@@ -244,8 +244,8 @@ TODO
 %recursion = rekurzija
 %bidirectional = dvosmerni?
 %small step semantics = op. sem. malih korakov
-%signal = odhajajoči signal
-%interrupt = prihajajoči signal          prekinitev
+%signal = signal
+%interrupt = prekinitev
 %handler = prestreznik
 %pattern matching = ujemanje vzorca
 %substitution = substitucija
@@ -386,8 +386,8 @@ Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 		\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    & &\text{ujemanje produkta} \\
 		\bnfor& \tmmatch[]{V}{}                        & &\text{prazno ujemanje} \\
 		\bnfor& \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}	& &\text{ujemanje vsote} \\
-		\bnfor& \tmopout{op}{V}{M}       & &\text{odhajajoči signal} \\
-		\bnfor& \tmopin{op}{V}{M}          & &\text{prihajajoči signal } \\
+		\bnfor& \tmopout{op}{V}{M}       & &\text{signal} \\
+		\bnfor& \tmopin{op}{V}{M}          & &\text{prekinitev} \\
 		\bnfor& \tmwith{op}{x}{M}{p}{N}      & &\text{prestreznik} \\
 		\bnfor& \tmawait{V}{x}{M}             & &\text{blokada}
 			\\[1ex]
