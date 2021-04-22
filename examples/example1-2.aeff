@@ -1,0 +1,13 @@
+operation signal_c : int		
+
+run let a = 2 in
+    promise (signal_c c -> 
+       let d = a + c in
+       return <<d>>)
+    as p in
+    await p until <<d'>> in
+    return d' 
+
+run let b = 5 in
+    let c = b + 1 in
+    send signal_c c

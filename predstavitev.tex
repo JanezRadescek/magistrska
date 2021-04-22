@@ -35,14 +35,12 @@
 \begin{document}
 	
 	\title{Asinhroni algebrajski učinki}
-	\author[Janez Radešček]{Janez Radešček \\[3mm] Mentor: doc.~dr.~Pretnar~Matija\\[3mm] Somentor: asist.~raz.~dr.~Danel~Ahman}
+	\author[Janez Radešček]{Janez Radešček \\[3mm] Mentor: doc.~dr.~Pretnar~Matija\\[3mm] Somentor: asist.~raz.~dr.~Ahman~Danel}
 	\institute{FMF, Univerza v Ljubljani}
 	\date{\today}
 	
 	\frame{\titlepage}
-	
-	
-	\note{Hahahaha}
+
 	
 	
 	\begin{frame}[fragile]{Uvod}
@@ -57,7 +55,7 @@
 					&2\ b \gets 5 \\
 					&3\ c \gets b + 1 \\
 					&4\ d \gets a + c \\
-					&5\ return\ c 
+					&5\ return\ d 
 					\end{align*}
 					\vspace{0.1ex}
 				\end{column}
@@ -93,7 +91,7 @@
 				& \\
 				& \\
 				&4\ d \gets a + c\ \ : 3 \\
-				&5\ return\ c 
+				&5\ return\ d 
 				\end{align*}
 				\vspace{0.1ex}
 			\end{column}
@@ -116,13 +114,72 @@
 	\end{frame}
 
 	\begin{frame}[fragile]{\aeff{}}
-		V jeziku potrebujemo nekaj, da lahko razdelimo korake v procese in naredimo korake iz različnih procesov odvisne.
+
+		\begin{columns}[T]
+			\begin{column}{0.49\textwidth}
+				\begin{lstlisting}[basicstyle=\tiny]
+operation signal_c : int		
+
+run let a = 2 in
+    promise(signal_c c -> return <c>)
+    as p in
+    await p until <c'> in
+    let d = a + c' in
+    return d 
+
+run let b = 5 in
+    let c = b + 1 in
+    send singal_c c
+				\end{lstlisting}
+			\end{column}
 		
 		
-		TODO prevedi primer v aeff
+			\begin{column}{0.49\textwidth}
+				\begin{lstlisting}[basicstyle=\tiny]
+operation signal_c : int		
+
+run let a = 2 in
+    promise(signal_c c -> 
+      let d = a + c in
+      return <d>)
+    as p in
+    await p until <d'> in
+    return d'
+
+run let a = 5 in
+    let c = a + 1 in
+    send singal_c c
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+	
 		
-		Programski jezik 
 		
+		\begin{columns}[T]
+			\begin{column}{0.49\textwidth}
+				%Nedelujoč primer
+				\begin{lstlisting}[basicstyle=\tiny]
+operation signal_c : int		
+
+run let a = 2 in
+    let d = a + c in
+    return d 
+
+run let b = 5 in
+    let c = b + 1
+				\end{lstlisting}
+			\end{column}
+			
+			
+			\begin{column}{0.49\textwidth}
+				%V lae
+				\begin{lstlisting}[basicstyle=\tiny]
+
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
+
+
 		%Da se izognemo problemu kaj z 4. korakom aeff ne omogoča uporabe spremenljivk iz drugih procesov.
 		%Kadar bi radi da nek korak le je odvisen od koraka iz drugega procesa to dosežemo s pomočjo efektov. 
 		
@@ -334,7 +391,7 @@
 				%%%%
 		
 				\begin{align*}
-				\shortintertext{\quad\textbf{Evaluation context rule}}
+				\shortintertext{\quad\textbf{Vrednotenje v kontekstu.}}
 				\quad
 				\coopinfer{}{
 					P \reduces Q
@@ -543,58 +600,157 @@
 			\centering
 			\small
 			\begin{mathpar}
-				\coopinfer{}{
+				\coopinfer{tip run}{
 					\Gamma \types M : \tycomp{A}
 				}{
 					\Gamma \types \tmrun{M} : \tyrun{A}
 				}
 				\quad
-				\coopinfer{}{
-					\Gamma \types P : \tyC \\
-					\Gamma \types Q : \tyD
+				\coopinfer{tip vzporedna}{
+					\Gamma \types P : \tyrun{C} \\
+					\Gamma \types Q : \tyrun{D}
 				}{
 					\Gamma \types \tmpar{P}{Q} : \typar{\tyC}{\tyD}
 				}
 				\\
-				\coopinfer{}{
+				\coopinfer{tip proces signal}{
 					\Gamma \types V : A_\op \\
-					\Gamma \types P : \tyC 
+					\Gamma \types P : \tyrun{C} 
 				}{
-					\Gamma \types \tmopout{op}{V}{P} : \tyC
+					\Gamma \types \tmopout{op}{V}{P} : \tyrun{C}
 				}
 				\quad
-				\coopinfer{}{
+				\coopinfer{tip proces prekinitev}{
 					\Gamma \types V : A_\op \\
-					\Gamma \types P : \tyC 
+					\Gamma \types P : \tyrun{C} 
 				}{
-					\Gamma \types \tmopin{op}{V}{P} : \tyC
+					\Gamma \types \tmopin{op}{V}{P} : \tyrun{C}
 				}  
 			\end{mathpar}
 		\end{figure}
 	\end{frame}
 
-	\begin{frame}{Izpeljava tipov}
-		TODO predvsem primer
-	\end{frame}
-
 
 	\begin{frame}{Rezultati}
-		TODO vrednosti + await
+			
+		%Običajno bi bil izračun return V rezultat. 
+		%Izračun await blokira dokler ustrezen prestreznik ne izpolni pripadajoče obljube. Ni nujno da bo vsak prestreznik ipolnil obljubo. Zato rezultatom dodamo izračune, ki čakajo izpolnitev obljube.
+		%Izračun je lahko v postopku izpolnitve obljube na katero čakamo. Takih izračunov ne damo med rezultatov.
+		
+		\begin{figure}
+			\centering
+			\tiny
+			\textbf{Čakajoči izrazi} %Kako dam tukaj lep naslov??
+			\begin{mathpar}
+				\coopinfer{}{
+				}{
+					\awaiting p {\tmawait p x M}
+				}
+				\quad
+				\coopinfer{}{
+					\awaiting p M
+				}{
+					\awaiting p {\tmlet x M N}
+				}
+				\quad
+				\coopinfer{}{
+					\awaiting p M
+				}{
+					\awaiting p {\tmopin{op}{V}{M}}
+				}
+			\end{mathpar}
+		
+			\textbf{Delni rezultati}
+			\begin{mathpar}
+				\coopinfer{}{
+					\CompResult {\Psi} {M}
+				}{
+					\CompResult {\Psi} {\tmopout {op} V M}
+				}
+				\quad
+				\coopinfer{}{
+					\RunResult {\Psi} {M}
+				}{
+					\CompResult {\Psi} {M}
+				}
+				\vspace{-1ex}
+				\\
+				\coopinfer{}{
+				}{
+					\RunResult {\Psi} {\tmreturn V}
+				}
+				\quad
+				\coopinfer{}{
+					\RunResult {\Psi \cup \{p\}} {N}
+				}{
+					\RunResult {\Psi} {\tmwith {op} x M p N}
+				}
+				\quad
+				\coopinfer{}{
+					p \in \Psi \\
+					\awaiting p M
+				}{
+					\RunResult {\Psi} {M}
+				}
+			\end{mathpar}
+		
+			%Proces je rezultat če so vsi signali prišli do korenin drevesa procesov in so vsi procesi
+		
+			\textbf{Rezultati}
+			\begin{mathpar}
+				\coopinfer{rezultat signal}{
+					\ProcResult {P}
+				}{
+					\ProcResult {\tmopout {op} V P}
+				}
+				\qquad
+				\coopinfer{rezultat deblo}{ %Kako tukaj dati manjše ime??
+					\ParResult {P}
+				}{
+					\ProcResult {P}
+				}
+				\qquad
+				\coopinfer{rezultat run}{
+					\RunResult {\emptyset} {M}
+				}{
+					\ParResult {\tmrun M}
+				}
+				\qquad
+				\coopinfer{rezultat vzporedna}{
+					\ParResult P \\
+					\ParResult Q
+				}{
+					\ParResult {\tmpar P Q}
+				}
+			\end{mathpar}
+		
+		\end{figure}
+		
 	\end{frame}
+
+
+
+
+	
 
 	
 	\begin{frame}{Napredek}
-			
-		TODO morda še kakšne leme
+		\begin{lema}[1]
+			Če ima izraz $M$ v okolju $\Gamma$ tip $A!$, je $M$ delni rezultat ali pa lahko naredi korak v izraz $M^*$.
+		\end{lema}
 		
+		%glede na čas dokaz tudi leme, vsaj deloma.
+		
+					
 		\begin{izrek}[o napredku]
-			Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ rezultat ali pa lahko naredi korak v izraz $M^*$.
+			Če ima izraz $M$ v okolju $\Gamma$ tip $A!!$, je $M$ rezultat ali pa lahko naredi korak v izraz $M^*$.
 		\end{izrek}
 		
 		\begin{proof}
 			... 
-			Dokazujemo z indukcijo na izpeljavo tipa tipa $A$. TODO
+			%Predpostavimo da M ni rezultat. Hočemo dokazati da obstaja M* v katerega lahko naredimo korak. Sedaj dokazujemo z indukcijo na globino izpeljave tipa $A!!$. Recimo da smo na globini 1. Edina možnost je, da smo dokazali A!! z pravilom tip run. Se pravi M' ima tip A!. Po lemmi 1 je M' rezultat ali pa lahko naredi korak. Če bi bil M' rezultat bi bil po pravilu rezultat run tudi M rezultat. Se pravi da M' lahko naredi korak. Po pravilu za posamezen proces pa to pomeni da tudi M lahko naredi korak. Naj bo globina sedaj n>1. Tedaj smo A!! dokazali z pravilom tip vzporedna, tip proces signal ali tip proces prekinitev. Recimo da smo dokazali z pravilom tip vzporedna. A!! = (C || D)!!. Če sta P in Q rezultata bi bil po pravilu rezultat vzporedna tudi M rezultat. Se pravi da eden izmed P ali Q ni rezultat. Po indukcijski predpostavki lahko tisti, ki ni rezultat naredi korak. Po pravilu za vrednotenje v kontekstu to pomeni da M lahko naredi korak. Podobno za  tip proces signal in tip proces prekinitev.
 		\end{proof}
+		%Kako lepo definirati globino iz dokaza??
 		
 	\end{frame}
 
@@ -610,6 +766,41 @@
 			%Left for the reader as an exercise :D
 		\end{proof}
 		
+	\end{frame}
+
+
+
+	\begin{frame}[fragile]{Primer}
+		\begin{columns}[T]
+			\begin{column}{0.49\textwidth}
+				\centering
+				\aeff
+				\begin{lstlisting}[basicstyle=\tiny]
+operation signal_c : int		
+
+run let a = 2 in
+    promise(signal_c c -> return <c>)
+    as p in
+    await p until <c'> in
+    let d = a + c' in
+    return d 
+
+run let b = 5 in
+    let c = b + 1 in
+    send singal_c c
+				\end{lstlisting}
+			\end{column}
+			
+			%prevedi primer v lae, izračunaj tip in nato izračun vrednost
+			%Preskoči če bo zmanjkovalo časa.
+			\begin{column}{0.49\textwidth}
+				\centering
+				\lae
+				\begin{lstlisting}
+          ...
+				\end{lstlisting}
+			\end{column}
+		\end{columns}
 	\end{frame}
 
 
@@ -672,7 +863,7 @@
 				\\[5ex]
 				\shortintertext{\textbf{Izračuni}}
 				M, N
-				\bnfis & ... \,\bnfor\! \tmunbox{V}{u}{M}
+				\bnfis & ... \,\bnfor\! \tmunbox{V}{x}{M}
 				\end{align*}
 			} 
 		\end{figure}
@@ -685,12 +876,72 @@
 			\tmunbox{V}{u}{M} & \reduces M[V/u]
 			\end{align*}
 		\end{figure}
+	
+		\begin{figure}[tb]
+			\parbox{\textwidth}{
+				\centering
+				\tiny
+				\begin{align*}
+				\text{Prenosljivi tipi vrednosti $\bar{A}$, $\bar{B}$}
+				\bnfis & ... \,\bnfor\! \tyboxed{A}
+				\end{align*}
+			} 
+		\end{figure}
+	
 		
 		\begin{figure}[tp]
 			\centering
 			\tiny
+			\textbf{Pravila za tip}
+			\begin{mathpar}
+				\coopinfer{}{\text{A prenosljiv ali } \blacksquare \notin \Gamma'
+				}{
+					\Gamma, x \of A, \Gamma' \types x : A
+				}
+				\coopinfer{}{\Gamma, \blacksquare \types V : A
+				}{
+					\Gamma \types \tmboxed{V} : \tyboxed{A}
+				}
+			\end{mathpar}
+		\end{figure}
+		
+	\end{frame}
+
+
+	\begin{frame}{Spawn}
+		
+		\begin{figure}[hp]
+			\parbox{\textwidth}{
+				\centering
+				\tiny
+				\begin{align*}
+				\shortintertext{\textbf{Izračuni}}
+				M, N
+				\bnfis & ... \,\bnfor\! \tmspawn{M}{N}
+				\end{align*}
+			} 
+		\end{figure}
+		
+		\begin{figure}[tp]
+			\centering
+			\tiny
+			\begin{align*}
+			\shortintertext{\textbf{Operacijska semantika}}
+			\tmrun{(\tmspawn{M}{N})} & \reduces \tmpar{\tmrun{M}}{\tmrun{N}}
+			\end{align*}
+		\end{figure}
+	
+	
+		\begin{figure}[tp]
+			\centering
+			\tiny
 			\textbf{Pravila za tipe računov}
-			TODO
+			\begin{mathpar}
+				\coopinfer{}{\Gamma, \blacksquare \types M : B \\ \Gamma \types N : A
+				}{
+					\Gamma \types \tmspawn{M}{N} : A
+				}
+			\end{mathpar}
 		\end{figure}
 		
 	\end{frame}
@@ -701,7 +952,7 @@
 	\begin{frame}{Implementacija}
 		\begin{enumerate}
 			\item dvosmerni sistem tipov
-			%Je kakšen boljši razlog za uvedbo bidirectional type sistem v trenutni verziji kot malo boljši izpis napake?
+			%Je kakšen boljši razlog za uvedbo bidirectional type sistem v trenutni verziji kot malo boljši izpis napake??
 			\item operacijska semantika
 		\end{enumerate}
 	\end{frame}
@@ -710,11 +961,10 @@
 	
 	
 	\begin{frame}{Literatura}
-		
-		\bibliographystyle{fmf-sl}
-		\bibliography{literatura}
-		
 		\phantom{\cite{aeff}}
+				
+		\bibliographystyle{fmf-sl}
+		\bibliography{literatura.bib}
 	\end{frame}
 	
 	
