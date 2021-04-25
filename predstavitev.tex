@@ -32,6 +32,13 @@
 \input{macros.tex}
 
 
+% todo notes to comment the code when working in a group
+\usepackage{todonotes}
+\definecolor{jcyan}{cmyk}{1, 0, 0.15, 0.05}
+\newcommand\mP[1]{\todo[inline,color=red]{#1 -MP}}	% comments by matija
+\newcommand\jR[1]{\todo[inline,color=jcyan]{#1 -JR}} % comments by janez
+
+
 \begin{document}
 	
 	\title{Asinhroni algebrajski učinki}
@@ -121,7 +128,8 @@
 operation signal_c : int		
 
 run let a = 2 in
-    promise(signal_c c -> return <c>)
+    promise(signal_c c -> 
+      return <c>)
     as p in
     await p until <c'> in
     let d = a + c' in
@@ -154,13 +162,11 @@ run let a = 5 in
 		\end{columns}
 	
 		
-		
+		\vspace{5ex}
 		\begin{columns}[T]
 			\begin{column}{0.49\textwidth}
 				%Nedelujoč primer
 				\begin{lstlisting}[basicstyle=\tiny]
-operation signal_c : int		
-
 run let a = 2 in
     let d = a + c in
     return d 
@@ -187,7 +193,7 @@ run let b = 5 in
 
 
 
-	\begin{frame}{izrazi}
+	\begin{frame}{Izrazi}
 
 
 		\begin{columns}[T]
@@ -234,7 +240,7 @@ run let b = 5 in
 				\end{figure}
 			\end{column}
 		
-			\begin{column}{0.42\textwidth}
+			\begin{column}{0.32\textwidth}
 				\begin{figure}[hp]
 					\parbox{\textwidth}{
 						\centering
@@ -242,10 +248,10 @@ run let b = 5 in
 						\begin{align*}
 						\intertext{\textbf{Procesi}}
 						P, Q
-						\bnfis & \tmrun M & & \text{proces} \\
-						\bnfor & \tmpar P Q & & \text{vzporedna procesa} \\
-						\bnfor & \tmopout{op}{V}{P} & & \text{proces z signalom} \\
-						\bnfor & \tmopin{op}{V}{P}  & & \text{proces z prekinitvijo}
+						\bnfis & \tmrun M &  \\
+						\bnfor & \tmpar P Q &  \\
+						\bnfor & \tmopout{op}{V}{P} &  \\
+						\bnfor & \tmopin{op}{V}{P}  & 
 						\end{align*}
 					} 
 				\end{figure}
@@ -280,15 +286,15 @@ run let b = 5 in
 		\begin{figure}[tp]
 			\tiny
 			\begin{align*}
-			\intertext{\textbf{Algebraicity of signals and interrupt handlers}}
+			\intertext{\textbf{Algebraičnost signala in prekinitve}}
 			\tmlet{x}{(\tmopout{op}{V}{M})}{N} &\reduces \tmopout{op}{V}{\tmlet{x}{M}{N}}
 			\\
 			\tmlet{x}{(\tmwith{op}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwith{op}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
 			\\[1ex]
-			\intertext{\textbf{Commutativity of signals with interrupt handlers}}
+			\intertext{\textbf{Komutativnost signala in prestreznika}}
 			\tmwith{op}{x}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}}
 			\\[1ex]
-			\intertext{\textbf{Interrupt propagation}}
+			\intertext{\textbf{Širitev prekinitve}}
 			\tmopin{op}{V}{\tmreturn W} &\reduces \tmreturn W
 			\\
 			\tmopin{op}{V}{\tmopout{op'}{W}{M}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{M}}
@@ -298,20 +304,20 @@ run let b = 5 in
 			\tmopin{op'}{V}{\tmwith{op}{x}{M}{p}{N}} &\reduces \tmwith{op}{x}{M}{p}{\tmopin{op'}{V}{N}}
 			\quad {\color{rulenameColor}(\op \neq \op')}
 			\\[1ex]
-			\intertext{\quad\,\textbf{Awaiting a promise to be fulfilled}}
+			\intertext{\quad\,\textbf{Čakanje na izpolnitev obljube}}
 			\tmawait{\tmpromise V}{x}{M} &\reduces M[V/x]
 			\end{align*}
 		\end{figure}
 	\end{frame}
 
 	
-	\begin{frame}{\lae{} operacijska semantika okolja}
+	\begin{frame}{Evalvacija v okolju}
 		\vspace{-2ex}
 		\begin{minipage}[t]{\textwidth}
 			\tiny
 			\centering
 			\begin{align*}
-			\shortintertext{\textbf{Evaluation context rule}}
+			\shortintertext{\textbf{Evalvacija v okolju}}
 			\coopinfer{}{
 				M \reduces N
 			}{
@@ -324,7 +330,7 @@ run let b = 5 in
 		\begin{figure}[tp]
 			\tiny
 			\begin{align*}
-				\shortintertext{\textbf{where}}
+				\shortintertext{\textbf{kjer}}
 				\text{$\E$}
 				\bnfis [~]
 				\bnfor \tmlet{x}{\E}{N}
@@ -373,7 +379,7 @@ run let b = 5 in
 				\begin{minipage}[t]{0.4\textwidth}
 					\centering
 					\begin{align*}
-					\shortintertext{\textbf{dvig signala}}
+					\shortintertext{\textbf{Dvig signala}}
 					\tmrun {(\tmopout{op}{V}{M})}  &\reduces \tmopout{op}{V}{\tmrun M}
 					\end{align*}
 				\end{minipage}
@@ -381,7 +387,7 @@ run let b = 5 in
 				\begin{minipage}[t]{0.4\textwidth}
 					\centering
 					\begin{align*}
-					\shortintertext{\textbf{oddajanje signala}}
+					\shortintertext{\textbf{Oddajanje signala}}
 					\tmpar{\tmopout{op}{V}{P}}{Q} &\reduces \tmopout{op}{V}{\tmpar{P}{\tmopin{op}{V}{Q}}}
 					\\
 					\tmpar{P}{\tmopout{op}{V}{Q}} &\reduces \tmopout{op}{V}{\tmpar{\tmopin{op}{V}{P}}{Q}}
@@ -401,7 +407,7 @@ run let b = 5 in
 				\end{align*}
 				\vspace{-8ex}
 				\begin{align*}
-				\shortintertext{\textbf{where}\vspace{1ex}}
+				\shortintertext{\textbf{kjer}\vspace{1ex}}
 				\text{$\F$}
 				\bnfis& [~]
 				\bnfor \tmpar \F Q \bnfor\! \tmpar P \F
@@ -414,7 +420,7 @@ run let b = 5 in
 
 
 
-	\begin{frame}{tipi in operacije}
+	\begin{frame}{Tipi in operacije}
 		\begin{figure}[tb]
 			\parbox{\textwidth}{
 				\centering
@@ -445,7 +451,7 @@ run let b = 5 in
 		\end{figure}
 	\end{frame}
 
-	\begin{frame}{pravila za tipe vrednosti}
+	\begin{frame}{Pravila za tipe vrednosti}
 		\begin{figure}[tp]
 			\centering
 			\tiny
@@ -515,7 +521,7 @@ run let b = 5 in
 		\end{figure}
 	\end{frame}
 
-	\begin{frame}{pravila za tipe računov}
+	\begin{frame}{Pravila za tipe računov}
 		\begin{figure}[tp]
 			\centering
 			\tiny
@@ -600,27 +606,27 @@ run let b = 5 in
 			\centering
 			\small
 			\begin{mathpar}
-				\coopinfer{tip run}{
+				\coopinfer{}{
 					\Gamma \types M : \tycomp{A}
 				}{
 					\Gamma \types \tmrun{M} : \tyrun{A}
 				}
 				\quad
-				\coopinfer{tip vzporedna}{
+				\coopinfer{}{
 					\Gamma \types P : \tyrun{C} \\
 					\Gamma \types Q : \tyrun{D}
 				}{
 					\Gamma \types \tmpar{P}{Q} : \typar{\tyC}{\tyD}
 				}
 				\\
-				\coopinfer{tip proces signal}{
+				\coopinfer{}{
 					\Gamma \types V : A_\op \\
 					\Gamma \types P : \tyrun{C} 
 				}{
 					\Gamma \types \tmopout{op}{V}{P} : \tyrun{C}
 				}
 				\quad
-				\coopinfer{tip proces prekinitev}{
+				\coopinfer{}{
 					\Gamma \types V : A_\op \\
 					\Gamma \types P : \tyrun{C} 
 				}{
@@ -698,25 +704,25 @@ run let b = 5 in
 		
 			\textbf{Rezultati}
 			\begin{mathpar}
-				\coopinfer{rezultat signal}{
+				\coopinfer{}{
 					\ProcResult {P}
 				}{
 					\ProcResult {\tmopout {op} V P}
 				}
 				\qquad
-				\coopinfer{rezultat deblo}{ %Kako tukaj dati manjše ime??  Imena pravil??
+				\coopinfer{}{
 					\ParResult {P}
 				}{
 					\ProcResult {P}
 				}
 				\qquad
-				\coopinfer{rezultat run}{
+				\coopinfer{}{
 					\RunResult {\emptyset} {M}
 				}{
 					\ParResult {\tmrun M}
 				}
 				\qquad
-				\coopinfer{rezultat vzporedna}{
+				\coopinfer{}{
 					\ParResult P \\
 					\ParResult Q
 				}{
@@ -736,19 +742,19 @@ run let b = 5 in
 	
 	\begin{frame}{Napredek}
 		\begin{lema}[1]
-			Če ima izraz $M$ v okolju $\Gamma$ tip $A!$, je $M$ delni rezultat ali pa lahko naredi korak v izraz $M^*$.
+			Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ delni rezultat ali pa lahko naredi korak v izraz $M'$.
 		\end{lema}
 		
 		%glede na čas dokaz tudi leme, vsaj deloma.
 		
 					
 		\begin{izrek}[o napredku]
-			Če ima izraz $M$ v okolju $\Gamma$ tip $A!!$, je $M$ rezultat ali pa lahko naredi korak v izraz $M^*$.
+			Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ rezultat ali pa lahko naredi korak v izraz $M'$.
 		\end{izrek}
 		
 		\begin{proof}
 			... 
-			%Predpostavimo da M ni rezultat. Hočemo dokazati da obstaja M* v katerega lahko naredimo korak. Sedaj dokazujemo z indukcijo na globino izpeljave tipa $A!!$. Recimo da smo na globini 1. Edina možnost je, da smo dokazali A!! z pravilom tip run. Se pravi M' ima tip A!. Po lemmi 1 je M' rezultat ali pa lahko naredi korak. Če bi bil M' rezultat bi bil po pravilu rezultat run tudi M rezultat. Se pravi da M' lahko naredi korak. Po pravilu za posamezen proces pa to pomeni da tudi M lahko naredi korak. Naj bo globina sedaj n>1. Tedaj smo A!! dokazali z pravilom tip vzporedna, tip proces signal ali tip proces prekinitev. Recimo da smo dokazali z pravilom tip vzporedna. A!! = (C || D)!!. Če sta P in Q rezultata bi bil po pravilu rezultat vzporedna tudi M rezultat. Se pravi da eden izmed P ali Q ni rezultat. Po indukcijski predpostavki lahko tisti, ki ni rezultat naredi korak. Po pravilu za vrednotenje v kontekstu to pomeni da M lahko naredi korak. Podobno za  tip proces signal in tip proces prekinitev.
+			%Predpostavimo da M ni rezultat. Hočemo dokazati da obstaja M* v katerega lahko naredimo korak. Sedaj dokazujemo z indukcijo na globino izpeljave tipa $A$. Recimo da smo na globini 1. Edina možnost, da smo dokazali A, je da smo uporabili pravilo tip run. Se pravi M'' ima tip A. Po lemmi 1 je M'' rezultat ali pa lahko naredi korak. Če bi bil M'' rezultat bi bil po pravilu rezultat run tudi M rezultat. Se pravi da M'' lahko naredi korak. Po pravilu za posamezen proces pa to pomeni da tudi M lahko naredi korak. Naj bo globina sedaj n>1. Tedaj smo A dokazali z pravilom tip vzporedna, tip proces signal ali tip proces prekinitev. Recimo da smo dokazali z pravilom tip vzporedna. A = (C || D). Če sta P in Q rezultata bi bil po pravilu rezultat vzporedna tudi M rezultat. Se pravi da eden izmed P ali Q ni rezultat. Po indukcijski predpostavki lahko tisti, ki ni rezultat naredi korak. Po pravilu za vrednotenje v kontekstu to pomeni da M lahko naredi korak. Podobno za  tip proces signal in tip proces prekinitev.
 		\end{proof}
 		%Kako lepo definirati globino iz dokaza??
 		
@@ -892,7 +898,7 @@ run let b = 5 in
 		\begin{figure}[tp]
 			\centering
 			\tiny
-			\textbf{Pravila za tip}
+			\textbf{Pravila za tipe vrednosti}
 			\begin{mathpar}
 				\coopinfer{}{\text{A prenosljiv ali } \blacksquare \notin \Gamma'
 				}{
