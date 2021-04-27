@@ -527,32 +527,32 @@ run let b = 5 in
 			\tiny
 			\begin{mathpar}
 				\coopinfer{}{
-					\Gamma \types V : X
+					\Gamma \types V : A
 				}{
-					\Gamma \types \tmreturn{V} : X
+					\Gamma \types \tmreturn{V} : A
 				}
 				\qquad
 				\coopinfer{}{
-					\Gamma \types M : X
+					\Gamma \types M : A
 					\\
-					\Gamma, x \of X \types N : Y
+					\Gamma, x \of A \types N : B
 				}{
 					\Gamma \types
-					\tmlet{x}{M}{N} : Y
+					\tmlet{x}{M}{N} : B
 				}
 				\qquad
 				\coopinfer{}{
-					\Gamma \types V : \tyfun{X}{Y} \\
-					\Gamma \types W : X
+					\Gamma \types V : \tyfun{A}{B} \\
+					\Gamma \types W : A
 				}{
-					\Gamma \types \tmapp{V}{W} : Y
+					\Gamma \types \tmapp{V}{W} : B
 				}
 				\\
 				\coopinfer{}{
-					\Gamma \types V : \typrod{X}{Y} \\
-					\Gamma, x \of X, y \of Y \types M : Z
+					\Gamma \types V : \typrod{A}{B} \\
+					\Gamma, x \of A, y \of B \types M : C
 				}{
-					\Gamma \types \tmmatch{V}{\tmpair{x}{y} \mapsto M} : Z
+					\Gamma \types \tmmatch{V}{\tmpair{x}{y} \mapsto M} : C
 				}
 				\qquad
 				\coopinfer{}{
@@ -562,39 +562,39 @@ run let b = 5 in
 				}
 				\\
 				\coopinfer{}{
-					\Gamma \types V : X + Y \\\\
-					\Gamma, x \of X \types M : Z \\
-					\Gamma, y \of Y \types N : Z \\
+					\Gamma \types V : A + B \\\\
+					\Gamma, x \of A \types M : C \\
+					\Gamma, y \of B \types N : C \\
 				}{
-					\Gamma \types \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N} : Z
+					\Gamma \types \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N} : C
 				}
 				\\
 				\coopinfer{}{
 					\Gamma \types V : A_\op \\
-					\Gamma \types M : X 
+					\Gamma \types M : B 
 				}{
-					\Gamma \types \tmopout{op}{V}{M} : X
+					\Gamma \types \tmopout{op}{V}{M} : B
 				}
 				\qquad
 				\coopinfer{}{
 					\Gamma \types V : A_\op \\
-					\Gamma \types M : X 
+					\Gamma \types M : B 
 				}{
-					\Gamma \types \tmopin{op}{V}{M} : X
+					\Gamma \types \tmopin{op}{V}{M} : B
 				}
 				\\
 				\coopinfer{}{
-					\Gamma, x \of A_\op \types M : \typromise X \\
-					\Gamma, p \of \typromise X \types N : Y 
+					\Gamma, x \of A_\op \types M : \typromise B \\
+					\Gamma, p \of \typromise B \types N : C 
 				}{
-					\Gamma \types \tmwith{op}{x}{M}{p}{N} : Y
+					\Gamma \types \tmwith{op}{x}{M}{p}{N} : C
 				}
 				\\
 				\coopinfer{}{
-					\Gamma \types V : \typromise X \\
-					\Gamma, x \of X \types M : Y 
+					\Gamma \types V : \typromise A \\
+					\Gamma, x \of A \types M : B 
 				}{
-					\Gamma \types \tmawait{V}{x}{M} : Y
+					\Gamma \types \tmawait{V}{x}{M} : B
 				}
 			\end{mathpar}
 		\end{figure}
@@ -668,19 +668,19 @@ run let b = 5 in
 		
 			\textbf{Delni rezultati}
 			\begin{mathpar}
-				\coopinfer{}{
-					\CompResult {\Psi} {M}
-				}{
-					\CompResult {\Psi} {\tmopout {op} V M}
-				}
-				\quad
-				\coopinfer{}{
-					\RunResult {\Psi} {M}
-				}{
-					\CompResult {\Psi} {M}
-				}
-				\vspace{-1ex}
-				\\
+%				\coopinfer{}{
+%					\CompResult {\Psi} {M}
+%				}{
+%					\CompResult {\Psi} {\tmopout {op} V M}
+%				}
+%				\quad
+%				\coopinfer{}{
+%					\RunResult {\Psi} {M}
+%				}{
+%					\CompResult {\Psi} {M}
+%				}
+%				\vspace{-1ex}
+%				\\
 				\coopinfer{}{
 				}{
 					\RunResult {\Psi} {\tmreturn V}
@@ -742,14 +742,14 @@ run let b = 5 in
 	
 	\begin{frame}{Napredek}
 		\begin{lema}[1]
-			Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ delni rezultat ali pa lahko naredi korak v izraz $M'$.
+			Če ima izračun $M$ v okolju $\Gamma$ tip $A$, je $M$ delni rezultat ali pa lahko naredi korak v izraz $M'$.
 		\end{lema}
 		
 		%glede na čas dokaz tudi leme, vsaj deloma.
 		
 					
 		\begin{izrek}[o napredku]
-			Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ rezultat ali pa lahko naredi korak v izraz $M'$.
+			Če ima proces $M$ v okolju $\Gamma$ tip $A$, je $M$ rezultat ali pa lahko naredi korak v izraz $M'$.
 		\end{izrek}
 		
 		\begin{proof}
