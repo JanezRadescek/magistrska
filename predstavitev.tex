@@ -143,21 +143,14 @@ run let b = 5 in
 		
 		
 			\begin{column}{0.49\textwidth}
-				\begin{lstlisting}[basicstyle=\tiny]
-operation signal_c : int		
-
-run let a = 2 in
-    promise(signal_c c -> 
-      let d = a + c in
-      return <d>)
-    as p in
-    await p until <d'> in
-    return d'
-
-run let a = 5 in
-    let c = a + 1 in
-    send singal_c c
-				\end{lstlisting}
+				\begin{align*}
+				&1\ a \gets 2  \\
+				&2\ b \gets 5 \\
+				&3\ c \gets b + 1 \\
+				&4\ d \gets a + c \\
+				&5\ return\ d 
+				\end{align*}
+				\vspace{0.1ex}
 			\end{column}
 		\end{columns}
 	
@@ -187,10 +180,16 @@ run let b = 5 in
 
 
 		%Da se izognemo problemu kaj z 4. korakom aeff ne omogoča uporabe spremenljivk iz drugih procesov.
-		%Kadar bi radi da nek korak le je odvisen od koraka iz drugega procesa to dosežemo s pomočjo efektov. 
 		
 	\end{frame}
 
+	\begin{frame}{Račun \lae{}}
+		\begin{itemize}
+			\item Programski jezik \aeff{} temelji na računu \lae{}.
+			\item Račun \lae{} je razširitev računa $\lambda$.
+			\item Izrazi, operacijska semantika in tipi.
+		\end{itemize}
+	\end{frame}
 
 
 	\begin{frame}{Izrazi}
@@ -286,7 +285,7 @@ run let b = 5 in
 		\begin{figure}[tp]
 			\tiny
 			\begin{align*}
-			\intertext{\textbf{Algebraičnost signala in prekinitve}}
+			\intertext{\textbf{Algebraičnost signala in prestreznika}}
 			\tmlet{x}{(\tmopout{op}{V}{M})}{N} &\reduces \tmopout{op}{V}{\tmlet{x}{M}{N}}
 			\\
 			\tmlet{x}{(\tmwith{op}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwith{op}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
@@ -364,8 +363,6 @@ run let b = 5 in
 					\centering
 					\begin{align*}
 					\shortintertext{\textbf{Širitev prekinitve}}
-					\tmopin{op}{V}{\tmrun M} &\reduces \tmrun {(\tmopin{op}{V}{M})}
-					\\
 					\tmopin{op}{V}{\tmpar P Q} &\reduces \tmpar {\tmopin{op}{V}{P}} {\tmopin{op}{V}{Q}}
 					\\
 					\tmopin{op}{V}{\tmopout{op'}{W}{P}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{P}}
@@ -379,7 +376,9 @@ run let b = 5 in
 				\begin{minipage}[t]{0.4\textwidth}
 					\centering
 					\begin{align*}
-					\shortintertext{\textbf{Dvig signala}}
+					\shortintertext{\textbf{Spust in dvig signala}}
+					\tmopin{op}{V}{\tmrun M} &\reduces \tmrun {(\tmopin{op}{V}{M})}
+					\\
 					\tmrun {(\tmopout{op}{V}{M})}  &\reduces \tmopout{op}{V}{\tmrun M}
 					\end{align*}
 				\end{minipage}
@@ -397,7 +396,7 @@ run let b = 5 in
 				%%%%
 		
 				\begin{align*}
-				\shortintertext{\quad\textbf{Vrednotenje v kontekstu.}}
+				\shortintertext{\quad\textbf{Evalvacija v okolju.}}
 				\quad
 				\coopinfer{}{
 					P \reduces Q
@@ -521,7 +520,7 @@ run let b = 5 in
 		\end{figure}
 	\end{frame}
 
-	\begin{frame}{Pravila za tipe računov}
+	\begin{frame}{Pravila za tipe izračunov}
 		\begin{figure}[tp]
 			\centering
 			\tiny
@@ -742,14 +741,14 @@ run let b = 5 in
 	
 	\begin{frame}{Napredek}
 		\begin{lema}[1]
-			Če ima izračun $M$ v okolju $\Gamma$ tip $A$, je $M$ delni rezultat ali pa lahko naredi korak v izraz $M'$.
+			Če ima izračun $M$ v kontekstu $\Gamma$ tip $A$, je $M$ delni rezultat ali pa lahko naredi korak v izraz $M'$.
 		\end{lema}
 		
 		%glede na čas dokaz tudi leme, vsaj deloma.
 		
 					
 		\begin{izrek}[o napredku]
-			Če ima proces $M$ v okolju $\Gamma$ tip $A$, je $M$ rezultat ali pa lahko naredi korak v izraz $M'$.
+			Če ima proces $M$ v kontekstu $\Gamma$ tip $A$, je $M$ rezultat ali pa lahko naredi korak v izraz $M'$.
 		\end{izrek}
 		
 		\begin{proof}
@@ -763,55 +762,59 @@ run let b = 5 in
 	
 		
 	\begin{frame}{Ohranitev}
+			
+		\begin{lema}[2]
+			Če ima izračun $M$ v kontekstu $\Gamma$ tip $A$ in naredi korak v izračun $M'$, ima $M'$ v kontekstu $\Gamma$ tip $A$
+		\end{lema}	
 				
 		\begin{izrek}[o ohranitvi]
-			Če ima izraz $M$ v okolju $\Gamma$ tip $A$ in naredi korak v izraz $M^*$, ima $M^*$ v okolju $\Gamma$ tip $A$.
+			Če ima proces $M$ v kontekstu $\Gamma$ tip $A$ in naredi korak v proces $M'$, ima $M'$ v kontekstu $\Gamma$ tip $A$.
 		\end{izrek}
 		
-		\begin{proof}
-			%Left for the reader as an exercise :D
-		\end{proof}
+%		\begin{proof}
+%			%Left for the reader as an exercise :D
+%		\end{proof}
 		
 	\end{frame}
 
 
 
-	\begin{frame}[fragile]{Primer}
-		\begin{columns}[T]
-			\begin{column}{0.49\textwidth}
-				\centering
-				\aeff
-				\begin{lstlisting}[basicstyle=\tiny]
-operation signal_c : int		
+%	\begin{frame}[fragile]{Primer}
+%		\begin{columns}[T]
+%			\begin{column}{0.49\textwidth}
+%				\centering
+%				\aeff
+%				\begin{lstlisting}[basicstyle=\tiny]
+%operation signal_c : int		
+%
+%run let a = 2 in
+%    promise(signal_c c -> return <c>)
+%    as p in
+%    await p until <c'> in
+%    let d = a + c' in
+%    return d 
+%
+%run let b = 5 in
+%    let c = b + 1 in
+%    send singal_c c
+%				\end{lstlisting}
+%			\end{column}
+%			
+%			%prevedi primer v lae, izračunaj tip in nato izračun vrednost
+%			%Preskoči če bo zmanjkovalo časa.
+%			\begin{column}{0.49\textwidth}
+%				\centering
+%				\lae
+%				\begin{lstlisting}
+%          ...
+%				\end{lstlisting}
+%			\end{column}
+%		\end{columns}
+%	\end{frame}
 
-run let a = 2 in
-    promise(signal_c c -> return <c>)
-    as p in
-    await p until <c'> in
-    let d = a + c' in
-    return d 
-
-run let b = 5 in
-    let c = b + 1 in
-    send singal_c c
-				\end{lstlisting}
-			\end{column}
-			
-			%prevedi primer v lae, izračunaj tip in nato izračun vrednost
-			%Preskoči če bo zmanjkovalo časa.
-			\begin{column}{0.49\textwidth}
-				\centering
-				\lae
-				\begin{lstlisting}
-          ...
-				\end{lstlisting}
-			\end{column}
-		\end{columns}
-	\end{frame}
 
 
-
-	\begin{frame}{Rekurzivne obljube}
+	\begin{frame}{Rekurzivni prestrezniki}
 		\begin{figure}[hp]
 			\parbox{\textwidth}{
 				\centering
@@ -829,9 +832,9 @@ run let b = 5 in
 			\tiny
 			\begin{align*}
 			\shortintertext{\textbf{Operacijska semantika}}
-			\tmopin{op}{V}{\tmwith{op}{x}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x]}{\tmopin{op}{V}{N}}
-			\\
-			\tmopin{op'}{V}{\tmwith{op}{x}{M}{p}{N}} &\reduces \tmwith{op}{x}{M}{p}{\tmopin{op'}{V}{N}}
+			\tmopin{op}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, F/f]}{\tmopin{op}{V}{N}} \\
+			F &= \tmfun{x}{\tmwithrec{op}{f}{x}{M}{p}{\tmreturn{p}}} \\
+			\tmopin{op'}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}} &\reduces \tmwithrec{op}{f}{x}{M}{p}{\tmopin{op'}{V}{N}}
 			\quad {\color{rulenameColor}(\op \neq \op')}
 			\end{align*}
 		\end{figure}
@@ -839,13 +842,13 @@ run let b = 5 in
 		\begin{figure}[tp]
 			\centering
 			\tiny
-			\textbf{Pravila za tipe računov}
+			\textbf{Pravila za tipe izračunov}
 			\begin{mathpar}
 				\coopinfer{}{
 					\Gamma, f \of \tyfun{A_\op}{\typromise{B}}, x \of A_\op \types M : \typromise B \\
 					\Gamma, p \of \typromise B \types N : C 
 				}{
-					\Gamma \types \tmwithrec{op}{f}{x : A}{M : \typromise{B}}{p}{N} : C
+					\Gamma \types \tmwithrec{op}{f}{x}{M}{p}{N} : C
 				}
 	
 			\end{mathpar}

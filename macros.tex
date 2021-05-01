@@ -148,7 +148,7 @@
 \newcommand{\tmawait}[3]{\tmkw{await}\;#1\;\tmkw{until}\;\tmpromise{#2}\;\tmkw{in}\;#3} % awaiting for a promise to be completed
 
 \newcommand{\tmwith}[5]{\tmkw{promise}\; (\tm{#1}\; #2 \mapsto #3)\; \tmkw{as}\; #4\; \tmkw{in}\; #5} % interrupt hook
-\newcommand{\tmwithrec}[6]{\tmkw{promise}\; (\tm{#1}\; #2\; (#3) \mapsto (#4))\; \tmkw{as}\; #5\; \tmkw{in}\; #6} % interrupt hook
+\newcommand{\tmwithrec}[6]{\tmkw{promise}\; (\tm{#1}\; #2\; #3 \mapsto #4)\; \tmkw{as}\; #5\; \tmkw{in}\; #6} % interrupt hook
 %\newcommand{\tmwith}[6]{\tmkw{promise}\; (\tm{#1}\; #2 \mapsto #3)\; \tmkw{as}\; #4 \of \typromise{#5}\; \tmkw{in}\; #6} % interrupt hook
 \newcommand{\tmspawn}[2]{\tmkw{spawn} (#1, #2)} % Spawn new process
 
