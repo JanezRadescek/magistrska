@@ -196,27 +196,24 @@ run let b = 5 in
 
 
 		\begin{columns}[T]
-			\begin{column}{0.27\textwidth}
+			\begin{column}{0.22\textwidth}
 				\begin{figure}[hp]
 					\parbox{\textwidth}{
 						\centering
 						\tiny
 						\begin{align*}
-						\intertext{\textbf{Vrednosti}}
-						V, W
-						\bnfis& n \bnfor\! \true \bnfor\! \false        \\
-						\bnfor& x                                       \\
-						\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          \\
-						\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      \\
-						\bnfor& \tmfun{x}{M}                        \\
-						\bnfor& \tmfunrec{f}{x}{M}                   \\
-						\bnfor& \tmpromise V                           
+						\intertext{\textbf{Procesi}}
+						P, Q
+						\bnfis & \tmrun M &  \\
+						\bnfor & \tmpar P Q &  \\
+						\bnfor & \tmopout{op}{V}{P} &  \\
+						\bnfor & \tmopin{op}{V}{P}  & 
 						\end{align*}
 					} 
 				\end{figure}
 			\end{column}
 		
-			\begin{column}{0.32\textwidth}
+			\begin{column}{0.39\textwidth}
 				\begin{figure}[hp]
 					\parbox{\textwidth}{
 						\centering
@@ -239,22 +236,26 @@ run let b = 5 in
 				\end{figure}
 			\end{column}
 		
-			\begin{column}{0.32\textwidth}
+			\begin{column}{0.35\textwidth}
 				\begin{figure}[hp]
 					\parbox{\textwidth}{
 						\centering
 						\tiny
 						\begin{align*}
-						\intertext{\textbf{Procesi}}
-						P, Q
-						\bnfis & \tmrun M &  \\
-						\bnfor & \tmpar P Q &  \\
-						\bnfor & \tmopout{op}{V}{P} &  \\
-						\bnfor & \tmopin{op}{V}{P}  & 
+						\intertext{\textbf{Vrednosti}}
+						V, W
+						\bnfis& n \bnfor\! \true \bnfor\! \false        \\
+						\bnfor& x                                       \\
+						\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          \\
+						\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      \\
+						\bnfor& \tmfun{x}{M}                        \\
+						\bnfor& \tmfunrec{f}{x}{M}                   \\
+						\bnfor& \tmpromise V                           
 						\end{align*}
 					} 
 				\end{figure}
 			\end{column}
+			
 		\end{columns}
 		
 	\end{frame}
@@ -362,27 +363,15 @@ run let b = 5 in
 				\begin{minipage}[t]{0.4\textwidth}
 					\centering
 					\begin{align*}
-					\shortintertext{\textbf{Širitev prekinitve}}
-					\tmopin{op}{V}{\tmpar P Q} &\reduces \tmpar {\tmopin{op}{V}{P}} {\tmopin{op}{V}{Q}}
+					\shortintertext{\textbf{Prehod}}
+					\tmrun {(\tmopout{op}{V}{M})}  &\reduces \tmopout{op}{V}{\tmrun M}
 					\\
-					\tmopin{op}{V}{\tmopout{op'}{W}{P}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{P}}
+					\tmopin{op}{V}{\tmrun M} &\reduces \tmrun {(\tmopin{op}{V}{M})}
 					\end{align*}
 				\end{minipage}
-			
 				
 				
 				%%%%
-				
-				\begin{minipage}[t]{0.4\textwidth}
-					\centering
-					\begin{align*}
-					\shortintertext{\textbf{Spust in dvig signala}}
-					\tmopin{op}{V}{\tmrun M} &\reduces \tmrun {(\tmopin{op}{V}{M})}
-					\\
-					\tmrun {(\tmopout{op}{V}{M})}  &\reduces \tmopout{op}{V}{\tmrun M}
-					\end{align*}
-				\end{minipage}
-				\qquad
 				\begin{minipage}[t]{0.4\textwidth}
 					\centering
 					\begin{align*}
@@ -390,6 +379,16 @@ run let b = 5 in
 					\tmpar{\tmopout{op}{V}{P}}{Q} &\reduces \tmopout{op}{V}{\tmpar{P}{\tmopin{op}{V}{Q}}}
 					\\
 					\tmpar{P}{\tmopout{op}{V}{Q}} &\reduces \tmopout{op}{V}{\tmpar{\tmopin{op}{V}{P}}{Q}}
+					\end{align*}
+				\end{minipage}
+				\qquad
+				\begin{minipage}[t]{0.4\textwidth}
+					\centering
+					\begin{align*}
+					\shortintertext{\textbf{Širitev prekinitve}}
+					\tmopin{op}{V}{\tmpar P Q} &\reduces \tmpar {\tmopin{op}{V}{P}} {\tmopin{op}{V}{Q}}
+					\\
+					\tmopin{op}{V}{\tmopout{op'}{W}{P}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{P}}
 					\end{align*}
 				\end{minipage}
 				
