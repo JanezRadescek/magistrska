@@ -253,15 +253,17 @@ TODO
 %source code = izvorna koda
 %machine code = strojna koda
 %shared memory = skupni spomin
+%race condition = ??
 %context = kontekst
 %true/false = resnica/neresnica
 %runtime error = ??
-%Partition of a set = partiticija množice ??
+%Partition of a set = partiticija množice ?? https://en.wikipedia.org/wiki/Partition_of_a_set
 %typing rules = pravila za tipe
 %interupt propagation = širitev prekinitve
 %signal hoisting = dvig signala
 %broadcasting = oddajanje signala
 %evaluation context rule = Vrednotenje v kontekstu
+%turing complete = ??
 
 
 %prevajaj vse razen sintakse na slikcah.
@@ -280,7 +282,7 @@ TODO
 $$P = (k^1, k^2,..., k^n).$$ 
 Izvajanje $I_s(P)$ je vrstni red v katerem se izvaja korake in ga lahko predstavimo z urejeno $n$-terico
 $$I_s(P) = (k_1^{\pi(1)}, k_2^{\pi(2)},..., k_n^{\pi(n)}),\ k_i^{\pi(i)} = k^{\pi(i)}.$$
-Privzeto je $\pi$ identična permutacija. Program je končan, ko so izvedeni vsi koraki. Rezultat končnega programa je običajno rezultat zadnjega izvedenega koraka. Dve izvajanji programa sta ekvivalentni, če sta njuna rezultata enaka. Ker na rezultat vpliva le vrstni red korakov v izvajanju programa bomo zgornji indeks opustili. Kadar se korak $k_i$ začne izvajati, šele ko so se v celoti izvedli vsi koraki $k_1,...,k_{i-1}$, takemu programu pravimo, da je sinhron ali sekvenčen. Če vsak korak potrebuje enoto časa, da se izvede, in korake izvajamo sekvenčno v istem vrstnem redu kot so v $S$ se korak $k_i$ izvede ob času $i$. Koraka $k_i$ in $k_{i+j}$ sta odvisna drug od drugega, kadar se rezultat $k_{i+j}$ spreminja v odvisnosti od rezultata $k_i$ ali kadar se rezultat $k_i+j$ spreminja v odvisnosti od ali je bil $k_i$ izveden prej hkrati ali po $k_{i+j}$. Sicer sta neodvisna. Na primer korak $k_3$, ki vrne spremenljivko $a$ je odvisen od koraka $k_4$, ki poveča $a$ za 1, saj se $k_3$ spremeni, če ga izvedemo za korakom $k_4$. V primeru, da sta korak $k_i$ in $k_{i-1}$ neodvisna, lahko zamenjamo njun vrstni red izvajanja, ne da bi se rezultat kakega koraka spremenil in posledično delovanje celotnega programa.
+Privzeto je $\pi$ identična permutacija. Program je končan, ko so izvedeni vsi koraki. Rezultat končnega programa je običajno rezultat zadnjega izvedenega koraka. Dve izvajanji programa sta ekvivalentni, če sta njuna rezultata enaka. Ker je zgornji indeks določen s spodnjim indeksom ga bomo opustili. Kadar se korak $k_i$ začne izvajati, šele ko so se v celoti izvedli vsi koraki $k_1,...,k_{i-1}$, takemu programu pravimo, da je sinhron ali sekvenčen. Če vsak korak potrebuje enoto časa, da se izvede, in korake izvajamo sekvenčno v istem vrstnem redu kot so v $S$ se korak $k_i$ izvede ob času $i$. Koraka $k_i$ in $k_{i+j}$ sta odvisna drug od drugega, kadar se rezultat $k_{i+j}$ spreminja v odvisnosti od rezultata $k_i$ ali kadar se rezultat $k_i+j$ spreminja v odvisnosti od ali je bil $k_i$ izveden prej hkrati ali po $k_{i+j}$. Sicer sta neodvisna. Na primer korak $k_3$, ki vrne spremenljivko $a$ je odvisen od koraka $k_4$, ki poveča $a$ za 1, saj se $k_3$ spremeni, če ga izvedemo za korakom $k_4$. V primeru, da sta korak $k_i$ in $k_{i-1}$ neodvisna, lahko zamenjamo njun vrstni red izvajanja, ne da bi se rezultat kakega koraka spremenil in posledično delovanje celotnega programa.
 Če korake izvajamo sekvenčno, z zamenjavo vrstnega reda izvajanja korakov nismo pridobili na času, saj je skupno število korakov v programu ostalo nespremenjeno. Vseeno pa to pomeni, da imamo več možnosti v zaporedju izvajanja programa kamor lahko damo korak $k_i$, da dobimo želeni končen program, kar lahko programerju prihrani čas za razmislek, kam točno ga mora postaviti.
 
 
@@ -308,38 +310,39 @@ Nekateri programski jeziki omogočajo mnoge konstrukte povezane s vzporednim pro
 Le redki programski jeziki, recimo Go, pa so bili zasnovani z vzporednim programiranjem v mislih in imajo zato konstrukte potrebne za vzporedno izvajanje vgrajene v jezik.
 
 
-Eden izmed njih je tudi jezik \aeff{}, ki sloni na računu imenovanem \lae~\cite{aeff}. \aeff{} je ne deterministični statično tipiziran tolmačen funkcijski jezik. Glavni namen \lae{} je pokazati, da je v ozadju vzporednih programskih jezikov lepa teorija. V osnovni verziji \aeff{} omogoča vzporedno izvajanje izračunov, ki lahko po potrebi komunicirajo med sabo s pošiljanjem signalov. 
+Eden izmed njih je tudi jezik \aeff{}, ki sloni na računu imenovanem \lae~\cite{aeff}. \aeff{} je ne deterministični statično tipiziran tolmačen funkcijski jezik. Program napisan v \aeff{} je razdeljen v procese, ki se lahko izvajajo vzporedno. Procesi lahko med sabo komunicirajo s pomočjo efektov.  Glavni namen \lae{} je pokazati, da je v ozadju vzporednih programskih jezikov lepa teorija. V osnovni verziji \aeff{} omogoča vzporedno izvajanje izračunov, ki lahko po potrebi komunicirajo med sabo s pošiljanjem signalov. 
 
 
-Najprej si bomo v poglavju \ref{sec:lae} pogledali že obstoječ račun \lae{}. V poglavju \ref{sec:razsirjen-lae} ga bomo razširili z rekurzivno obljubo, razcepom in \jR{Okvir}. V poglavju \ref{sec:impl} si bomo pogledali implementacijo. Obstoječ Hindley–Milnerjev sistem tipov smo zamenjali z dvosmernim sistemom tipov in obstoječ tolmač spremenil,i da omogoča nekoliko bolj optimalno izvajanje. Vse dele implementacije smo prilagodili tudi za razširjen \lae.
+Najprej si bomo v poglavju \ref{sec:lae} pogledali že obstoječ račun \lae{}. V poglavju \ref{sec:razsirjen-lae} ga bomo razširili z rekurzivno obljubo, razcepom in \jR{Okvir}. V poglavju \ref{sec:impl} si bomo pogledali implementacijo. Obstoječ Hindley–Milnerjev sistem tipov bomo zamenjali z dvosmernim sistemom tipov in obstoječ tolmač spremenili, da omogoča nekoliko bolj optimalno izvajanje. Vse dele implementacije bomo prilagodili tudi za razširjen \lae.
 
 
-%Kakšna je točna relacija med računom in programskim jezikom? Jezik je implementacija računa??
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Račun \lae{}}\label{sec:lae}
 
-Lambda račun je preprost programski jezik, ki je \jR{Turing complete}.
+Račun $\lambda$ je preprost teoretičen programski jezik. Leta 1930 ga je uvedel Alonzo Chuch z namenom formalizacije koncepta izračunljivosti~\cite{rojas2015tutorial}. Račun lambda je turing complete.
+Kot tak predstavlja odlično osnovo za formalizacijo paralelnega programskega jezika.
 
 
-Račun \lae je razširjena verzija Lambda računa. Poleg standardnih izrazov vsebuje še izraze, ki poosebijo bistvo vzporednega programiranja z pošiljanjem sporočil. 
-%V marsikaterih programskih jezik se uporablja tako imenovan skupen pomnilnik. To je pomnilnik, do katerega lahko dostopata dva ali več procesov hkrati. Ker je delovanje programa lahko odvisno od vrstnega reda dostopa
+Račun \lae{} je razširitev računa $\lambda$. Posledično je tudi \lae{} turing complete. Računu \lae{} dodamo izraze, ki poosebijo bistvo vzporednega programiranja z pošiljanjem sporočil. Da \lae{} čim bolj približamo vsakdanjim programskim jezikom, mu dodamo tudi izraze za  naravna števila, par, ujemanje vzorca...
+
+%Ena izmed ključnih oblikovnih lastnosti računa \lae, je da nima skupnega pomnilnika in posledično v njem ne pride do race conditions.
 
 
 \subsection{Vrednosti in izračuni}
 
-Račun \lae{} je formalen jezik. Izraze v \lae{} razdelimo na vrednosti in izračune. 
+Izraze v \lae{} razdelimo na vrednosti, izračune in procese. 
 
 
 Vrednosti so sledeče.
 Konstante vrednosti naravna števila in logični vrednosti resnica in neresnica.
-% TOLE DODAJ ČE BO MAGISTRSKA PREKRATKA DA BODO DALJŠI DOKAZI :D in nekatere aritmetične in logične funkcije kot so $+$, $-$, $*$, $/$, $=$, $<$...
+% TOLE DODAJ ČE BO MAGISTRSKA PREKRATKA DA BODO DALJŠI DOKAZI in nekatere aritmetične in logične funkcije kot so $+$, $-$, $*$, $/$, $=$, $<$...
 Spremenljivke, ki so simbolična imena povezana z vrednostmi v danem kontekstu.
-Enota in par.
-leva in desna inkluzija vsote.
+Enote in pare.
+leve in desne inkluzije vsote.
 Lambda abstrakcije.
 Rekurzivne lambda abstrakcije.
-Izpolnjena obljuba. Ta vrednost je edina zares nova. Označuje, da je bila obljuba izpolnjena z neko vrednostjo.
+Izpolnjena obljuba. Ta vrednost je edina zares nova. Je vrednost, ki jo je vrnil prestreznik in jo posebej označimo, da bomo kasneje lahko pravilno določili tip.
 
 
 Izračuni so sledeči.
@@ -347,22 +350,19 @@ Vrni ki drži neko vrednost.
 Zaporedje dveh izračunov.
 Aplikacija ki v prvi izraz substituira drugi izraz.
 Ujemanje ki glede na vzorec izraza izbere izračun. 
-Odhajajoči signal vsebuje operacijo, pripadajočo vrednost imenovano tovor in izračun.
-Prihajajoči signal vsebuje operacijo, pripadajočo vrednost imenovano tovor in izračun.
-prestreznik 
+Signal vsebuje operacijo, pripadajočo vrednost imenovano tovor in izračun.
+Prekinitev vsebuje operacijo, pripadajočo vrednost imenovano tovor in izračun.
+Prestreznik vsebuje ime operacije, ime spremeljivke, Izračun M in izračun N.
 blokada
 
 
 Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 
-%zakaj imajo funkcije sintakso za tip? Ali niso anotacije v ta namen??
+%zakaj imajo funkcije sintakso za tip? Na ta način je inferece veliko enostavnejši ampak saj tu se neukvarjamo z inference? Ali niso anotacije v ta namen?? 
 
+%Kaj gre narobe če odstranimo match V with {} ??
+%Odveč če bo prvi odgovor dober. Vir prazne vsote so exceptni, runtime errorji in neskončne rekurzije ali še kaj drugega? Exceptionov nimamo v jeziku, errorjev nimamo ker imamo tipe, rekurzija lahko nikoli vrne poljuben tip. Pa naj nikoli vrne unit namesto da nikoli vrne prazno vsoto?? Je prazna vsota "indikator" da preostanka ne moremo doseči in ga lahko vržemo stran? Neke vrsta optimizacija pomnilnika ali še bolje compile error uporabniku naj spremeni kodo?
 
-%Kaj se zgodi če odstranimo match V with {} ??
-%Zakaj nimamo prazne vsote med vrednostmi??
-%Odveč če bo prvi in drugi odgovor dober. Vir prazne vsote so exceptni, errorji in neskončne rekurzije? Exceptionov nimamo v jeziku, errorjev nimamo ker imamo tipe, rekurzija lahko nikoli vrne poljuben tip. Pa naj nikoli vrne unit namesto da nikoli vrne prazno vsoto??
-
-%Jaz nebi delil na sekvenčni in vzporedni del??
 
 \begin{figure}[hp]
 	\parbox{\textwidth}{
@@ -375,7 +375,7 @@ Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 		\bnfor& x                                       & &\text{spremenljivka} \\
 		\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          & &\text{enota in par} \\
 		\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      & &\text{leva in desna inkluzija} \\
-		\bnfor& \tmfun{x : X}{M}                        & &\text{lambda} \\
+		\bnfor& \tmfun{x}{M}                        & &\text{lambda} \\
 		\bnfor& \tmfunrec{f}{x : X}{M}                        & &\text{rekurzivna lambda} \\
 		\bnfor& \tmpromise V                            & &\text{izpolnjena obljuba}
 		\\[1ex]
@@ -398,26 +398,25 @@ Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 		  P, Q
 		\bnfis & \tmrun M & & \text{run} \\
 		\bnfor & \tmpar P Q & & \text{vzporedna procesa} \\
-		\bnfor & \tmopout{op}{V}{P} & & \text{hmmm} \\
-		\bnfor & \tmopin{op}{V}{P} & & \text{hmmm}
+		\bnfor & \tmopout{op}{V}{P} & & \text{proces signal} \\
+		\bnfor & \tmopin{op}{V}{P} & & \text{proces prekinitev}
 		\end{align*}
 	} 
 	\caption{Vrednosti, izračuni in procesi.}
 	\label{fig:izrazi}
 \end{figure}
 
-%Dobro ime za process, ki ima i/o signal
-
 
 \subsection{Operacijska semantika}
 
-Račun \lae\ je ...
+Račun \lae\ opremimo z operacijsko semantiko malih korakov in je definirana z relacijo korak $M \reduces N$.
 
 
 \begin{figure}[tp]
+	\centering
 	\small
 	\begin{align*}
-	\intertext{\textbf{Standard computation rules}}
+	\intertext{\textbf{Pravila osnovnih izračunov}}
 	\tmapp{(\tmfun{x \of X}{M})}{V} &\reduces M[V/x]
 	\\
 	\tmlet{x}{(\tmreturn V)}{N} &\reduces N[V/x]
@@ -427,52 +426,45 @@ Račun \lae\ je ...
 	\mathllap{\tmmatch{(\tminl[Y]{V})}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}} &\reduces	M[V/x]
 	\\
 	\mathllap{\tmmatch{(\tminr[X]{W})}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}} &\reduces	N[W/y]
-	\\
-	\tmletrec[: \tyfun{X\!}{\tycomp{\!Y\!}{\!(\o,\i)}}]{f}{x}{M}{N}  &\reduces
-	N[\tmfun{x \of X}{\tmletrec[: \tyfun{X\!}{\tycomp{\!Y\!}{\!(\o,\i)}}]{f}{x}{M}{M}}/f]
 	\\[1ex]
-	\intertext{\textbf{Algebraicity of signals and interrupt handlers}}
+	\intertext{\textbf{Algebraičnost signala, prestreznika in blokade}}
 	\tmlet{x}{(\tmopout{op}{V}{M})}{N} &\reduces \tmopout{op}{V}{\tmlet{x}{M}{N}}
 	\\
 	\tmlet{x}{(\tmwith{op}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwith{op}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
+	\\
+	\tmlet{x}{(\tmawait{V}{y}{M})}{N} & \reduces \tmawait{V}{y}{(\tmlet{x}{M}{N})}
 	\\[1ex]
-	\intertext{\textbf{Commutativity of signals with interrupt handlers}}
+	\intertext{\textbf{Komutativnost operacij}}
 	\tmwith{op}{x}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}}
-	\\[1ex]
-	\intertext{\textbf{Interrupt propagation}}
-	\tmopin{op}{V}{\tmreturn W} &\reduces \tmreturn W
 	\\
 	\tmopin{op}{V}{\tmopout{op'}{W}{M}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{M}}
 	\\
+	\tmopin{op}{V}{\tmawait{W}{x}{M}} &\reduces \tmawait{W}{x}{\tmopin{op}{V}{M}}
+	\\[1ex]
+	\intertext{\textbf{Širitev prekinitve}}
+	\tmopin{op}{V}{\tmreturn W} &\reduces \tmreturn W
+	\\
 	\tmopin{op}{V}{\tmwith{op}{x}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x]}{\tmopin{op}{V}{N}}
 	\\
-	\tmopin{op'}{V}{\tmwith{op}{x}{M}{p}{N}} &\reduces \tmwith{op}{x}{M}{p}{\tmopin{op'}{V}{N}}
-	\quad {\color{rulenameColor}(\op \neq \op')}
-	\\[-6ex]
+	\tmopin{op'}{V}{\tmwith{op}{x}{M}{p}{N}} &\reduces \tmwith{op}{x}{M}{p}{\tmopin{op'}{V}{N}} \\
+	&\qquad {\color{rulenameColor}(\op \neq \op')}
+	\\[1ex]
+	\intertext{\textbf{Čakanje na izpolnitev obljube}}
+	\tmawait{\tmpromise V}{x}{M} &\reduces M[V/x]
+	\\[-8ex]
 	\end{align*}
 	
-	\begin{minipage}[t]{0.4\textwidth}
-		\begin{align*}
-		\intertext{\quad\,\textbf{Awaiting a promise to be fulfilled}}
-		\tmawait{\tmpromise V}{x}{M} \reduces M[V/x]
-		\end{align*}
-	\end{minipage}
-	
-	\begin{minipage}[t]{0.4\textwidth}
-		\centering
-		\begin{align*}
-		\intertext{\textbf{Evaluation context rule}}
-		\coopinfer{}{
-			M \reduces N
-		}{
-			\E[M] \reduces \E[N]
-		}
-		\end{align*}
-		\vspace{-4ex}
-	\end{minipage}
-	
 	\begin{align*}
-	\intertext{\textbf{where}\vspace{1ex}}
+	\intertext{\textbf{Evalvacija v okolju}}
+	\coopinfer{}{
+		M \reduces N
+	}{
+		\E[M] \reduces \E[N]
+	}
+	\end{align*}
+	\vspace{-6ex}
+	\begin{align*}
+	\intertext{\textbf{kjer}}
 	\text{$\E$}
 	\bnfis [~]
 	\bnfor \tmlet{x}{\E}{N}
@@ -481,109 +473,108 @@ Račun \lae\ je ...
 	\bnfor \tmwith{op}{x}{M}{p}{\E}
 	\end{align*}
 	
-	\caption{Operacijska semantika malih korakov.}
+	\caption{Operacijska semantika malih korakov za izračune.}
 	\label{fig:small-step-semantics-of-computations}
 \end{figure}
 
-
-
-
 \begin{figure}[tp]
-	\parbox{\textwidth}{
+    \centering
+	\small
+	\begin{minipage}[t]{0.4\textwidth}
 		\centering
-		\small
-		\begin{minipage}[t]{0.4\textwidth}
-			\centering
-			\begin{align*}
-			\intertext{\textbf{Individual computations}}
-			\coopinfer{}{
-				M \reduces N
-			}{
-				\tmrun M \reduces \tmrun N
-			}
-			\end{align*}
-			\begin{align*}
-			\intertext{\textbf{Signal hoisting}}
-			\tmrun {(\tmopout{op}{V}{M})}  &\reduces \tmopout{op}{V}{\tmrun M}
-			\\[1ex]
-			\intertext{\textbf{Broadcasting}}
-			\tmpar{\tmopout{op}{V}{P}}{Q} &\reduces \tmopout{op}{V}{\tmpar{P}{\tmopin{op}{V}{Q}}}
-			\\
-			\tmpar{P}{\tmopout{op}{V}{Q}} &\reduces \tmopout{op}{V}{\tmpar{\tmopin{op}{V}{P}}{Q}}
-			\end{align*}
-			\vspace{-1ex}
-		\end{minipage}
-		\qquad
-		\begin{minipage}[t]{0.4\textwidth}
-			\centering
-			\begin{align*}
-			\intertext{\textbf{Interrupt propagation}}
-			\tmopin{op}{V}{\tmrun M} &\reduces \tmrun {(\tmopin{op}{V}{M})}
-			\\
-			\tmopin{op}{V}{\tmpar P Q} &\reduces \tmpar {\tmopin{op}{V}{P}} {\tmopin{op}{V}{Q}}
-			\\
-			\tmopin{op}{V}{\tmopout{op'}{W}{P}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{P}}
-			\end{align*}
-			\begin{align*}
-			\intertext{\quad\textbf{Evaluation context rule}}
-			\quad
-			\coopinfer{}{
-				P \reduces Q
-			}{
-				\F[P] \reduces \F[Q]
-			}
-			\end{align*}
-		\end{minipage}
 		\begin{align*}
-		\intertext{\textbf{where}\vspace{1ex}}
-		\text{$\F$}
-		\bnfis& [~]
-		\bnfor \tmpar \F Q \bnfor\! \tmpar P \F
-		\bnfor \tmopout{op}{V}{\F}
-		\bnfor \tmopin{op}{V}{\F}
+		\intertext{\textbf{Posamezen proces}}
+		\coopinfer{}{
+			M \reduces N
+		}{
+			\tmrun M \reduces \tmrun N
+		}
 		\end{align*}
-	} 
-	\caption{Small-step operational semantics of parallel processes.}
-	\label{fig:processes}
+	\end{minipage}
+	\qquad
+	\begin{align*}
+	\intertext{\textbf{Prehod}}
+	\tmrun {(\tmopout{op}{V}{M})}  &\reduces \tmopout{op}{V}{\tmrun M}
+	\\
+	\tmopin{op}{V}{\tmrun M} &\reduces \tmrun {(\tmopin{op}{V}{M})}
+	\\[1ex]
+	\intertext{\textbf{Oddajanje signala}}
+	\tmpar{\tmopout{op}{V}{P}}{Q} &\reduces \tmopout{op}{V}{\tmpar{P}{\tmopin{op}{V}{Q}}}
+	\\
+	\tmpar{P}{\tmopout{op}{V}{Q}} &\reduces \tmopout{op}{V}{\tmpar{\tmopin{op}{V}{P}}{Q}}
+	\\[1ex]
+	\intertext{\textbf{Širitev prekinitve}}
+	\tmopin{op}{V}{\tmpar P Q} &\reduces \tmpar {\tmopin{op}{V}{P}} {\tmopin{op}{V}{Q}}
+	\\[1ex]
+	\intertext{\textbf{Komutativnost signala in prekinitve}}
+	\tmopin{op}{V}{\tmopout{op'}{W}{P}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{P}}
+	\end{align*}
+	\vspace{-4ex}
+	\begin{align*}
+	\shortintertext{\quad\textbf{Evalvacija v okolju}}
+	\quad
+	\coopinfer{}{
+		P \reduces Q
+	}{
+		\F[P] \reduces \F[Q]
+	}
+	\end{align*}
+	\vspace{-6ex}
+	\begin{align*}
+	\intertext{\textbf{kjer}}
+	\text{$\F$}
+	\bnfis& [~]
+	\bnfor \tmpar \F Q \bnfor\! \tmpar P \F
+	\bnfor \tmopout{op}{V}{\F}
+	\bnfor \tmopin{op}{V}{\F}
+	\end{align*}
+	
+	\caption{Operacijska semantika malih korakov za procese.}
+	\label{fig:small-step-semantics-of-processes}
 \end{figure}
 
 
 
-Določenih kombinacij izrazov nimamo v operacijski semantiki, ker niso smiselne. Recimo ...
+%Določenih kombinacij izrazov nimamo v operacijski semantiki, ker niso smiselne. Recimo ...
 %aplikacija konstantne funkcije $+$ na enoti. Problem nastane, ker je domena funkcije $+$ števila, čeprav ni nikjer eksplicitno zapisana. Enota ni število. Zato aplikacija $+$ na enoti ni smiselna.
-Če \lae pride do izračuna za katerega nima pravila v operacijski semantiki se ustavi. Večina programskih jezikov bi na tem mestu vrnila runtime error.
+%Če \lae pride do izračuna za katerega nima pravila v operacijski semantiki se ustavi. Večina programskih jezikov bi na tem mestu vrnila runtime error.
 %V aeff interpreterju je povno assertov, ki bi se sprožili, če bi dobili recimo "true + ()". Kaj točno pa lae naredil?
 
 \subsection{Sistem tipov}
 
-Runtime errorji niso zaželjeni, saj se je program, do takrat ko se sprožijo, potencialno izvajal že zelo dolgo.
-Da se jim izognemo, uvedemo sistem tipov. Izraze razdelimo v množice. Množice poimenujemo. Imenu množice rečemo tip. Ko izraz $M$ damo v množico $A$, rečemo, da smo izrazu $M$ dodelili tip $A$ ali da ima $M$ tip $A$. 
+Runtime errorji niso zaželjeni. Da jih spremenimo v compile time error, uvedemo sistem tipov in efektov. 
+
 Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 
-%Ali se razdelitev elementov v nmnožice ne imenuje particija?? 
-%
 
-
-%Zakaj rabimo tip i/o operacij, ki jih bomo morda sprožili??
 \begin{figure}[tb]
 	\parbox{\textwidth}{
 		\centering
 		\small
 		\begin{align*}
-		\text{Osnovni tipi vrednosti $A_\op$, $B_\op$}
-		\bnfis & \tysym{int} \,\bnfor\! \tysym{bool} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \\
-		\bnfor & \typrod{A_\op}{B_\op} \,\bnfor\! \tysum{A_\op}{B_\op}
+		\text{Osnovni tipi vrednosti $\bar{A}$, $\bar{B}$}
+		\bnfis & \tysym{int} \,\bnfor\! \tysym{bool} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \,\bnfor\! \typrod{\bar{A}}{\bar{B}} \,\bnfor\! \tysum{\bar{A}}{\bar{B}}
 		\\%[1ex]
 		\text{Tipi vrednosti $A$, $B$}
-		\bnfis & A_\op \, \bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B} \,\bnfor\! \tyfun{A}{B} \,\bnfor\! \typromise{A}
+		\bnfis & \bar{A} \, \bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B} \,\bnfor\! \tyfun{A}{\tycomp{B}{\o,\i}} \,\bnfor\! \typromise{A}
 		\\
-		\text{Tip izračuna} \bnfis& \tycomp{A}
+		\text{Tip izračuna} \bnfis& \tycomp{A}{\o,\i}
 		\\
-		\text{Tip procesa \tyC, \tyD}  \bnfis & \tyrun{A} \,\bnfor\! \typar{\tyC}{\tyD}
+		\text{Tip procesa \tyC, \tyD}  \bnfis & \tyrun{A}{\o, \i} \,\bnfor\! \typar{\tyC}{\tyD}
 		\end{align*}
 	} 
-	\caption{Tipi}
+	\caption{Tipi izrazov}
 	\label{fig:tipi}
+\end{figure}
+
+\begin{figure}[tp]
+	\centering
+	\small
+	\begin{align*}
+	(op_1, \bar{A}_{op_1}),\, (op_2, \bar{A}_{op_2}),\, ... ,\, (op_n, \bar{A}_{op_k})
+	\end{align*}
+	\caption{Operacije in pripadajoči tipi}
+	\label{fig:operacije}
 \end{figure}
 
 
@@ -643,18 +634,18 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 		}
 		\\
 		\coopinfer{Tip-Fun}{
-			\Gamma, x \of X \types M : Y
+			\Gamma, x \of X \types M : \tycomp{Y}{\o,\i}
 		}{
-			\Gamma \types \tmfun{x : X}{M} : \tyfun{X}{Y}
+			\Gamma \types \tmfun{x : X}{M} : \tyfun{X}{\tycomp{Y}{\o,\i}}
 		}
 		\quad
 		\coopinfer{Tip-Fun-Rec}{
-			\Gamma, x \of X \types M : Y
+			\Gamma,f \of \tyfun{X}{\tycomp{Y}{\o,\i}}, x \of X \types M : \tycomp{Y}{\o,\i}
 		}{
-			\Gamma \types \tmfunrec{f}{x : X}{M} : \tyfun{X}{Y}
+			\Gamma \types \tmfunrec{f}{x : X}{M} : \tyfun{X}{\tycomp{Y}{\o,\i}}
 		}
 	\end{mathpar}
-	\caption{Value typing rules.}
+	\caption{Pravila za izračun tipov za vrednosti.}
 	\label{fig:value-typing-rules}
 \end{figure}
 
@@ -665,17 +656,17 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 		\coopinfer{TyComp-Return}{
 			\Gamma \types V : X
 		}{
-			\Gamma \types \tmreturn{V} : \tycomp{X}{(\o,\i)}
+			\Gamma \types \tmreturn{V} : \tycomp{X}{(\o,\i)}  %OD kje dobimo oi? Kako lahko return sproži kakršne koli efekte??
 		}
 		\qquad
 		\coopinfer{TyComp-Let}{
 			\Gamma \types M : \tycomp{X}{(\o,\i)}
 			\\
-			\Gamma, x \of X \types N : \tycomp{Y}{(\o,\i)} %Zakaj imata M in N iste operacije ki jih lahko sprožita/prestrežeta??
-		}{
+			\Gamma, x \of X \types N : \tycomp{Y}{(\o,\i)} %Zakaj imata M in N v zaporedju iste operacije, ki jih lahko sprožita/prestrežeta?? let x = send op 23 in return 4. Ali nima M ({op},{}) in N ({},{}) ??
+		}{													%Zakaj ima pa rekurzivno zaporedje dva različna tipa?? 
 			\Gamma \types
-			\tmlet{x}{M}{N} : \tycomp{Y}{(\o,\i)}
-		}
+			\tmlet{x}{M}{N} : \tycomp{Y}{(\o,\i)}       % KO definiramo tip izraza rečemo MINIMALNA relacija zaprta za pravila. Nebi tudi za tipe efektov morali imeti v nekem smislu minimalnost?
+		}												% Zakaj imamo oi in ne si, če imamo signal in interupt handler? Zakaj nimamo signal in interupt ALI send in interupt handler??
 		\\
 		\coopinfer{TyComp-Apply}{
 			\Gamma \types V : \tyfun{X}{\tycomp{Y}{(\o,\i)}} \\
@@ -739,10 +730,10 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 			\Gamma \types M : \tycomp{X}{(\o, \i)} \\
 			(\o,\i) \order {O \times I} (\o',\i')
 		}{
-			\Gamma \types M : \tycomp{X}{(\o', \i')}
+			\Gamma \types M : \tycomp{X}{(\o', \i')} %Zakaj potrebujemo to pravilo v tej verziji lae??
 		}
 	\end{mathpar}
-	\caption{Computation typing rules.}
+	\caption{Pravila za izračun tipov za izračune.}
 	\label{fig:computation-typing-rules}
 \end{figure}
 
@@ -762,7 +753,7 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 		}{
 			\Gamma \types \tmpar{P}{Q} : \typar{\tyC}{\tyD}
 		}
-		\quad
+		\\
 		\coopinfer{TyProc-Signal}{
 			\op \in \mathsf{signals\text{-}of}{(\tyC)} \\\\
 			\Gamma \types V : A_\op \\
@@ -778,12 +769,64 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 			\Gamma \types \tmopin{op}{V}{P} : \opincomp{op}{\tyC}
 		}  
 	\end{mathpar}
-	\caption{Process typing rules.}
+	\caption{Pravila za izračun tipov za procese.}
 	\label{fig:process-typing-rules}
 \end{figure}
 
-%V nekem smislu smo uvedli ekvivalenčno relacijo in sedaj gledamo samo še predstavnika razreda.
- 
+\begin{figure}[tp]
+	\centering
+	\textbf{Delni rezultati}
+	\begin{mathpar}
+		\coopinfer{}{
+		}{
+			\RunResult {\Psi} {\tmreturn V}
+		}
+		\\
+		\coopinfer{}{
+			\RunResult {\Psi \cup \{p\}} {N}
+		}{
+			\RunResult {\Psi} {\tmwith {op} x M p N}
+		}
+		\quad
+		\coopinfer{}{
+			p \in \Psi \\
+			\awaiting p {\tmawait p x M}
+		}{
+			\RunResult {\Psi} {M}
+		}
+	\end{mathpar}
+
+	
+	\textbf{Rezultati}
+	\begin{mathpar}
+		\coopinfer{}{
+			\ProcResult {P}
+		}{
+			\ProcResult {\tmopout {op} V P}
+		}
+		\qquad
+		\coopinfer{}{
+			\ParResult {P}
+		}{
+			\ProcResult {P}
+		}
+		\\
+		\coopinfer{}{
+			\ParResult P \\
+			\ParResult Q
+		}{
+			\ParResult {\tmpar P Q}
+		}
+		\qquad
+		\coopinfer{}{
+			\RunResult {\emptyset} {M}
+		}{
+			\ParResult {\tmrun M}
+		}
+	\end{mathpar}
+	\caption{Rezultati in delni rezultati.}
+	\label{fig:results-rules}
+\end{figure}
 
 ...
 
@@ -822,7 +865,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 
 \mP{Tole še ni za oddati.}
 
-Kadar pričakujemo več signalov z isto operacijo je lahko iz različnih razlogov za programerja priročno, če ima na voljo obljubo, ki se po potrebi ponovno namesti. Lahko da je namen obljube, da na vsak signal sproži določene učinke. Lahko nam prihajajoči signal prinese pravo operacijo, vendar ne pravega pripadajočega tovora zato obljube še nočemo izpolniti, in čakamo na naslednjega.
+Kadar pričakujemo več signalov z isto operacijo je lahko iz različnih razlogov za programerja priročno, če ima na voljo obljubo, ki se po potrebi ponovno namesti. Lahko da je namen obljube, da na vsak signal sproži določene učinke. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo.
 
 To funkcionalnost smo do sedaj dosegli tako, da smo obljubo zapakirali v rekurzivno funkcijo in po potrebi znotraj obljube ponovno klicali to funkcij kot lahko vidimo v programu~\ref{prog:obljuba-v-rekurzivni-funkciji}.
 

@@ -95,14 +95,11 @@
 
 %% Computation types
 
-%\newcommand{\tycomp}[2]{#1 \at #2} % computation type
-\newcommand{\tycomp}[1]{#1} % computation type. No o/i
+\newcommand{\tycomp}[2]{#1 \at (#2)} % computation type
 
 %% Process types
 
-%\newcommand{\tyrun}[3]{#1 \att (#2,#3)} % type of the run M process
-\newcommand{\tyrun}[1]{#1} % type of the run M process
-%\newcommand{\typar}[2]{#1 \mathbin{\tmkw{\vert\vert}}  #2} % type of parallel processes
+\newcommand{\tyrun}[2]{#1 \att (#2)} % type of the run M process
 \newcommand{\typar}[2]{(#1 \mathbin{\tmkw{\vert\vert}}  #2)} % type of parallel processes
 \newcommand{\tyC}{C} % meta variable ranging over process types
 \newcommand{\tyD}{D} % meta variable ranging over process types
@@ -125,7 +122,6 @@
 \newcommand{\tminr}[2][]{\tmkw{inr}_{#1}\,#2} % right injection
 \newcommand{\tmfun}[2]{{\mathop{\tmkw{fun}}}\; (#1) \mapsto #2} % function abstraction
 \newcommand{\tmfunano}[2]{{\mathop{\tmkw{fun}}}\; #1 \mapsto #2} % function abstraction (no type annotation expected)
-%\newcommand{\tmfun}[2]{{\mathop{\tmkw{fun}}}\; #1 \mapsto #2} % no annotation is now standard. Use annotated type if you want annotation.
 \newcommand{\tmfunrec}[3]{\tmkw{fun}\; \tmkw{rec}\; #1\; (#2) \mapsto #3} % recursive abstraction
 \newcommand{\tmfunrecano}[3]{\tmkw{fun}\; \tmkw{rec}\; #1\; #2 \mapsto #3} % recursive abstraction (no type annotation expected)
 \newcommand{\tmapp}[2]{#1\,#2} % application
