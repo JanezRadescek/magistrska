@@ -92,6 +92,7 @@
 \newcommand{\tyfun}[2]{#1 \to #2} % user function type
 \newcommand{\typromise}[1]{\langle #1 \rangle} % type of promises
 \newcommand{\tyboxed}[1]{[#1]} % type of boxed value
+\newcommand{\tymobile}[1]{\widetilde{#1}} % type of boxed value
 
 %% Computation types
 
@@ -128,7 +129,7 @@
 \newcommand{\tmboxed}[1]{[#1]} % boxed value
 
 %% computations
-\newcommand{\tmunbox}[3]{\tmkw{unbox}\; \tmboxed{#1}\; \tmkw{as} \; \tmboxed{#2} \; \tmkw{in}\;#3} % unbox comand
+\newcommand{\tmunbox}[3]{\tmkw{unbox}\; #1\; \tmkw{as} \; \tmboxed{#2} \; \tmkw{in}\;#3} % unbox comand
 \newcommand{\tmreturn}[2][]{\tmkw{return}_{#1}\, #2} % pure computation
 \newcommand{\tmlet}[3]{\tmkw{let}\; #1 = #2 \;\tmkw{in}\; #3} % let-binding
 \newcommand{\tmletrec}[5][]{\tmkw{let}\;\tmkw{rec}\; #2\; #3 #1 = #4 \;\tmkw{in}\; #5} % recursive definitions
@@ -144,7 +145,8 @@
 \newcommand{\tmawait}[3]{\tmkw{await}\;#1\;\tmkw{until}\;\tmpromise{#2}\;\tmkw{in}\;#3} % awaiting for a promise to be completed
 
 \newcommand{\tmwith}[5]{\tmkw{promise}\; (\tm{#1}\; #2 \mapsto #3)\; \tmkw{as}\; #4\; \tmkw{in}\; #5} % interrupt hook
-\newcommand{\tmwithrec}[6]{\tmkw{promise}\; (\tm{#1}\; #2\; #3 \mapsto #4)\; \tmkw{as}\; #5\; \tmkw{in}\; #6} % interrupt hook
+\newcommand{\tmwithrec}[6]{\tmkw{promise}\; (\tm{#1}\; #2\; #3 \mapsto #4)\; \tmkw{as}\; #5\; \tmkw{in}\; #6} % rec interrupt hook
+\newcommand{\tmwithrecgu}[7]{\tmkw{promise}\; (\tm{#1}\; #2\; #3\; \tmkw{when}\; #4 \mapsto #5)\; \tmkw{as}\; #6\; \tmkw{in}\; #7} % rec interrupt hook with guard
 %\newcommand{\tmwith}[6]{\tmkw{promise}\; (\tm{#1}\; #2 \mapsto #3)\; \tmkw{as}\; #4 \of \typromise{#5}\; \tmkw{in}\; #6} % interrupt hook
 \newcommand{\tmspawn}[2]{\tmkw{spawn} (#1, #2)} % Spawn new process
 

@@ -69,6 +69,8 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 \renewcommand{\lstlistingname}{Program}% Listing -> Program
 \renewcommand{\lstlistlistingname}{Kazalo Programov}% List of Listings -> Kazalo Programov
 
+\usepackage{float}
+
 \input{macros.tex}
 
 
@@ -238,8 +240,9 @@ TODO
 %payload = tovor
 %Ground type = osnovni
 %mobile = prenosljiv
-%box/boxed = zavit,zavijanje,odvijanje
-%black box in types =  
+%boxed type = zavit tip
+%unbox = odvijanje   , ,zavijanje,
+%black box in types = kocka 
 %recursion = rekurzija
 %bidirectional = dvosmerni?
 %small step semantics = op. sem. malih korakov
@@ -364,7 +367,7 @@ Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 %Odveč če bo prvi odgovor dober. Vir prazne vsote so exceptni, runtime errorji in neskončne rekurzije ali še kaj drugega? Exceptionov nimamo v jeziku, errorjev nimamo ker imamo tipe, rekurzija lahko nikoli vrne poljuben tip. Pa naj nikoli vrne unit namesto da nikoli vrne prazno vsoto?? Je prazna vsota "indikator" da preostanka ne moremo doseči in ga lahko vržemo stran? Neke vrsta optimizacija pomnilnika ali še bolje compile error uporabniku naj spremeni kodo?
 
 
-\begin{figure}[hp]
+\begin{figure}[h]
 	\parbox{\textwidth}{
 		\centering
 		\small
@@ -412,7 +415,7 @@ Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 Račun \lae\ opremimo z operacijsko semantiko malih korakov in je definirana z relacijo korak $M \reduces N$.
 
 
-\begin{figure}[tp]
+\begin{figure}[h]
 	\centering
 	\small
 	\begin{align*}
@@ -477,7 +480,7 @@ Račun \lae\ opremimo z operacijsko semantiko malih korakov in je definirana z r
 	\label{fig:small-step-semantics-of-computations}
 \end{figure}
 
-\begin{figure}[tp]
+\begin{figure}[h]
     \centering
 	\small
 	\begin{minipage}[t]{0.4\textwidth}
@@ -547,7 +550,7 @@ Runtime errorji niso zaželjeni. Da jih spremenimo v compile time error, uvedemo
 Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 
 
-\begin{figure}[tb]
+\begin{figure}[h]
 	\parbox{\textwidth}{
 		\centering
 		\small
@@ -567,7 +570,7 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 	\label{fig:tipi}
 \end{figure}
 
-\begin{figure}[tp]
+\begin{figure}[t]
 	\centering
 	\small
 	\begin{align*}
@@ -579,7 +582,7 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 
 
 
-\begin{figure}[tp]
+\begin{figure}[h]
 	\centering
 	\small
 	\begin{mathpar}
@@ -649,7 +652,7 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 	\label{fig:value-typing-rules}
 \end{figure}
 
-\begin{figure}[tp]
+\begin{figure}[h]
 	\centering
 	\small
 	\begin{mathpar}
@@ -737,7 +740,7 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 	\label{fig:computation-typing-rules}
 \end{figure}
 
-\begin{figure}[tp]
+\begin{figure}[h]
 	\centering
 	\small
 	\begin{mathpar}
@@ -773,7 +776,7 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 	\label{fig:process-typing-rules}
 \end{figure}
 
-\begin{figure}[tp]
+\begin{figure}[h]
 	\centering
 	\textbf{Delni rezultati}
 	\begin{mathpar}
@@ -860,12 +863,12 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 
 
 
-\subsection{Rekurzivna obljuba}
+\subsection{Rekurzivni prestreznik}
 
 
 \mP{Tole še ni za oddati.}
 
-Kadar pričakujemo več signalov z isto operacijo je lahko iz različnih razlogov za programerja priročno, če ima na voljo obljubo, ki se po potrebi ponovno namesti. Lahko da je namen obljube, da na vsak signal sproži določene učinke. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo.
+Kadar pričakujemo več prekinitev z isto operacijo je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko da je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
 
 To funkcionalnost smo do sedaj dosegli tako, da smo obljubo zapakirali v rekurzivno funkcijo in po potrebi znotraj obljube ponovno klicali to funkcij kot lahko vidimo v programu~\ref{prog:obljuba-v-rekurzivni-funkciji}.
 
@@ -876,33 +879,137 @@ To funkcionalnost smo do sedaj dosegli tako, da smo obljubo zapakirali v rekurzi
 	as _ in ()
 \end{lstlisting}
 
+Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $V$, obljube $M$ in kontinuacije $N$ tudi spremenljivko $f$. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
 
 
-Sedaj lahko obljubi dodamo ime lambda funkcije, ki sprejme enoto in ima v abstrakciji za izračun svežo kopijo obljube. To funkcijo lahko uporabimo znotraj pripadajoče obljube.
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+	M, N
+	\bnfis& ...                            & &\text{obstoječi izračuni} \\
+	\bnfor& \tmwithrec{op}{f}{V}{M}{p}{N}  & &\text{rekurzivni prestreznik}
+	\end{align*}
+ 
+	\caption{Izračuni z rekurzivnim prestreznikom}
+	\label{fig:izrazi-prestreznik}
+\end{figure}
 
-\begin{definicija}
-	promise (op x k -> M) as p in N
-\end{definicija}
 
-Program~\ref{prog:rekurzivna-obljuba} ima isti semantičen pomen kot~\ref{prog:obljuba-v-rekurzivni-funkciji} le da je tokrat napisan z rekurzivno obljubo.
+Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. Z to izjemo, da ko ustrezna prekinitev pride do prestreznika le ta v obljubi M naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $f$ substituira z lambda funkcijo $F$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo $F$ in tako ponovno namestimo prestreznik.   
+
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+	\tmlet{x}{(\tmwithrec{op}{f}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwithrec{op}{f}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
+	\\
+	\tmwithrec{op}{f}{x}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}}
+	\\
+	\tmopin{op}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, F/f]}{\tmopin{op}{V}{N}} \\
+	F = \;& \tmfunano{y}{(\tmwithrec{op}{f}{x}{M}{p}{\tmreturn{p}})} \\
+	\tmopin{op'}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}} &\reduces \tmwithrec{op}{f}{x}{M}{p}{\tmopin{op'}{V}{N}} \\
+	&\qquad {\color{rulenameColor}(\op \neq \op')}
+	\end{align*}
+	
+	\caption{Operacijska semantika rekurzivnega prestreznika}
+	\label{fig:semantika-prestreznik}
+\end{figure}
+
+Program~\ref{prog:rekurzivna-obljuba} ima isti semantičen pomen kot program~\ref{prog:obljuba-v-rekurzivni-funkciji}, le da je tokrat napisan z rekurzivno obljubo.
 \begin{lstlisting}[caption={Rekurzivna obljuba.},label={prog:rekurzivna-obljuba}]
 	promise (op x k -> send op x; k())
 	as _ in ()
 \end{lstlisting}
 
-Prejšnje obstoječe varovane obljube so sedaj sintaktičen sladkor za obljubo, ki zapakira izračun iz abstrakcije v če izračun.
-\begin{definicija}
+Kot sintaktični sladkor dodamo tudi varovan prestreznik, ki se sproži le kadar je poleg prave operacije tudi pravi pripadajoči tovor.
 
-	promise (op x k when x >= 0 -> send op x; k())
-	as \_ in ()
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+	\intertext{\textbf{Sintaksa}}
+	\tmwithrecgu{op}{x}{f}{P(x)}{M}{p}{N}  & &\text{varovan rekurzivni prestreznik}
+	\\%[1ex]
+	\intertext{\textbf{Semantika}}
+	\tmopin{op}{V}{\tmwithrecgu{op}{f}{x}{P}{M}{p}{N}} \\ \reduces \tmlet{p}{(\ite{P[V/x]}{M[V/x, F/f]}{F\,()})}{\tmopin{op}{V}{N}} \\
+	{\color{rulenameColor}F = \tmfunano{y}{(\tmwithrec{op}{f}{x}{M}{p}{\tmreturn{p}})}}
+	\end{align*}
 	
-	-->
-	
-	promise (op x k -> if x > = then send op x; k() else k())
-	as \_ in ()
-\end{definicija}
+	\caption{Varovan rekurzivni prestreznik}
+	\label{fig:izrazi-prestreznik}
+\end{figure}
+
 
 \subsection{Prenosljivi tipi}
+
+Ko imamo nek signal je ključno, da tovor ne vsebuje vrednosti z tipom obljuba, kar smo do sedaj rešili tako, da smo omejili signale na osnovne tipe. Glavni problem tega pristopa je, da funkcijski tip ni med osnovnimi tipi in posledično ne moremo poslati lambda funkcij. Ta problem rešimo z uvedbo zavite vrednosti in zavitega tipa. Zavite vrednosti bodo lahko vrednosti tudi lambda funkcije, ki ne bodo vsebovale zunanje obljube. Posledično jih bo varno poslati. Osnovne tipe skupaj z zavitim tipom imenujemo prenosljivi tipi. Da bomo lahko zavito vrednost tudi uporabili dodamo izračun odvijanje. 
+
+Tipi za izračune in procese ostanejo enaki.
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+	\intertext{\textbf{Vrednosti}}
+	V
+	\bnfis& ...                            & &\text{obstoječe vrednosti} \\
+	\bnfor& \tmboxed{V}  & &\text{zavita vrednost}
+	\intertext{\textbf{Izračuni}}
+	M, N
+	\bnfis& ...                            & &\text{obstoječi izračuni} \\
+	\bnfor& \tmunbox{V}{x}{M}  & &\text{odvijanje}
+	\end{align*}
+	
+	\caption{Prenosljivi izrazi.}
+	\label{fig:izrazi-prenosljivi}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+	\text{Prenosljivi tipi vrednosti $\tymobile{A}$, $\tymobile{B}$}
+	\bnfis & \tysym{int} \,\bnfor\! \tysym{bool} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \,\bnfor\! \typrod{\tymobile{A}}{\tymobile{B}} \,\bnfor\! \tysum{\tymobile{A}}{\tymobile{B}} \,\bnfor\! \tyboxed{A}
+	\\%[1ex]
+	\text{Tipi vrednosti $A$, $B$}
+	\bnfis & \tymobile{A} \, \bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B} \,\bnfor\! \tyfun{A}{\tycomp{B}{\o,\i}} \,\bnfor\! \typromise{A}
+	\end{align*}
+	\vspace{-5ex}
+	\begin{align*}
+	(op_1, \tymobile{A}_{op_1}),\, (op_2, \tymobile{A}_{op_2}),\, ... ,\, (op_n, \tymobile{A}_{op_k})
+	\end{align*}
+	 
+	\caption{Prenosljivi tipi.}
+	\label{fig:tipi-prenosljivi}
+\end{figure}
+
+Da zagotovimo, da nebi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodeliti zavit tip, nekoliko spremenimo pravilo za izračun tipa spremenljivke. Hkrati tudi dodamo pravili za zavito vrednost in izračun odvijanje.
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{mathpar}
+		\coopinfer{}{\text{A prenosljiv ali } \blacksquare \notin \Gamma'
+		}{
+			\Gamma, x \of A, \Gamma' \types x \of A
+		}
+		\quad
+		\coopinfer{}{\Gamma, \blacksquare \types V \of A
+		}{
+			\Gamma \types \tmboxed{V} \of \tyboxed{A}
+		}
+	    \quad
+		\coopinfer{}{\Gamma \types V \of \tyboxed{A} \\ \Gamma, x \of A \types M \of B
+		}{
+			\Gamma \types \tmunbox{V}{x}{M} \of B
+		}
+	\end{mathpar}
+
+	\caption{Pravila za izračun tipov prenosljivih izrazov.}
+	\label{fig:tipi-pravila-prenosljivi}
+\end{figure} 
 
 \subsection{Spawn}
 
