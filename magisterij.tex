@@ -227,7 +227,7 @@ TODO
 %promise = obljuba
 %guarded promise = varovana obljuba
 %abstraction = abstrakcija
-%spawn =  ??
+%spawn =  ustvaritev novega procesa
 %interpreter = tolmač
 %type sistem = sistem tipov
 %computation = izračun
@@ -256,17 +256,16 @@ TODO
 %source code = izvorna koda
 %machine code = strojna koda
 %shared memory = skupni spomin
-%race condition = ??
+%race condition = tvegano stanje
 %context = kontekst
 %true/false = resnica/neresnica
-%runtime error = ??
-%Partition of a set = partiticija množice ?? https://en.wikipedia.org/wiki/Partition_of_a_set
+%runtime error = napaka ob izvajanju
 %typing rules = pravila za tipe
 %interupt propagation = širitev prekinitve
 %signal hoisting = dvig signala
 %broadcasting = oddajanje signala
 %evaluation context rule = Vrednotenje v kontekstu
-%turing complete = ??
+%turing complete = turingovo poln
 
 
 %prevajaj vse razen sintakse na slikcah.
@@ -659,7 +658,7 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 		\coopinfer{TyComp-Return}{
 			\Gamma \types V : X
 		}{
-			\Gamma \types \tmreturn{V} : \tycomp{X}{(\o,\i)}  %OD kje dobimo oi? Kako lahko return sproži kakršne koli efekte??
+			\Gamma \types \tmreturn{V} : \tycomp{X}{(\o,\i)}  %OD kje dobimo oi? Kako lahko return sproži kakršne koli efekte?? Če že zakaj ne uporabimo subsume ??
 		}
 		\qquad
 		\coopinfer{TyComp-Let}{
