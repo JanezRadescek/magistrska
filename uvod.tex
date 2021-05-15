@@ -1,0 +1,42 @@
+\section{Uvod} \label{sec:uvod}
+%Napišite kratek zgodovinski in matematični uvod.  Pojasnite motivacijo za problem, kje
+%nastopa, kje vse je bil obravnavan. Na koncu opišite tudi organizacijo dela -- kaj je v
+%katerem razdelku.
+
+
+Če zelo poenostavimo postopek nastajanja program, potem nastane tako, da se v programskem jeziku napiše zaporedje ukazov, ki se jih izvaja enega za drugim. Program $P$ lahko predstavimo z urejeno $n$-terico 
+$$P = (k^1, k^2,..., k^n).$$ 
+Izvajanje $I_s(P)$ je vrstni red v katerem se izvaja korake in ga lahko predstavimo z urejeno $n$-terico
+$$I_s(P) = (k_1^{\pi(1)}, k_2^{\pi(2)},..., k_n^{\pi(n)}),\ k_i^{\pi(i)} = k^{\pi(i)}.$$
+Privzeto je $\pi$ identična permutacija. Program je končan, ko so izvedeni vsi koraki. Rezultat končnega programa je običajno rezultat zadnjega izvedenega koraka. Dve izvajanji programa sta ekvivalentni, če sta njuna rezultata enaka. Ker je zgornji indeks določen s spodnjim indeksom ga bomo opustili. Kadar se korak $k_i$ začne izvajati, šele ko so se v celoti izvedli vsi koraki $k_1,...,k_{i-1}$, takemu programu pravimo, da je sinhron ali sekvenčen. Če vsak korak potrebuje enoto časa, da se izvede, in korake izvajamo sekvenčno v istem vrstnem redu kot so v $S$ se korak $k_i$ izvede ob času $i$. Koraka $k_i$ in $k_{i+j}$ sta odvisna drug od drugega, kadar se rezultat $k_{i+j}$ spreminja v odvisnosti od rezultata $k_i$ ali kadar se rezultat $k_i+j$ spreminja v odvisnosti od ali je bil $k_i$ izveden prej hkrati ali po $k_{i+j}$. Sicer sta neodvisna. Na primer korak $k_3$, ki vrne spremenljivko $a$ je odvisen od koraka $k_4$, ki poveča $a$ za 1, saj se $k_3$ spremeni, če ga izvedemo za korakom $k_4$. V primeru, da sta korak $k_i$ in $k_{i-1}$ neodvisna, lahko zamenjamo njun vrstni red izvajanja, ne da bi se rezultat kakega koraka spremenil in posledično delovanje celotnega programa.
+Če korake izvajamo sekvenčno, z zamenjavo vrstnega reda izvajanja korakov nismo pridobili na času, saj je skupno število korakov v programu ostalo nespremenjeno. Vseeno pa to pomeni, da imamo več možnosti v zaporedju izvajanja programa kamor lahko damo korak $k_i$, da dobimo želeni končen program, kar lahko programerju prihrani čas za razmislek, kam točno ga mora postaviti.
+
+
+Program $P$ se lahko izvaja tudi drugače. Namesto da se na enkrat izvede le en korak, se izvede nekaj korakov. Novo izvajanje programa lahko predstavimo z urejeno $n$-terico ne praznih množic korakov. 
+$$S_p = (t_1, t_2, ... , t_m),\ t_i = \{ k_{1(i)},...k_{l(i)} \}.$$
+Koraki v množici $t_i$ se izvedejo ob času $i$. Kadar vsaj ena množica $t_i$ vsebuje vsaj dva ali več korakov, programu pravimo da je vzporeden. V primeru, da so $t_i = \{k_i\}$, sta izvajanji $S_p$ in $S_s$ ekvivalentni.
+Če je korak $k_j \in t_i$ neodvisen od vseh preostalih korakov iz $t_{i-1}$ ali $t_i$ v izvajanju $S_p$, bo izvajanje 
+$$\tilde{S_p} = (t_1, t_2, ... , t_{i-2}, \tilde{t}_{i-1}, \tilde{t}_i, t_{i+1}, ..., t_m),\ \tilde{t}_{i-1} =t_{i-1} \cup \{k_j\},\ \tilde{t}_i = t_i \setminus \{k_j\}$$ 
+ekvivalentno izvajanju $S_p$. 
+V primeru, da je $\tilde{t}_i$ prazna množica bo izvajanje 
+$$\hat{S_p} = (t_1, t_2, ... , t_{i-2}, \tilde{t}_{i-1}, t_{i+1}, ..., t_m)$$
+ekvivalentno prejšnjima dvema z bistveno razliko. Izvajanje $\hat{S_p}$ se konča enota časa prej, kot $S_p$ ali $\tilde{S_p}$. Dokler so pogoji izpolnjeni lahko ta postopek ponavljamo in dobimo izvajanja, ki so ekvivalentna prvotnemu, a bistveno, se hitreje končajo.
+Hitrejše izvajanje programa je glavni razlog, da si želimo vzporedno izvajanje programa.
+
+
+Ugotoviti kateri koraki so med sabo neodvisni je v večini primerov ne trivialno. Programski jezik ugotovi neodvisnost le na najbolj trivialnih primerih. Običajen pristop za reševanje tega problema je zato, da se korake razdeli v procese ali niti. Za koraka $k_i$ in $k_j$ se smatra da sta neodvisna, če pripadata različnemu procesu, razen v primeru ko eksplicitno označimo, da koraka sta odvisna. Sedaj ima programski jezik na voljo veliko več trivialnih korakov, ki jih zna narediti vzporedne. 
+
+Seveda imamo sedaj ne trivialen postopek delitve korakov v procese in označevanje korakov iz različnih procesov, ki so odvisni med sabo. Nepravilna delitev v procese ali napačno označevanje odvisnosti korakov, lahko vodi v izvajanje programa, ki ne bo ekvivalentno prvotnemu. Da se ta postopek olajša kolikor je mogoče, je želeno od programskega jezika, da ima korake, ki naredijo ta postopek čim bolj enostaven in razumljiv. Iz tega razloga imajo nekateri programski jeziki zelo omejeno število različnih vrst korakov, ki so lahko odvisni od korakov izven istega procesa.
+
+
+Nekateri programski jeziki, predvsem starejše verzije, nimajo direktno podpore za vzporedno izvajanje programa. 
+Veliko modernih jezikov, če ne drugega omogočajo tako imenovan POSIX. POSIX je API, ki na operacijskih sistemih, ki ga podpirajo, omogoča uporabo niti~\cite{posix}.
+Drugi programski jeziki kot so C++, Java... imajo kot del standardne knjižnice konstrukte, ki jim omogočajo vzporedno izvajanje programa. Čeprav v ozadju mnogi jeziki uporabljajo POSIX, so detajli skriti in zato bolj naravni za programerja. 
+Nekateri programski jeziki omogočajo mnoge konstrukte povezane s vzporednim programiranjem, vendar direktno ne omogočajo vzporednega izvajanja. Na primer CPython ima tako imenovan GIL (global  interpreter lock)~\cite{gil}, ki preprečuje tolmaču, da bi izvajal korake iz več kot ene nit na enkrat.
+Le redki programski jeziki, recimo Go, pa so bili zasnovani z vzporednim programiranjem v mislih in imajo zato konstrukte potrebne za vzporedno izvajanje vgrajene v jezik.
+
+
+Eden izmed njih je tudi jezik \aeff{}, ki sloni na računu imenovanem \lae~\cite{aeff}. \aeff{} je ne deterministični statično tipiziran tolmačen funkcijski jezik. Program napisan v \aeff{} je razdeljen v procese, ki se lahko izvajajo vzporedno. Procesi lahko med sabo komunicirajo s pomočjo efektov.  Glavni namen \lae{} je pokazati, da je v ozadju vzporednih programskih jezikov lepa teorija. V osnovni verziji \aeff{} omogoča vzporedno izvajanje izračunov, ki lahko po potrebi komunicirajo med sabo s pošiljanjem signalov. 
+
+
+Najprej si bomo v poglavju \ref{sec:lae} pogledali že obstoječ račun \lae{}. V poglavju \ref{sec:razsirjen-lae} ga bomo razširili z rekurzivno obljubo, razcepom in \jR{Okvir}. V poglavju \ref{sec:impl} si bomo pogledali implementacijo. Obstoječ Hindley–Milnerjev sistem tipov bomo zamenjali z dvosmernim sistemom tipov in obstoječ tolmač spremenili, da omogoča nekoliko bolj optimalno izvajanje. Vse dele implementacije bomo prilagodili tudi za razširjen \lae.

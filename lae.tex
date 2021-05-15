@@ -1,0 +1,535 @@
+\section{Račun \lae{}}\label{sec:lae}
+
+Račun $\lambda$ je preprost teoretičen programski jezik. Leta 1930 ga je uvedel Alonzo Chuch z namenom formalizacije koncepta izračunljivosti~\cite{rojas2015tutorial}. Račun lambda je turing complete.
+Kot tak predstavlja odlično osnovo za formalizacijo paralelnega programskega jezika.
+
+
+Račun \lae{} je razširitev računa $\lambda$. Posledično je tudi \lae{} turing complete. Računu \lae{} dodamo izraze, ki poosebijo bistvo vzporednega programiranja z pošiljanjem sporočil. Da \lae{} čim bolj približamo vsakdanjim programskim jezikom, mu dodamo tudi izraze za  naravna števila, par, ujemanje vzorca...
+
+%Ena izmed ključnih oblikovnih lastnosti računa \lae, je da nima skupnega pomnilnika in posledično v njem ne pride do race conditions.
+
+
+\subsection{Vrednosti in izračuni}
+
+Izraze v \lae{} razdelimo na vrednosti, izračune in procese. 
+
+
+Vrednosti so sledeče.
+Konstante vrednosti naravna števila in logični vrednosti resnica in neresnica.
+% TOLE DODAJ ČE BO MAGISTRSKA PREKRATKA DA BODO DALJŠI DOKAZI in nekatere aritmetične in logične funkcije kot so $+$, $-$, $*$, $/$, $=$, $<$...
+Spremenljivke, ki so simbolična imena povezana z vrednostmi v danem kontekstu.
+Enote in pare.
+leve in desne inkluzije vsote.
+Lambda abstrakcije.
+Rekurzivne lambda abstrakcije.
+Izpolnjena obljuba. Ta vrednost je edina zares nova. Je vrednost, ki jo je vrnil prestreznik in jo posebej označimo, da bomo kasneje lahko pravilno določili tip.
+
+
+Izračuni so sledeči.
+Vrni ki drži neko vrednost.
+Zaporedje dveh izračunov.
+Aplikacija ki v prvi izraz substituira drugi izraz.
+Ujemanje ki glede na vzorec izraza izbere izračun. 
+Signal vsebuje operacijo, pripadajočo vrednost imenovano tovor in izračun.
+Prekinitev vsebuje operacijo, pripadajočo vrednost imenovano tovor in izračun.
+Prestreznik vsebuje ime operacije, ime spremeljivke, Izračun M in izračun N.
+blokada
+
+
+Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
+
+%zakaj imajo funkcije sintakso za tip? Na ta način je inferece veliko enostavnejši ampak saj tu se neukvarjamo z inference? Ali niso anotacije v ta namen?? 
+
+%Kaj gre narobe če odstranimo match V with {} ??
+%Odveč če bo prvi odgovor dober. Vir prazne vsote so exceptni, runtime errorji in neskončne rekurzije ali še kaj drugega? Exceptionov nimamo v jeziku, errorjev nimamo ker imamo tipe, rekurzija lahko nikoli vrne poljuben tip. Pa naj nikoli vrne unit namesto da nikoli vrne prazno vsoto?? Je prazna vsota "indikator" da preostanka ne moremo doseči in ga lahko vržemo stran? Neke vrsta optimizacija pomnilnika ali še bolje compile error uporabniku naj spremeni kodo?
+
+
+\begin{figure}[h]
+	\parbox{\textwidth}{
+		\centering
+		\small
+		\begin{align*}
+		\intertext{\textbf{Vrednosti}}
+		V, W
+		\bnfis& n \bnfor\! \true \bnfor\! \false        & &\text{konstantne vrednosti} \\
+		\bnfor& x                                       & &\text{spremenljivka} \\
+		\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          & &\text{enota in par} \\
+		\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      & &\text{leva in desna inkluzija} \\
+		\bnfor& \tmfun{x}{M}                        & &\text{lambda} \\
+		\bnfor& \tmfunrec{f}{x : X}{M}                        & &\text{rekurzivna lambda} \\
+		\bnfor& \tmpromise V                            & &\text{izpolnjena obljuba}
+		\\[1ex]
+		\intertext{\textbf{Izračuni}}
+		M, N
+		\bnfis& \tmreturn{V}                            & &\text{vrnjena vrednost} \\
+		\bnfor& \tmlet{x}{M}{N}                         & &\text{zaporedje} \\
+	%	\bnfor& \tmletrec[: \tyfun{X}{Y}]{f}{x}{M}{N} & &\text{rekurzivna definicija} \\
+		\bnfor& V\,W                                    & &\text{aplikacija} \\
+		\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    & &\text{ujemanje produkta} \\
+		\bnfor& \tmmatch[]{V}{}                        & &\text{prazno ujemanje} \\
+		\bnfor& \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}	& &\text{ujemanje vsote} \\
+		\bnfor& \tmopout{op}{V}{M}       & &\text{signal} \\
+		\bnfor& \tmopin{op}{V}{M}          & &\text{prekinitev} \\
+		\bnfor& \tmwith{op}{x}{M}{p}{N}      & &\text{prestreznik} \\
+		\bnfor& \tmawait{V}{x}{M}             & &\text{blokada}
+			\\[1ex]
+		\intertext{\textbf{Procesi}}
+	%	P \bnfis & ...
+		  P, Q
+		\bnfis & \tmrun M & & \text{run} \\
+		\bnfor & \tmpar P Q & & \text{vzporedna procesa} \\
+		\bnfor & \tmopout{op}{V}{P} & & \text{proces signal} \\
+		\bnfor & \tmopin{op}{V}{P} & & \text{proces prekinitev}
+		\end{align*}
+	} 
+	\caption{Vrednosti, izračuni in procesi.}
+	\label{fig:izrazi}
+\end{figure}
+
+
+\subsection{Operacijska semantika}
+
+Račun \lae\ opremimo z operacijsko semantiko malih korakov in je definirana z relacijo korak $M \reduces N$.
+
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+	\intertext{\textbf{Pravila osnovnih izračunov}}
+	\tmapp{(\tmfun{x \of X}{M})}{V} &\reduces M[V/x]
+	\\
+	\tmlet{x}{(\tmreturn V)}{N} &\reduces N[V/x]
+	\\
+	\tmmatch{\tmpair{V}{W}}{\tmpair{x}{y} \mapsto M} &\reduces M[V/x, W/y]
+	\\
+	\mathllap{\tmmatch{(\tminl[Y]{V})}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}} &\reduces	M[V/x]
+	\\
+	\mathllap{\tmmatch{(\tminr[X]{W})}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}} &\reduces	N[W/y]
+	\\[1ex]
+	\intertext{\textbf{Algebraičnost signala, prestreznika in blokade}}
+	\tmlet{x}{(\tmopout{op}{V}{M})}{N} &\reduces \tmopout{op}{V}{\tmlet{x}{M}{N}}
+	\\
+	\tmlet{x}{(\tmwith{op}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwith{op}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
+	\\
+	\tmlet{x}{(\tmawait{V}{y}{M})}{N} & \reduces \tmawait{V}{y}{(\tmlet{x}{M}{N})}
+	\\[1ex]
+	\intertext{\textbf{Komutativnost operacij}}
+	\tmwith{op}{x}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}}
+	\\
+	\tmopin{op}{V}{\tmopout{op'}{W}{M}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{M}}
+	\\
+	\tmopin{op}{V}{\tmawait{W}{x}{M}} &\reduces \tmawait{W}{x}{\tmopin{op}{V}{M}}
+	\\[1ex]
+	\intertext{\textbf{Širitev prekinitve}}
+	\tmopin{op}{V}{\tmreturn W} &\reduces \tmreturn W
+	\\
+	\tmopin{op}{V}{\tmwith{op}{x}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x]}{\tmopin{op}{V}{N}}
+	\\
+	\tmopin{op'}{V}{\tmwith{op}{x}{M}{p}{N}} &\reduces \tmwith{op}{x}{M}{p}{\tmopin{op'}{V}{N}} \\
+	&\qquad {\color{rulenameColor}(\op \neq \op')}
+	\\[1ex]
+	\intertext{\textbf{Čakanje na izpolnitev obljube}}
+	\tmawait{\tmpromise V}{x}{M} &\reduces M[V/x]
+	\\[-8ex]
+	\end{align*}
+	
+	\begin{align*}
+	\intertext{\textbf{Evalvacija v okolju}}
+	\coopinfer{}{
+		M \reduces N
+	}{
+		\E[M] \reduces \E[N]
+	}
+	\end{align*}
+	\vspace{-6ex}
+	\begin{align*}
+	\intertext{\textbf{kjer}}
+	\text{$\E$}
+	\bnfis [~]
+	\bnfor \tmlet{x}{\E}{N}
+	\bnfor \tmopout{op}{V}{\E}
+	\bnfor \tmopin{op}{V}{\E} 
+	\bnfor \tmwith{op}{x}{M}{p}{\E}
+	\end{align*}
+	
+	\caption{Operacijska semantika malih korakov za izračune.}
+	\label{fig:small-step-semantics-of-computations}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+	\small
+	\begin{minipage}[t]{0.4\textwidth}
+		\centering
+		\begin{align*}
+		\intertext{\textbf{Posamezen proces}}
+		\coopinfer{}{
+			M \reduces N
+		}{
+			\tmrun M \reduces \tmrun N
+		}
+		\end{align*}
+	\end{minipage}
+	\qquad
+	\begin{align*}
+	\intertext{\textbf{Prehod}}
+	\tmrun {(\tmopout{op}{V}{M})}  &\reduces \tmopout{op}{V}{\tmrun M}
+	\\
+	\tmopin{op}{V}{\tmrun M} &\reduces \tmrun {(\tmopin{op}{V}{M})}
+	\\[1ex]
+	\intertext{\textbf{Oddajanje signala}}
+	\tmpar{\tmopout{op}{V}{P}}{Q} &\reduces \tmopout{op}{V}{\tmpar{P}{\tmopin{op}{V}{Q}}}
+	\\
+	\tmpar{P}{\tmopout{op}{V}{Q}} &\reduces \tmopout{op}{V}{\tmpar{\tmopin{op}{V}{P}}{Q}}
+	\\[1ex]
+	\intertext{\textbf{Širitev prekinitve}}
+	\tmopin{op}{V}{\tmpar P Q} &\reduces \tmpar {\tmopin{op}{V}{P}} {\tmopin{op}{V}{Q}}
+	\\[1ex]
+	\intertext{\textbf{Komutativnost signala in prekinitve}}
+	\tmopin{op}{V}{\tmopout{op'}{W}{P}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{P}}
+	\end{align*}
+	\vspace{-4ex}
+	\begin{align*}
+	\shortintertext{\quad\textbf{Evalvacija v okolju}}
+	\quad
+	\coopinfer{}{
+		P \reduces Q
+	}{
+		\F[P] \reduces \F[Q]
+	}
+	\end{align*}
+	\vspace{-6ex}
+	\begin{align*}
+	\intertext{\textbf{kjer}}
+	\text{$\F$}
+	\bnfis& [~]
+	\bnfor \tmpar \F Q \bnfor\! \tmpar P \F
+	\bnfor \tmopout{op}{V}{\F}
+	\bnfor \tmopin{op}{V}{\F}
+	\end{align*}
+	
+	\caption{Operacijska semantika malih korakov za procese.}
+	\label{fig:small-step-semantics-of-processes}
+\end{figure}
+
+
+
+%Določenih kombinacij izrazov nimamo v operacijski semantiki, ker niso smiselne. Recimo ...
+%aplikacija konstantne funkcije $+$ na enoti. Problem nastane, ker je domena funkcije $+$ števila, čeprav ni nikjer eksplicitno zapisana. Enota ni število. Zato aplikacija $+$ na enoti ni smiselna.
+%Če \lae pride do izračuna za katerega nima pravila v operacijski semantiki se ustavi. Večina programskih jezikov bi na tem mestu vrnila runtime error.
+%V aeff interpreterju je povno assertov, ki bi se sprožili, če bi dobili recimo "true + ()". Kaj točno pa lae naredil?
+
+\subsection{Sistem tipov}
+
+Runtime errorji niso zaželjeni. Da jih spremenimo v compile time error, uvedemo sistem tipov in efektov. 
+
+Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
+
+
+\begin{figure}[h]
+	\parbox{\textwidth}{
+		\centering
+		\small
+		\begin{align*}
+		\text{Osnovni tipi vrednosti $\bar{A}$, $\bar{B}$}
+		\bnfis & \tysym{int} \,\bnfor\! \tysym{bool} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \,\bnfor\! \typrod{\bar{A}}{\bar{B}} \,\bnfor\! \tysum{\bar{A}}{\bar{B}}
+		\\%[1ex]
+		\text{Tipi vrednosti $A$, $B$}
+		\bnfis & \bar{A} \, \bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B} \,\bnfor\! \tyfun{A}{\tycomp{B}{\o,\i}} \,\bnfor\! \typromise{A}
+		\\
+		\text{Tip izračuna} \bnfis& \tycomp{A}{\o,\i}
+		\\
+		\text{Tip procesa \tyC, \tyD}  \bnfis & \tyrun{A}{\o, \i} \,\bnfor\! \typar{\tyC}{\tyD}
+		\end{align*}
+	} 
+	\caption{Tipi izrazov}
+	\label{fig:tipi}
+\end{figure}
+
+\begin{figure}[t]
+	\centering
+	\small
+	\begin{align*}
+	(op_1, \bar{A}_{op_1}),\, (op_2, \bar{A}_{op_2}),\, ... ,\, (op_n, \bar{A}_{op_k})
+	\end{align*}
+	\caption{Operacije in pripadajoči tipi}
+	\label{fig:operacije}
+\end{figure}
+
+
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{mathpar}
+		\coopinfer{Tip-Cons}{
+		}{
+			\Gamma \types n : int
+		}
+		\qquad
+		\coopinfer{Tip-Cons}{
+		}{
+			\Gamma \types true : bool
+		}
+		\qquad
+		\coopinfer{Tip-Cons}{
+		}{
+			\Gamma \types false : bool
+		}
+		\quad
+		\coopinfer{Tip-Var}{
+		}{
+			\Gamma, x \of X, \Gamma' \types x : X
+		}
+		\quad
+		\coopinfer{Tip-Unit}{
+		}{
+			\Gamma \types \tmunit : \tyunit
+		}
+		\\
+		\coopinfer{Tip-Pair}{
+			\Gamma \types V : X \\
+			\Gamma \types W : Y
+		}{
+			\Gamma \types \tmpair{V}{W} : \typrod{X}{Y}
+		}
+		\quad
+		\coopinfer{Tip-Promise}{
+			\Gamma \types V : X
+		}{
+			\Gamma \types \tmpromise V : \typromise X
+		}
+		\quad
+		\coopinfer{Tip-Inl}{
+			\Gamma \types V : X
+		}{
+			\Gamma \types \tminl[Y]{V} : X + Y
+		}
+		\quad
+		\coopinfer{Tip-Inr}{
+			\Gamma \types W : Y
+		}{
+			\Gamma \types \tminr[X]{W} : X + Y
+		}
+		\\
+		\coopinfer{Tip-Fun}{
+			\Gamma, x \of X \types M : \tycomp{Y}{\o,\i}
+		}{
+			\Gamma \types \tmfun{x : X}{M} : \tyfun{X}{\tycomp{Y}{\o,\i}}
+		}
+		\quad
+		\coopinfer{Tip-Fun-Rec}{
+			\Gamma,f \of \tyfun{X}{\tycomp{Y}{\o,\i}}, x \of X \types M : \tycomp{Y}{\o,\i}
+		}{
+			\Gamma \types \tmfunrec{f}{x : X}{M} : \tyfun{X}{\tycomp{Y}{\o,\i}}
+		}
+	\end{mathpar}
+	\caption{Pravila za izračun tipov za vrednosti.}
+	\label{fig:value-typing-rules}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{mathpar}
+		\coopinfer{TyComp-Return}{
+			\Gamma \types V : X
+		}{
+			\Gamma \types \tmreturn{V} : \tycomp{X}{(\o,\i)}  %OD kje dobimo oi? Kako lahko return sproži kakršne koli efekte?? Če že zakaj ne uporabimo subsume ??
+		}
+		\qquad
+		\coopinfer{TyComp-Let}{
+			\Gamma \types M : \tycomp{X}{(\o,\i)}
+			\\
+			\Gamma, x \of X \types N : \tycomp{Y}{(\o,\i)} %Zakaj imata M in N v zaporedju iste operacije, ki jih lahko sprožita/prestrežeta?? let x = send op 23 in return 4. Ali nima M ({op},{}) in N ({},{}) ??
+		}{													%Zakaj ima pa rekurzivno zaporedje dva različna tipa?? 
+			\Gamma \types
+			\tmlet{x}{M}{N} : \tycomp{Y}{(\o,\i)}       % KO definiramo tip izraza rečemo MINIMALNA relacija zaprta za pravila. Nebi tudi za tipe efektov morali imeti v nekem smislu minimalnost?
+		}												% Zakaj imamo oi in ne si, če imamo signal in interupt handler? Zakaj nimamo signal in interupt ALI send in interupt handler??
+		\\
+		\coopinfer{TyComp-Apply}{
+			\Gamma \types V : \tyfun{X}{\tycomp{Y}{(\o,\i)}} \\
+			\Gamma \types W : X
+		}{
+			\Gamma \types \tmapp{V}{W} : \tycomp{Y}{(\o,\i)}
+		}
+		\quad
+		\coopinfer{TyComp-MatchPair}{
+			\Gamma \types V : \typrod{X}{Y} \\
+			\Gamma, x \of X, y \of Y \types M : \tycomp{Z}{(\o,\i)}
+		}{
+			\Gamma \types \tmmatch{V}{\tmpair{x}{y} \mapsto M} : \tycomp{Z}{(\o,\i)}
+		}
+		\\
+		\coopinfer{TyComp-MatchEmpty}{
+			\Gamma \types V : \tyempty
+		}{
+			\Gamma \types \tmmatch[\tycomp{Z}{(\o,\i)}]{V}{} : \tycomp{Z}{(\o,\i)}
+		}
+		\quad
+		\coopinfer{TyComp-MatchSum}{
+			\Gamma \types V : X + Y \\\\
+			\Gamma, x \of X \types M : \tycomp{Z}{(\o,\i)} \\
+			\Gamma, y \of Y \types N : \tycomp{Z}{(\o,\i)} \\
+		}{
+			\Gamma \types \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N} : \tycomp{Z}{(\o,\i)}
+		}
+		\\
+		\coopinfer{TyComp-Signal}{
+			\op \in \o \\
+			\Gamma \types V : A_\op \\
+			\Gamma \types M : \tycomp{X}{(\o,\i)} 
+		}{
+			\Gamma \types \tmopout{op}{V}{M} : \tycomp{X}{(\o,\i)}
+		}
+		\qquad
+		\coopinfer{TyComp-Interrupt}{
+			\Gamma \types V : A_\op \\
+			\Gamma \types M : \tycomp{X}{(\o,\i)} 
+		}{
+			\Gamma \types \tmopin{op}{V}{M} : \tycomp{X}{\opincomp {op} (\o,\i)}
+		}
+		\\
+		\coopinfer{TyComp-Promise}{
+			\i\, (\op) = ({\o'} , {\i'}) \\
+			\Gamma, x \of A_\op \types M : \tycomp{\typromise X}{(\o',\i')} \\
+			\Gamma, p \of \typromise X \types N : \tycomp{Y}{(\o,\i)} 
+		}{
+			\Gamma \types \tmwith{op}{x}{M}{p}{N} : \tycomp{Y}{(\o,\i)}
+		}
+		\\
+		\coopinfer{TyComp-Await}{
+			\Gamma \types V : \typromise X \\
+			\Gamma, x \of X \types M : \tycomp{Y}{(\o,\i)} 
+		}{
+			\Gamma \types \tmawait{V}{x}{M} : \tycomp{Y}{(\o,\i)}
+		}
+		\qquad
+		\coopinfer{TyComp-Subsume}{
+			\Gamma \types M : \tycomp{X}{(\o, \i)} \\
+			(\o,\i) \order {O \times I} (\o',\i')
+		}{
+			\Gamma \types M : \tycomp{X}{(\o', \i')} %Zakaj potrebujemo to pravilo v tej verziji lae??
+		}
+	\end{mathpar}
+	\caption{Pravila za izračun tipov za izračune.}
+	\label{fig:computation-typing-rules}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{mathpar}
+		\coopinfer{TyProc-Run}{
+			\Gamma \types M : \tycomp{X}{(\o,\i)}
+		}{
+			\Gamma \types \tmrun{M} : \tyrun{X}{\o}{\i}
+		}
+		\quad
+		\coopinfer{TyProc-Par}{
+			\Gamma \types P : \tyC \\
+			\Gamma \types Q : \tyD
+		}{
+			\Gamma \types \tmpar{P}{Q} : \typar{\tyC}{\tyD}
+		}
+		\\
+		\coopinfer{TyProc-Signal}{
+			\op \in \mathsf{signals\text{-}of}{(\tyC)} \\\\
+			\Gamma \types V : A_\op \\
+			\Gamma \types P : \tyC 
+		}{
+			\Gamma \types \tmopout{op}{V}{P} : \tyC
+		}
+		\quad
+		\coopinfer{TyProc-Interrupt}{
+			\Gamma \types V : A_\op \\
+			\Gamma \types P : \tyC 
+		}{
+			\Gamma \types \tmopin{op}{V}{P} : \opincomp{op}{\tyC}
+		}  
+	\end{mathpar}
+	\caption{Pravila za izračun tipov za procese.}
+	\label{fig:process-typing-rules}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\textbf{Delni rezultati}
+	\begin{mathpar}
+		\coopinfer{}{
+		}{
+			\RunResult {\Psi} {\tmreturn V}
+		}
+		\\
+		\coopinfer{}{
+			\RunResult {\Psi \cup \{p\}} {N}
+		}{
+			\RunResult {\Psi} {\tmwith {op} x M p N}
+		}
+		\quad
+		\coopinfer{}{
+			p \in \Psi \\
+			\awaiting p {\tmawait p x M}
+		}{
+			\RunResult {\Psi} {M}
+		}
+	\end{mathpar}
+
+	
+	\textbf{Rezultati}
+	\begin{mathpar}
+		\coopinfer{}{
+			\ProcResult {P}
+		}{
+			\ProcResult {\tmopout {op} V P}
+		}
+		\qquad
+		\coopinfer{}{
+			\ParResult {P}
+		}{
+			\ProcResult {P}
+		}
+		\\
+		\coopinfer{}{
+			\ParResult P \\
+			\ParResult Q
+		}{
+			\ParResult {\tmpar P Q}
+		}
+		\qquad
+		\coopinfer{}{
+			\RunResult {\emptyset} {M}
+		}{
+			\ParResult {\tmrun M}
+		}
+	\end{mathpar}
+	\caption{Rezultati in delni rezultati.}
+	\label{fig:results-rules}
+\end{figure}
+
+...
+
+Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku nam zagotavlja, da ne moremo dobiti runtime, če imamo tipe, kot smo jih definirali.
+
+\begin{izrek}[Izrek o varnosti]
+	Če ima izračun $M$ tip, potem je "varen".
+\end{izrek}
+
+
+\begin{izrek}[Izrek o napredku]
+	Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ rezultat ali pa lahko naredi korak v izraz $M^*$.
+\end{izrek}
+
+\begin{proof}
+	Če je izraz $M$ rezultat smo končali. Sicer dokazujemo 
+\end{proof}
+
+
+\begin{izrek}[Izrek o ohranitvi]
+	Če ima izraz $M$ v okolju $\Gamma$ tip $A$ in naredi korak v izraz $M^*$, ima $M^*$ v okolju $\Gamma$ tip $A$.
+\end{izrek}
+
+\begin{proof}
+	%Left for the reader as an exercise :D
+\end{proof}
