@@ -1,11 +1,8 @@
 \section{Razširjen \lae{}}\label{sec:razsirjen-lae}
 
 
-
 \subsection{Rekurzivni prestreznik}
 
-
-\mP{Tole še ni za oddati.}
 
 Kadar pričakujemo več prekinitev z isto operacijo je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko da je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
 
@@ -62,15 +59,20 @@ Program~\ref{prog:rekurzivna-obljuba} ima isti semantičen pomen kot program~\re
 	as _ in ()
 \end{lstlisting}
 
-Kot sintaktični sladkor dodamo tudi varovan prestreznik, ki se sproži le kadar je poleg prave operacije tudi pravi pripadajoči tovor.
 
+%Varovan rekurzivni prestreznik bi dal med implementacijo???
+Kot sintaktični sladkor dodamo tudi varovan prestreznik, ki se sproži le kadar je poleg prave operacije tudi pravi pripadajoči tovor.
 \begin{figure}[h]
 	\centering
 	\small
 	\begin{align*}
 	\intertext{\textbf{Sintaksa}}
-	\tmwithrecgu{op}{x}{f}{P(x)}{M}{p}{N}  & &\text{varovan rekurzivni prestreznik}
-	\\%[1ex]
+	M, N
+	\bnfis& ...                            & &\text{obstoječi izračuni} \\
+	\bnfor& \tmwithrecgu{op}{x}{f}{P(x)}{M}{p}{N}  & &\text{varovan rekurzivni prestreznik}
+	\end{align*}
+	
+	\begin{align*}
 	\intertext{\textbf{Semantika}}
 	\tmopin{op}{V}{\tmwithrecgu{op}{f}{x}{P}{M}{p}{N}} \\ \reduces \tmlet{p}{(\ite{P[V/x]}{M[V/x, F/f]}{F\,()})}{\tmopin{op}{V}{N}} \\
 	{\color{rulenameColor}F = \tmfunano{y}{(\tmwithrec{op}{f}{x}{M}{p}{\tmreturn{p}})}}
@@ -140,9 +142,9 @@ Da zagotovimo, da nebi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodeliti z
 			\Gamma \types \tmboxed{V} \of \tyboxed{A}
 		}
 	    \quad
-		\coopinfer{}{\Gamma \types V \of \tyboxed{A} \\ \Gamma, x \of A \types M \of B
+		\coopinfer{}{\Gamma \types V \of \tyboxed{A} \\ \Gamma, x \of A \types M \of \tycomp{B}{\o, \i}
 		}{
-			\Gamma \types \tmunbox{V}{x}{M} \of B
+			\Gamma \types \tmunbox{V}{x}{M} \of \tycomp{B}{\o, \i}
 		}
 	\end{mathpar}
 
@@ -150,4 +152,117 @@ Da zagotovimo, da nebi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodeliti z
 	\label{fig:tipi-pravila-prenosljivi}
 \end{figure} 
 
-\subsection{Spawn}
+\subsection{Dinamični procesi}
+
+Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti na začetku. Da odstranimo to omejitev, dodamo dinamično ustvarjanje procesov s pomočjo izračuna $\tmspawn{M}{N}$. Le ta se bo razširil navzven. Ko bo postal zgornji izračun v procesu, se bo ta proces razcepil v dva procesa. Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
+
+
+\begin{figure}[h]	
+	\centering
+	\small
+	\begin{align*}
+	\shortintertext{\textbf{Izračuni}}
+	M, N
+	\bnfis & ... \,\bnfor\! \tmspawn{M}{N}
+	\end{align*}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+	\shortintertext{\textbf{Operacijska semantika}}
+	\tmlet{x}{(\tmspawn{M_1}{M_2})}{N} & \reduces \tmspawn{M_1}{\tmlet{x}{M_2}{N}}
+	\\
+	\tmwithrec{op}{x}{f}{M}{p}{\tmspawn{N_1}{N_2}} & \reduces \tmspawn{N_1}{\tmwithrec{op}{x}{f}{M}{p}{N_2}}
+	\\
+	\tmopin{op}{V}{\tmspawn{M}{N}} & \reduces \tmspawn{M}{\tmopin{op}{V}{N}}
+	\\
+	\tmrun{(\tmspawn{M}{N})} & \reduces \tmpar{\tmrun{M}}{\tmrun{N}}
+	\end{align*}
+\end{figure}
+
+
+Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo izračuna $\tmkw{promise}$ moramo paziti, da ima $M$ prenosljiv tip in je posledično varen.   
+
+\begin{figure}[h]
+	\centering
+	\small
+	\textbf{Pravila za tipe računov}
+	\begin{mathpar}
+		\coopinfer{}{\Gamma, \blacksquare \types M : \tycomp{B}{\o', \i'} \\ \Gamma \types N : \tycomp{A}{\o, \i}
+		}{
+			\Gamma \types \tmspawn{M}{N} : \tycomp{A}{\o, \i}
+		}
+	\end{mathpar}
+\end{figure}
+
+
+%\subsection{Poenostavljeni rezultati}
+%
+%V operacijsko semantiko dodamo korake
+%
+%
+%\begin{figure}[h]
+%	\centering
+%	\small
+%	\begin{align*}
+%	\tmlet{x}{(\tmspawn{M_1}{M_2})}{N} & \reduces \tmspawn{M_1}{\tmlet{x}{M_2}{N}}
+%	\\
+%	\tmwithrec{op}{x}{f}{M}{p}{\tmspawn{N_1}{N_2}} & \reduces \tmspawn{N_1}{\tmwithrec{op}{x}{f}{M}{p}{N_2}}
+%	\\
+%	\tmopin{op}{V}{\tmspawn{M}{N}} & \reduces \tmspawn{M}{\tmopin{op}{V}{N}}
+%	\\
+%	\tmrun{(\tmspawn{M}{N})} & \reduces \tmpar{\tmrun{M}}{\tmrun{N}}
+%	\end{align*}
+%	
+%	\caption{Dodatna pravila.}
+%	\label{fig:operacijska-semantika-poenostavitev}
+%\end{figure}
+%
+%
+%\begin{figure}[h]
+%	\centering
+%	\small
+%	\begin{mathpar}
+%	\coopinfer{}{
+%	}{
+%		\RunResult {\Psi} {\tmreturn V}
+%	}
+%	\\
+%	\coopinfer{}{
+%		\RunResult {\Psi \cup \{p\}} {N}
+%	}{
+%		\RunResult {\Psi} {\tmwith {op} x M p N}
+%	}
+%	\quad
+%	\coopinfer{}{
+%		p \in \Psi \\
+%		\awaiting p {\tmawait p x M}
+%	}{
+%		\RunResult {\Psi} {M}
+%	}
+%	\end{mathpar}
+%
+%	\caption{Poenostavljeni delni rezultati.}
+%	\label{fig:rezultati-poenostavitev}
+%\end{figure}
+
+
+
+\subsection{Varnost}
+
+Sedaj dokažemo izrek o varnosti za \lae{} razširjen z rekurzivnimi prestrezniki, prenosljivimi tipi, in dinamičnimi procesi.
+
+\begin{izrek}[o napredku za razširitev]
+	Če ...
+\end{izrek}
+
+
+
+\begin{izrek}[izrek o ohranitvi]
+	Če ...
+\end{izrek}
+
+
+

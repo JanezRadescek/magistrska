@@ -91,6 +91,8 @@ Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 
 Račun \lae\ opremimo z operacijsko semantiko malih korakov in je definirana z relacijo korak $M \reduces N$.
 
+Poleg 
+
 
 \begin{figure}[h]
 	\centering
@@ -222,7 +224,17 @@ Račun \lae\ opremimo z operacijsko semantiko malih korakov in je definirana z r
 
 \subsection{Sistem tipov}
 
+Nekaterim napakam ob izvajanju se lahko i
 Runtime errorji niso zaželjeni. Da jih spremenimo v compile time error, uvedemo sistem tipov in efektov. 
+
+Da se izognemo nekaterim napakam ob izvajanju uvedemo sistem tipov. Za potrebe izreka o varnosti bi bilo dovolj, da bi imeli le tipe za vrednosti, izračune in procese. Vendar pa če izračunom in procesom dodamo tudi tipe efektov, lahko... 
+
+Tipe razdelimo v tri skupine. Tipe za vrednosti, tipe za izračune in tipe za procese.
+%Če čas ne obstaja (nimamo halting problem):
+%  Ali lahko vsak izračun, ki nima signalov in prestreznikov in je njegov tip unit vedno nadomestimo z return unit??? 
+%  Ali lahko vsak izračun, ki nima signalov in je njegov tip unit vedno nadomestimo z return unit???
+
+%Kako težko je implementirati preverjanje tipov za efektov? Če ni preveč potem bi lahko prekinitve dajali le procesom z ustreznimi tipi efektov???
 
 Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 
@@ -336,17 +348,17 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 		\coopinfer{TyComp-Return}{
 			\Gamma \types V : X
 		}{
-			\Gamma \types \tmreturn{V} : \tycomp{X}{(\o,\i)}  %OD kje dobimo oi? Kako lahko return sproži kakršne koli efekte?? Če že zakaj ne uporabimo subsume ??
+			\Gamma \types \tmreturn{V} : \tycomp{X}{(\o,\i)} 
 		}
 		\qquad
 		\coopinfer{TyComp-Let}{
 			\Gamma \types M : \tycomp{X}{(\o,\i)}
 			\\
-			\Gamma, x \of X \types N : \tycomp{Y}{(\o,\i)} %Zakaj imata M in N v zaporedju iste operacije, ki jih lahko sprožita/prestrežeta?? let x = send op 23 in return 4. Ali nima M ({op},{}) in N ({},{}) ??
-		}{													%Zakaj ima pa rekurzivno zaporedje dva različna tipa?? 
+			\Gamma, x \of X \types N : \tycomp{Y}{(\o,\i)} 
+		}{												
 			\Gamma \types
-			\tmlet{x}{M}{N} : \tycomp{Y}{(\o,\i)}       % KO definiramo tip izraza rečemo MINIMALNA relacija zaprta za pravila. Nebi tudi za tipe efektov morali imeti v nekem smislu minimalnost?
-		}												% Zakaj imamo oi in ne si, če imamo signal in interupt handler? Zakaj nimamo signal in interupt ALI send in interupt handler??
+			\tmlet{x}{M}{N} : \tycomp{Y}{(\o,\i)}       
+		}											
 		\\
 		\coopinfer{TyComp-Apply}{
 			\Gamma \types V : \tyfun{X}{\tycomp{Y}{(\o,\i)}} \\
@@ -410,7 +422,7 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 			\Gamma \types M : \tycomp{X}{(\o, \i)} \\
 			(\o,\i) \order {O \times I} (\o',\i')
 		}{
-			\Gamma \types M : \tycomp{X}{(\o', \i')} %Zakaj potrebujemo to pravilo v tej verziji lae??
+			\Gamma \types M : \tycomp{X}{(\o', \i')}
 		}
 	\end{mathpar}
 	\caption{Pravila za izračun tipov za izračune.}
@@ -518,7 +530,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 
 
 \begin{izrek}[Izrek o napredku]
-	Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ rezultat ali pa lahko naredi korak v izraz $M^*$.
+	Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ rezultat ali pa lahko naredi korak v izraz $M'$.
 \end{izrek}
 
 \begin{proof}
@@ -527,7 +539,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 
 
 \begin{izrek}[Izrek o ohranitvi]
-	Če ima izraz $M$ v okolju $\Gamma$ tip $A$ in naredi korak v izraz $M^*$, ima $M^*$ v okolju $\Gamma$ tip $A$.
+	Če ima izraz $M$ v okolju $\Gamma$ tip $A$ in naredi korak v izraz $M'$, ima $M'$ v okolju $\Gamma$ tip $A$.
 \end{izrek}
 
 \begin{proof}
