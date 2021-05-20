@@ -1,5 +1,27 @@
 \section{Implementacija}\label{sec:impl}
 
+
+Kot sintaktični sladkor dodamo tudi varovan prestreznik, ki se sproži le kadar je poleg prave operacije tudi pravi pripadajoči tovor.
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+	\intertext{\textbf{Sintaksa}}
+	M, N
+	\bnfis& ...                            & &\text{obstoječi izračuni} \\
+	\bnfor& \tmwithrecgu{op}{x}{f}{P(x)}{M}{p}{N}  & &\text{varovan rekurzivni prestreznik}
+	\end{align*}
+	
+	\begin{align*}
+	\intertext{\textbf{Semantika}}
+	\tmopin{op}{V}{\tmwithrecgu{op}{f}{x}{P}{M}{p}{N}} \\ \reduces \tmlet{p}{(\ite{P[V/x]}{M[V/x, F/f]}{F\,()})}{\tmopin{op}{V}{N}} \\
+	{\color{rulenameColor}F = \tmfunano{y}{(\tmwithrec{op}{f}{x}{M}{p}{\tmreturn{p}})}}
+	\end{align*}
+	
+	\caption{Varovan rekurzivni prestreznik}
+	\label{fig:izrazi-prestreznik}
+\end{figure}
+
 \subsection{Sistem tipov}\label{sec:tipi}
 
 \subsubsection{Hindley–Milner}

@@ -1,88 +1,6 @@
 \section{Razširjen \lae{}}\label{sec:razsirjen-lae}
 
 
-\subsection{Rekurzivni prestreznik}
-
-
-Kadar pričakujemo več prekinitev z isto operacijo je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko da je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
-
-To funkcionalnost smo do sedaj dosegli tako, da smo obljubo zapakirali v rekurzivno funkcijo in po potrebi znotraj obljube ponovno klicali to funkcij kot lahko vidimo v programu~\ref{prog:obljuba-v-rekurzivni-funkciji}.
-
-
-\begin{lstlisting}[caption={Obljuba v rekurzivni funkciji.},label={prog:obljuba-v-rekurzivni-funkciji}]
-	let rec f =
-	promise (op x -> send op x; f(); return <<()>>) 
-	as _ in ()
-\end{lstlisting}
-
-Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $V$, obljube $M$ in kontinuacije $N$ tudi spremenljivko $f$. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
-
-
-\begin{figure}[h]
-	\centering
-	\small
-	\begin{align*}
-	M, N
-	\bnfis& ...                            & &\text{obstoječi izračuni} \\
-	\bnfor& \tmwithrec{op}{f}{V}{M}{p}{N}  & &\text{rekurzivni prestreznik}
-	\end{align*}
- 
-	\caption{Izračuni z rekurzivnim prestreznikom}
-	\label{fig:izrazi-prestreznik}
-\end{figure}
-
-
-Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. Z to izjemo, da ko ustrezna prekinitev pride do prestreznika le ta v obljubi M naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $f$ substituira z lambda funkcijo $F$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo $F$ in tako ponovno namestimo prestreznik.   
-
-
-\begin{figure}[h]
-	\centering
-	\small
-	\begin{align*}
-	\tmlet{x}{(\tmwithrec{op}{f}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwithrec{op}{f}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
-	\\
-	\tmwithrec{op}{f}{x}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}}
-	\\
-	\tmopin{op}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, F/f]}{\tmopin{op}{V}{N}} \\
-	F = \;& \tmfunano{y}{(\tmwithrec{op}{f}{x}{M}{p}{\tmreturn{p}})} \\
-	\tmopin{op'}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}} &\reduces \tmwithrec{op}{f}{x}{M}{p}{\tmopin{op'}{V}{N}} \\
-	&\qquad {\color{rulenameColor}(\op \neq \op')}
-	\end{align*}
-	
-	\caption{Operacijska semantika rekurzivnega prestreznika}
-	\label{fig:semantika-prestreznik}
-\end{figure}
-
-Program~\ref{prog:rekurzivna-obljuba} ima isti semantičen pomen kot program~\ref{prog:obljuba-v-rekurzivni-funkciji}, le da je tokrat napisan z rekurzivno obljubo.
-\begin{lstlisting}[caption={Rekurzivna obljuba.},label={prog:rekurzivna-obljuba}]
-	promise (op x k -> send op x; k())
-	as _ in ()
-\end{lstlisting}
-
-
-%Varovan rekurzivni prestreznik bi dal med implementacijo???
-Kot sintaktični sladkor dodamo tudi varovan prestreznik, ki se sproži le kadar je poleg prave operacije tudi pravi pripadajoči tovor.
-\begin{figure}[h]
-	\centering
-	\small
-	\begin{align*}
-	\intertext{\textbf{Sintaksa}}
-	M, N
-	\bnfis& ...                            & &\text{obstoječi izračuni} \\
-	\bnfor& \tmwithrecgu{op}{x}{f}{P(x)}{M}{p}{N}  & &\text{varovan rekurzivni prestreznik}
-	\end{align*}
-	
-	\begin{align*}
-	\intertext{\textbf{Semantika}}
-	\tmopin{op}{V}{\tmwithrecgu{op}{f}{x}{P}{M}{p}{N}} \\ \reduces \tmlet{p}{(\ite{P[V/x]}{M[V/x, F/f]}{F\,()})}{\tmopin{op}{V}{N}} \\
-	{\color{rulenameColor}F = \tmfunano{y}{(\tmwithrec{op}{f}{x}{M}{p}{\tmreturn{p}})}}
-	\end{align*}
-	
-	\caption{Varovan rekurzivni prestreznik}
-	\label{fig:izrazi-prestreznik}
-\end{figure}
-
-
 \subsection{Prenosljivi tipi}
 
 Ko imamo nek signal je ključno, da tovor ne vsebuje vrednosti z tipom obljuba, kar smo do sedaj rešili tako, da smo omejili signale na osnovne tipe. Glavni problem tega pristopa je, da funkcijski tip ni med osnovnimi tipi in posledično ne moremo poslati lambda funkcij. Ta problem rešimo z uvedbo zavite vrednosti in zavitega tipa. Zavite vrednosti bodo lahko vrednosti tudi lambda funkcije, ki ne bodo vsebovale zunanje obljube. Posledično jih bo varno poslati. Osnovne tipe skupaj z zavitim tipom imenujemo prenosljivi tipi. Da bomo lahko zavito vrednost tudi uporabili dodamo izračun odvijanje. 
@@ -121,7 +39,7 @@ Tipi za izračune in procese ostanejo enaki.
 	\begin{align*}
 	(op_1, \tymobile{A}_{op_1}),\, (op_2, \tymobile{A}_{op_2}),\, ... ,\, (op_n, \tymobile{A}_{op_k})
 	\end{align*}
-	 
+	
 	\caption{Prenosljivi tipi.}
 	\label{fig:tipi-prenosljivi}
 \end{figure}
@@ -141,16 +59,118 @@ Da zagotovimo, da nebi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodeliti z
 		}{
 			\Gamma \types \tmboxed{V} \of \tyboxed{A}
 		}
-	    \quad
+		\quad
 		\coopinfer{}{\Gamma \types V \of \tyboxed{A} \\ \Gamma, x \of A \types M \of \tycomp{B}{\o, \i}
 		}{
 			\Gamma \types \tmunbox{V}{x}{M} \of \tycomp{B}{\o, \i}
 		}
 	\end{mathpar}
-
+	
 	\caption{Pravila za izračun tipov prenosljivih izrazov.}
 	\label{fig:tipi-pravila-prenosljivi}
 \end{figure} 
+
+
+\begin{lstlisting}[caption={Primer uporabe prenosljivega tipa.},label={prog:primer-prenosljivega-tipa}]
+run let f = fun x -> (x, x) in
+    send op f;
+    promise (op' y -> 
+      <y>)
+    as p in
+    return p
+
+run promise (op f -> 
+    let r = f 3 in
+    send op' r;
+    <()>) 
+    as _ in
+    return ()
+\end{lstlisting}
+
+
+\subsection{Rekurzivni prestreznik}
+
+
+Kadar pričakujemo več prekinitev z isto operacijo je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko da je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
+
+To funkcionalnost smo do sedaj dosegli tako, da smo obljubo zapakirali v rekurzivno funkcijo in po potrebi znotraj obljube ponovno klicali to funkcij kot lahko vidimo v programu~\ref{prog:obljuba-v-rekurzivni-funkciji}.
+
+
+\begin{lstlisting}[caption={Obljuba v rekurzivni funkciji.},label={prog:obljuba-v-rekurzivni-funkciji}]
+	let f = rec fun x ->
+	  (promise (op y -> 
+	    send op y;
+	    f()) 
+	  as _ in ()) in
+	f ()
+\end{lstlisting}
+
+Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $V$, obljube $M$ in kontinuacije $N$ tudi spremenljivko $f$. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
+
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+	M, N
+	\bnfis& ...                            & &\text{obstoječi izračuni} \\
+	\bnfor& \tmwithrec{op}{f}{V}{M}{p}{N}  & &\text{rekurzivni prestreznik}
+	\end{align*}
+ 
+	\caption{Izračuni z rekurzivnim prestreznikom}
+	\label{fig:izrazi-prestreznik}
+\end{figure}
+
+
+Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. Z to izjemo, da ko ustrezna prekinitev pride do prestreznika le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $f$ substituira z lambda funkcijo $F$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo $F$ in tako ponovno namestimo prestreznik.   
+
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+	\tmlet{x}{(\tmwithrec{op}{f}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwithrec{op}{f}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
+	\\
+	\tmwithrec{op}{f}{x}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}}
+	\\
+	\tmopin{op}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, F/f]}{\tmopin{op}{V}{N}} \\
+	F = \;& \tmfunano{y}{(\tmwithrec{op}{f}{x}{M}{p}{\tmreturn{p}})} \\
+	\tmopin{op'}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}} &\reduces \tmwithrec{op}{f}{x}{M}{p}{\tmopin{op'}{V}{N}} \\
+	&\qquad {\color{rulenameColor}(\op \neq \op')}
+	\end{align*}
+	
+	\caption{Operacijska semantika rekurzivnega prestreznika}
+	\label{fig:semantika-prestreznik}
+\end{figure}
+
+Program~\ref{prog:rekurzivna-obljuba} ima isti semantičen pomen kot program~\ref{prog:obljuba-v-rekurzivni-funkciji}, le da je tokrat napisan z rekurzivno obljubo.
+
+\begin{lstlisting}[caption={Rekurzivna obljuba.},label={prog:rekurzivna-obljuba}]
+	promise (op x f -> 
+	  send op x;
+	  f())
+	as _ in ()
+\end{lstlisting}
+
+Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prestrezniku.
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{mathpar}
+		\coopinfer{}{\i\, (\op) = ({\o'} , {\i'}) \\
+			\Gamma, x \of \tymobile{A}_\op, f \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\o', \i'}} \types M : \tycomp{\typromise B}{\o',\i'} \\
+			\Gamma, p \of \typromise B \types N : \tycomp{C}{\o,\i}
+		}{
+			\Gamma \types \tmwithrec{op}{x}{f}{M}{p}{N} \of \tycomp{C}{\o, \i}
+		}
+	\end{mathpar}
+	
+	\caption{Pravilo za izračun tipa rekurzivnega prestreznika.}
+	\label{fig:tipi-pravila-rekurzivni-prestreznik}
+\end{figure} 
+
+
 
 \subsection{Dinamični procesi}
 
