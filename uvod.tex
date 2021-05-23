@@ -4,6 +4,40 @@
 %katerem razdelku.
 
 
+Praktično vsak moderen programski jezik je ekvivalenten Turingovemu stroju. Kljub temu se lahko zelo razlikujejo v raznih objektivnih lastnostih, kot so poraba pomnilnika, hitrosti izvajanja, dolžina izvorne kode itd. Prav tako se lahko razlikujejo tudi v bolj subjektivnih lastnostih kot je berljivost in razumljivost izvorne kode, enostavnost implementacije algoritmov, kvaliteti dokumentacije itd.
+
+Eden izmed možnih pristop k pohitritvi izvajanja programa je vzporedno računanje. Namesto da korake v programu izvajamo enega za drugim, jih poskusimo čim več izvajati hkrati. Določeni koraki so lahko odvisni od drugih korakov in je zato zelo pomembno da jih izvedemo v pravem vrstnem redu. Sicer se lahko njihov pomen spremeni. Ugotoviti kateri koraki so med sabo odvisni in kateri ne je le redko enostavno. Zato je standarden pristop k temu, da programer korake razdeli v procese. Koraki znotraj istega procesa se smatrajo za odvisne, tudi če niso. Koraki iz različnih procesov se smatrajo za neodvisne, razen kadar jih posebej označimo da so odvisni med sabo.
+
+Na programerju je da se pri delitvi in označevanju ne zmoti. Zato je želeno od programskega jezika, da ima korake, ki naredijo ta postopek čim bolj
+enostaven in razumljiv.
+
+Kljub temu, da sedaj ko so kor z delitvijo v procese naredili korake veliko bolj neodvisne,
+Pogosto vsi deli programa n
+Še vedno imamo
+Kljub temu, da sedaj načeloma lahko procese izvajamo hkrati, se mora izvajanje kakšnega procesa včasih začasno ustaviti, ker je nek korak v procesu odvisen od nekega drugega koraka v drugem procesu. Le to ima lahko dve negativni posledici. Lahko sproži verižno reakcijo, ki ustavi še več procesov. Ali pa se je ustavil proces, za katerega si iz različni razlogov želimo, da se nebi ustavil.
+
+   
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$#########################################################################################
+
+
 Če zelo poenostavimo postopek nastajanja program, potem nastane tako, da se v programskem jeziku napiše zaporedje ukazov, ki se jih izvaja enega za drugim. Program $P$ lahko predstavimo z urejeno $n$-terico 
 $$P = (k^1, k^2,..., k^n).$$ 
 Izvajanje $I_s(P)$ je vrstni red v katerem se izvaja korake in ga lahko predstavimo z urejeno $n$-terico

@@ -72,12 +72,13 @@ Da zagotovimo, da nebi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodeliti z
 
 
 \begin{lstlisting}[caption={Primer uporabe prenosljivega tipa.},label={prog:primer-prenosljivega-tipa}]
-run let f = fun x -> (x, x) in
+run let f = [fun x -> (x, x)] in
     send op f;
     promise (op' y -> 
       <y>)
     as p in
-    return p
+    await p until <y'> in
+    return y'
 
 run promise (op f -> 
     let r = f 3 in
@@ -122,7 +123,7 @@ Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z reku
 \end{figure}
 
 
-Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. Z to izjemo, da ko ustrezna prekinitev pride do prestreznika le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $f$ substituira z lambda funkcijo $F$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo $F$ in tako ponovno namestimo prestreznik.   
+Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. Z to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $f$ substituira z lambda funkcijo $F$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo $F$ in tako ponovno namestimo prestreznik.   
 
 
 \begin{figure}[h]
@@ -143,16 +144,7 @@ Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verzij
 	\label{fig:semantika-prestreznik}
 \end{figure}
 
-Program~\ref{prog:rekurzivna-obljuba} ima isti semantičen pomen kot program~\ref{prog:obljuba-v-rekurzivni-funkciji}, le da je tokrat napisan z rekurzivno obljubo.
-
-\begin{lstlisting}[caption={Rekurzivna obljuba.},label={prog:rekurzivna-obljuba}]
-	promise (op x f -> 
-	  send op x;
-	  f())
-	as _ in ()
-\end{lstlisting}
-
-Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prestrezniku.
+Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrezniku.
 
 \begin{figure}[h]
 	\centering
@@ -170,6 +162,14 @@ Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prestrezniku.
 	\label{fig:tipi-pravila-rekurzivni-prestreznik}
 \end{figure} 
 
+Program~\ref{prog:rekurzivna-obljuba} ima isti semantičen pomen kot program~\ref{prog:obljuba-v-rekurzivni-funkciji}, le da je tokrat napisan z rekurzivno obljubo.
+
+\begin{lstlisting}[caption={Rekurzivna obljuba.},label={prog:rekurzivna-obljuba}]
+promise (op x f -> 
+send op x;
+f())
+as _ in ()
+\end{lstlisting}
 
 
 \subsection{Dinamični procesi}
@@ -216,6 +216,23 @@ Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo izračuna $\tmkw{prom
 		}
 	\end{mathpar}
 \end{figure}
+
+
+Na primeru~\ref{prog:primer-dinamičen-proces} imamo program, ki naredi isto kot primer~\ref{prog:primer-prenosljivega-tipa}, le da tokrat uporabimo izračun $\tmkw{Spawn}$.
+
+\begin{lstlisting}[caption={Primer uporabe dinamičnih procesov.},label={prog:primer-dinamičen-proces}]
+run let f = fun x -> (x, x) in
+    spawn(
+      let r = f 3 in
+      send op r;
+      (),
+      
+      promise (op x -> <x>)
+      as p in
+      await p until <x'> in
+      return x')
+\end{lstlisting}
+
 
 
 %\subsection{Poenostavljeni rezultati}
