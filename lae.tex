@@ -1,12 +1,11 @@
 \section{Račun \lae{}}\label{sec:lae}
 
 Račun $\lambda$ je preprost teoretičen programski jezik. Leta 1930 ga je uvedel Alonzo Chuch z namenom formalizacije koncepta izračunljivosti~\cite{rojas2015tutorial}. Račun lambda je Turingovo poln.
-Kot tak predstavlja odlično osnovo za formalizacijo paralelnega programskega jezika.
 
+
+%V glavi imam da ni lepo stavka začeti z matematičnim izrazom. Se pravi lea-račun je... ni vredu. Račun lae-račun ... pa tudi ne more biti vredu???
 
 Račun \lae{} je razširitev računa $\lambda$. Posledično je tudi \lae{} Turingovo poln. Računu \lae{} dodamo izraze, ki poosebijo bistvo vzporednega programiranja z pošiljanjem sporočil. Da \lae{} čim bolj približamo vsakdanjim programskim jezikom, mu dodamo tudi izraze za  naravna števila, par, ujemanje vzorca...
-
-%Ena izmed ključnih oblikovnih lastnosti računa \lae, je da nima skupnega pomnilnika in posledično v njem ne pride do race conditions.
 
 
 \subsection{Vrednosti in izračuni}
@@ -113,15 +112,11 @@ Poleg
 	\tmlet{x}{(\tmopout{op}{V}{M})}{N} &\reduces \tmopout{op}{V}{\tmlet{x}{M}{N}}
 	\\
 	\tmlet{x}{(\tmwith{op}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwith{op}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
-	\\
-	\tmlet{x}{(\tmawait{V}{y}{M})}{N} & \reduces \tmawait{V}{y}{(\tmlet{x}{M}{N})}
 	\\[1ex]
 	\intertext{\textbf{Komutativnost operacij}}
 	\tmwith{op}{x}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}}
 	\\
 	\tmopin{op}{V}{\tmopout{op'}{W}{M}} &\reduces \tmopout{op'}{W}{\tmopin{op}{V}{M}}
-	\\
-	\tmopin{op}{V}{\tmawait{W}{x}{M}} &\reduces \tmawait{W}{x}{\tmopin{op}{V}{M}}
 	\\[1ex]
 	\intertext{\textbf{Širitev prekinitve}}
 	\tmopin{op}{V}{\tmreturn W} &\reduces \tmreturn W
@@ -467,6 +462,27 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 
 \begin{figure}[h]
 	\centering
+
+	\textbf{Čakajoči izrazi}
+	\begin{mathpar}
+		\coopinfer{}{
+		}{
+			\awaiting p {\tmawait p x M}
+		}
+		\quad
+		\coopinfer{}{
+			\awaiting p M
+		}{
+			\awaiting p {\tmlet x M N}
+		}
+		\quad
+		\coopinfer{}{
+			\awaiting p M
+		}{
+			\awaiting p {\tmopin{op}{V}{M}}
+		}
+	\end{mathpar}
+	
 	\textbf{Delni rezultati}
 	\begin{mathpar}
 		\coopinfer{}{
@@ -482,13 +498,12 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 		\quad
 		\coopinfer{}{
 			p \in \Psi \\
-			\awaiting p {\tmawait p x M}
+			\awaiting p M
 		}{
 			\RunResult {\Psi} {M}
 		}
 	\end{mathpar}
 
-	
 	\textbf{Rezultati}
 	\begin{mathpar}
 		\coopinfer{}{
