@@ -3,8 +3,6 @@
 Račun $\lambda$ je preprost teoretičen programski jezik. Leta 1930 ga je uvedel Alonzo Chuch z namenom formalizacije koncepta izračunljivosti~\cite{rojas2015tutorial}. Račun lambda je Turingovo poln.
 
 
-%V glavi imam da ni lepo stavka začeti z matematičnim izrazom. Se pravi lea-račun je... ni vredu. Račun lae-račun ... pa tudi ne more biti vredu???
-
 Račun \lae{} je razširitev računa $\lambda$. Posledično je tudi \lae{} Turingovo poln. Računu \lae{} dodamo izraze, ki poosebijo bistvo vzporednega programiranja z pošiljanjem sporočil. Da \lae{} čim bolj približamo vsakdanjim programskim jezikom, mu dodamo tudi izraze za  naravna števila, par, ujemanje vzorca...
 
 
@@ -37,10 +35,6 @@ blokada
 
 Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 
-%zakaj imajo funkcije sintakso za tip? Na ta način je inferece veliko enostavnejši ampak saj tu se neukvarjamo z inference? Ali niso anotacije v ta namen?? 
-
-%Kaj gre narobe če odstranimo match V with {} ??
-%Odveč če bo prvi odgovor dober. Vir prazne vsote so exceptni, runtime errorji in neskončne rekurzije ali še kaj drugega? Exceptionov nimamo v jeziku, errorjev nimamo ker imamo tipe, rekurzija lahko nikoli vrne poljuben tip. Pa naj nikoli vrne unit namesto da nikoli vrne prazno vsoto?? Je prazna vsota "indikator" da preostanka ne moremo doseči in ga lahko vržemo stran? Neke vrsta optimizacija pomnilnika ali še bolje compile error uporabniku naj spremeni kodo?
 
 
 \begin{figure}[h]
@@ -212,11 +206,6 @@ Poleg
 
 
 
-%Določenih kombinacij izrazov nimamo v operacijski semantiki, ker niso smiselne. Recimo ...
-%aplikacija konstantne funkcije $+$ na enoti. Problem nastane, ker je domena funkcije $+$ števila, čeprav ni nikjer eksplicitno zapisana. Enota ni število. Zato aplikacija $+$ na enoti ni smiselna.
-%Če \lae pride do izračuna za katerega nima pravila v operacijski semantiki se ustavi. Večina programskih jezikov bi na tem mestu vrnila runtime error.
-%V aeff interpreterju je povno assertov, ki bi se sprožili, če bi dobili recimo "true + ()". Kaj točno pa lae naredil?
-
 \subsection{Sistem tipov}
 
 Nekaterim napakam ob izvajanju se lahko i
@@ -225,7 +214,7 @@ Runtime errorji niso zaželjeni. Da jih spremenimo v compile time error, uvedemo
 Da se izognemo nekaterim napakam ob izvajanju uvedemo sistem tipov. Za potrebe izreka o varnosti bi bilo dovolj, da bi imeli le tipe za vrednosti, izračune in procese. Vendar pa če izračunom in procesom dodamo tudi tipe efektov, lahko... 
 
 Tipe razdelimo v tri skupine. Tipe za vrednosti, tipe za izračune in tipe za procese.
-%Če čas ne obstaja (nimamo halting problem):
+%Če nimamo halting problem; neskončnost korakov lahko poračunamo v trenutku:
 %  Ali lahko vsak izračun, ki nima signalov in prestreznikov in je njegov tip unit vedno nadomestimo z return unit??? 
 %  Ali lahko vsak izračun, ki nima signalov in je njegov tip unit vedno nadomestimo z return unit???
 

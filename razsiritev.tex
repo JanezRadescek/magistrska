@@ -3,7 +3,7 @@
 
 \subsection{Prenosljivi tipi}
 
-Ko imamo nek signal je ključno, da tovor ne vsebuje vrednosti z tipom obljuba, kar smo do sedaj rešili tako, da smo omejili signale na osnovne tipe. Glavni problem tega pristopa je, da funkcijski tip ni med osnovnimi tipi in posledično ne moremo poslati lambda funkcij. Ta problem rešimo z uvedbo zavite vrednosti in zavitega tipa. Zavite vrednosti bodo lahko vrednosti tudi lambda funkcije, ki ne bodo vsebovale zunanje obljube. Posledično jih bo varno poslati. Osnovne tipe skupaj z zavitim tipom imenujemo prenosljivi tipi. Da bomo lahko zavito vrednost tudi uporabili dodamo izračun odvijanje. 
+Ko imamo nek signal, je ključno, da tovor ne vsebuje vrednosti obljuba, kar smo do sedaj rešili tako, da smo omejili signale na osnovne tipe. Glavni problem tega pristopa je, da funkcijski tip ni med osnovnimi tipi in posledično ne moremo poslati funkcij. Ta problem rešimo z uvedbo \emph{zavite vrednosti} in \emph{zaviti tipi}. Zavite vrednosti bodo lahko tudi lambda funkcije, ki ne bodo vsebovale zunanjih obljub. Posledično jih bo varno poslati. Osnovne tipe skupaj z zavitim tipom imenujemo \emph{prenosljivi tipi}. Da bomo lahko zavito vrednost tudi uporabili, dodamo izračun \emph{odvijanje}, ki iz zavite vrednosti odvije pripadajočo vrednost in jo veže na spremenljivko.
 
 Tipi za izračune in procese ostanejo enaki.
 
@@ -35,27 +35,55 @@ Tipi za izračune in procese ostanejo enaki.
 	\text{Tipi vrednosti $A$, $B$}
 	\bnfis & \tymobile{A} \, \bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B} \,\bnfor\! \tyfun{A}{\tycomp{B}{\o,\i}} \,\bnfor\! \typromise{A}
 	\end{align*}
-	\vspace{-5ex}
-	\begin{align*}
-	(op_1, \tymobile{A}_{op_1}),\, (op_2, \tymobile{A}_{op_2}),\, ... ,\, (op_n, \tymobile{A}_{op_k})
-	\end{align*}
+%	\vspace{-5ex}
+%	\begin{align*}
+%	(op_1, \tymobile{A}_{op_1}),\, (op_2, \tymobile{A}_{op_2}),\, ... ,\, (op_n, \tymobile{A}_{op_k})
+%	\end{align*}
 	
 	\caption{Prenosljivi tipi.}
 	\label{fig:tipi-prenosljivi}
 \end{figure}
 
-Da zagotovimo, da nebi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodeliti zavit tip, nekoliko spremenimo pravilo za izračun tipa spremenljivke. Hkrati tudi dodamo pravili za zavito vrednost in izračun odvijanje.
+Sedaj vsaki operaciji namesto osnovnega tipa pripada prenosljiv tip.
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+	(op_1, \tymobile{A}_{op_1}),\, (op_2, \tymobile{A}_{op_2}),\, ... ,\, (op_n, \tymobile{A}_{op_k})
+	\end{align*}
+	\vspace{-5ex}
+	\caption{Operacije z pripadajočimi prenosljivimi tipi.}
+	\label{fig:prenosljive-operacije}
+\end{figure}
+
+Izračun odvijanje veže vrednost znotraj zavite vrednosti $\tmboxed{V}$ na spremenljivko $x$, ki jo lahko uporabimo v kontinuaciji $M$.
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+	\tmunbox{[V]}{x}{M} &\reduces M[V/x]
+	\end{align*}
+	
+	\caption{Operacijska semantika odvijanja.}
+	\label{fig:semantika-odvijanje}
+\end{figure}
+
+Da zagotovimo, da ne bi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodelili zavit tip, nekoliko spremenimo pravilo za izračun tipa spremenljivke in dodamo pravili za zavito vrednost in izračun odvijanje.
+Sedaj bo vrstni red v okolju pomemben, zato je okolje od sedaj naprej urejen seznam. Ko določamo tip zavite vrednosti, v okolje dodamo $\bb$. S tem za v bodoče označimo katere spremenljivke so zunanje ali notranje glede na zavito vrednost. 
+Če je spremenljivka notranja, torej od kar smo jo dodali v okolje, nismo dodali nobenega $\bb$, je pravilo standardno. Če je spremenljivka zunanja, torej od kar je bila dodana v okolje, je bil v okolje dodan tudi $\bb$, mora biti pripadajoči tip v okolju prenosljiv.
 
 \begin{figure}[h]
 	\centering
 	\small
 	\begin{mathpar}
-		\coopinfer{}{\text{A prenosljiv ali } \blacksquare \notin \Gamma'
+		\coopinfer{}{\text{A prenosljiv ali } \bb \notin \Gamma'
 		}{
 			\Gamma, x \of A, \Gamma' \types x \of A
 		}
 		\quad
-		\coopinfer{}{\Gamma, \blacksquare \types V \of A
+		\coopinfer{}{\Gamma, \bb \types V \of A
 		}{
 			\Gamma \types \tmboxed{V} \of \tyboxed{A}
 		}
@@ -66,12 +94,12 @@ Da zagotovimo, da nebi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodeliti z
 		}
 	\end{mathpar}
 	
-	\caption{Pravila za izračun tipov prenosljivih izrazov.}
+	\caption{Dodatna pravila za določanje tipov.}
 	\label{fig:tipi-pravila-prenosljivi}
 \end{figure} 
 
 
-\begin{lstlisting}[caption={Primer uporabe prenosljivega tipa.},label={prog:primer-prenosljivega-tipa}]
+\begin{lstlisting}[caption={Primer uporabe prenosljivega tipa.},label={prog:primer-prenosljivega-tipa},float,floatplacement=h]
 run let f = [fun x -> (x, x)] in
     send op f;
     promise (op' y -> 
@@ -92,12 +120,12 @@ run promise (op f ->
 \subsection{Rekurzivni prestreznik}
 
 
-Kadar pričakujemo več prekinitev z isto operacijo je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko da je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
+Kadar pričakujemo več prekinitev z isto operacijo, je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko, da je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
 
-To funkcionalnost smo do sedaj dosegli tako, da smo obljubo zapakirali v rekurzivno funkcijo in po potrebi znotraj obljube ponovno klicali to funkcij kot lahko vidimo v programu~\ref{prog:obljuba-v-rekurzivni-funkciji}.
+To funkcionalnost smo do sedaj dosegli tako, da smo obljubo definirali v pomožni rekurzivni funkciji in po potrebi znotraj obljube ponovno klicali to funkcijo, kot lahko vidimo v programu~\ref{prog:obljuba-v-rekurzivni-funkciji}.
 
 
-\begin{lstlisting}[caption={Obljuba v rekurzivni funkciji.},label={prog:obljuba-v-rekurzivni-funkciji}]
+\begin{lstlisting}[caption={Obljuba v rekurzivni funkciji.},label={prog:obljuba-v-rekurzivni-funkciji},float,floatplacement=h]
 	let f = rec fun x ->
 	  (promise (op y -> 
 	    send op y;
@@ -106,7 +134,7 @@ To funkcionalnost smo do sedaj dosegli tako, da smo obljubo zapakirali v rekurzi
 	f ()
 \end{lstlisting}
 
-Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $V$, obljube $M$ in kontinuacije $N$ tudi spremenljivko $f$. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
+Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in kontinuacije $N$ tudi spremenljivko $f$. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
 
 
 \begin{figure}[h]
@@ -123,7 +151,7 @@ Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z reku
 \end{figure}
 
 
-Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. Z to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $f$ substituira z lambda funkcijo $F$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo $F$ in tako ponovno namestimo prestreznik.   
+Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. S to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $f$ substituira z lambda funkcijo $F$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo $F$ in tako ponovno namestimo prestreznik.   
 
 
 \begin{figure}[h]
@@ -164,7 +192,7 @@ Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrez
 
 Program~\ref{prog:rekurzivna-obljuba} ima isti semantičen pomen kot program~\ref{prog:obljuba-v-rekurzivni-funkciji}, le da je tokrat napisan z rekurzivno obljubo.
 
-\begin{lstlisting}[caption={Rekurzivna obljuba.},label={prog:rekurzivna-obljuba}]
+\begin{lstlisting}[caption={Rekurzivna obljuba.},label={prog:rekurzivna-obljuba},float,floatplacement=h]
 promise (op x f -> 
 send op x;
 f())
@@ -174,7 +202,7 @@ as _ in ()
 
 \subsection{Dinamični procesi}
 
-Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti na začetku. Da odstranimo to omejitev, dodamo dinamično ustvarjanje procesov s pomočjo izračuna $\tmspawn{M}{N}$. Le ta se bo razširil navzven. Ko bo postal zgornji izračun v procesu, se bo ta proces razcepil v dva procesa. Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
+Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti na začetku. Da odstranimo to omejitev, dodamo dinamično ustvarjanje procesov s pomočjo izračuna $\tmspawn{M}{N}$. Le ta se bo pomikal navzven. Ko bo postal zgornji izračun v procesu, se bo ta proces razcepil v dva procesa. Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
 
 
 \begin{figure}[h]	
@@ -203,7 +231,7 @@ Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti
 \end{figure}
 
 
-Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo izračuna $\tmkw{promise}$ moramo paziti, da ima $M$ prenosljiv tip in je posledično varen.   
+Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo paziti, da ima $M$ prenosljiv tip in je posledično varen.   
 
 \begin{figure}[h]
 	\centering
@@ -220,7 +248,7 @@ Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo izračuna $\tmkw{prom
 
 Na primeru~\ref{prog:primer-dinamičen-proces} imamo program, ki naredi isto kot primer~\ref{prog:primer-prenosljivega-tipa}, le da tokrat uporabimo izračun $\tmkw{Spawn}$.
 
-\begin{lstlisting}[caption={Primer uporabe dinamičnih procesov.},label={prog:primer-dinamičen-proces}]
+\begin{lstlisting}[caption={Primer uporabe dinamičnih procesov.},label={prog:primer-dinamičen-proces},float,floatplacement=h]
 run let f = fun x -> (x, x) in
     spawn(
       let r = f 3 in
