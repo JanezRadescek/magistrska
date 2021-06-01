@@ -3,12 +3,12 @@
 Račun $\lambda$ je preprost teoretičen programski jezik. Leta 1930 ga je uvedel Alonzo Chuch z namenom formalizacije koncepta izračunljivosti~\cite{rojas2015tutorial}. Račun lambda je Turingovo poln.
 
 
-Račun \lae{} je razširitev računa $\lambda$. Posledično je tudi \lae{} Turingovo poln. Računu \lae{} dodamo izraze, ki poosebijo bistvo vzporednega programiranja z pošiljanjem sporočil. Da \lae{} čim bolj približamo vsakdanjim programskim jezikom, mu dodamo tudi izraze za  naravna števila, par, ujemanje vzorca...
+Račun \lae{} je razširitev računa $\lambda$. Posledično je tudi \lae{}-račun Turingovo poln. Računu \lae{} dodamo izraze, ki poosebijo bistvo asinhrono vzporednega programiranja z pomočjo učinkov. Da \lae{}-račun čim bolj približamo vsakdanjim programskim jezikom, mu dodamo tudi izraze za  naravna števila, par, ujemanje vzorca...
 
 
 \subsection{Vrednosti in izračuni}
 
-Izraze v \lae{} razdelimo na vrednosti, izračune in procese. 
+Izraze v \lae{}-računu razdelimo na vrednosti, izračune in procese. 
 
 
 Vrednosti so sledeče.
@@ -82,9 +82,7 @@ Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 
 \subsection{Operacijska semantika}
 
-Račun \lae\ opremimo z operacijsko semantiko malih korakov in je definirana z relacijo korak $M \reduces N$.
-
-Poleg 
+Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z relacijo korak $M \reduces N$.
 
 
 \begin{figure}[h]

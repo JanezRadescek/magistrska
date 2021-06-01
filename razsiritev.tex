@@ -213,13 +213,15 @@ Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti
 	M, N
 	\bnfis & ... \,\bnfor\! \tmspawn{M}{N}
 	\end{align*}
+	
+	\caption{Izračun $\tmkw{Spawn}$.}
+	\label{fig:izračun-spawn}
 \end{figure}
 
 \begin{figure}[h]
 	\centering
 	\small
 	\begin{align*}
-	\shortintertext{\textbf{Operacijska semantika}}
 	\tmlet{x}{(\tmspawn{M_1}{M_2})}{N} & \reduces \tmspawn{M_1}{\tmlet{x}{M_2}{N}}
 	\\
 	\tmwithrec{op}{x}{f}{M}{p}{\tmspawn{N_1}{N_2}} & \reduces \tmspawn{N_1}{\tmwithrec{op}{x}{f}{M}{p}{N_2}}
@@ -228,6 +230,9 @@ Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti
 	\\
 	\tmrun{(\tmspawn{M}{N})} & \reduces \tmpar{\tmrun{M}}{\tmrun{N}}
 	\end{align*}
+	
+	\caption{Operacijska semantika dinamičnih procesov.}
+	\label{fig:semantika-spawn}
 \end{figure}
 
 

@@ -31,12 +31,8 @@ Asinhrono izvajanje programa podpirajo mnogi programski jeziki namenjeni izdelov
 
 Eden izmed jezikov, ki podpira asinhrono izvajanje, je jezik \aeff{}. Jezik \aeff{} je statično tipiziran tolmačen funkcijski jezik. Program napisan v \aeff{} je razdeljen v procese. Procesi lahko med sabo komunicirajo s pomočjo učinkov. V trenutni verziji tolmač le simulira vzporedno izvajanje in posledično prednosti asinhronega in vzporednega izvajanja ne pridejo do izraza. To je izključno omejitev implementacije in bi se jo v prihodnosti lahko odpravilo.
 
-\aeff{} sloni na \lae{}-računu~\cite{aeff}. Namen \lae{} je pokazati, da v ozadju kombiniranja asinhronega vzporednega izvajanja z učinki stoji lepa teorija in so posledično koncepti uporabljeni v jeziku \aeff{} smiselni.  
- 
+\aeff{} sloni na \lae{}-računu~\cite{aeff}. Namen \lae{}-računa je pokazati, da v ozadju kombiniranja asinhronega vzporednega izvajanja z učinki stoji lepa teorija in so posledično koncepti uporabljeni v jeziku \aeff{} smiselni.
 
 
-
-%. Uvedemo koraka $\tmkw{Promise}$ in $\tmkw{Await}$. Korak $\tmkw{Promise}$ ima dve ključni lastnosti. Je edini korak, ki je odvisen od korakov iz drugih procesov.  je da ne more biti odvisen od katerega koli koraka znotraj istega procesa. Od njega pa je lahko odvisen le korak $\tmkw{Await}$. Posledično lahko dinamično spre
-
-
-Najprej si bomo v poglavju \ref{sec:lae} pogledali že obstoječ račun \lae{}. V poglavju \ref{sec:razsirjen-lae} ga bomo razširili z prenosljivimi vrednostmi, rekurzivno obljubo in razcepom. V poglavju \ref{sec:impl} si bomo pogledali implementacijo. Obstoječ Hindley–Milnerjev sistem tipov bomo zamenjali z dvosmernim sistemom tipov in obstoječ tolmač spremenili, da omogoča nekoliko bolj optimalno izvajanje. Vse dele implementacije bomo prilagodili tudi za razširjen \lae.
+Najprej si bomo v poglavju \ref{sec:primeri-aeff} pogledali nekaj primerov napisanih v jeziku \aeff{}, na katerih bo prišlo do izraza asinhrono vzporedno izvajanje.
+Nato si bomo v poglavju \ref{sec:lae} pogledali že obstoječ \lae{}-račun. V poglavju \ref{sec:razsirjen-lae} ga bomo razširili z prenosljivimi vrednostmi, rekurzivnimi obljubami in dinamičnimi procesi. V poglavju \ref{sec:impl} si bomo pogledali implementacijo \aeff{} in nekatere razlike med \aeff{} in \lae{}-računom. Obstoječ Hindley–Milnerjev sistem tipov bomo zamenjali z dvosmernim sistemom tipov in obstoječ tolmač spremenili, da omogoča nekoliko bolj optimalno izvajanje. Vse dele implementacije bomo prilagodili tudi za razširjen \lae-račun.

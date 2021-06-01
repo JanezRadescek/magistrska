@@ -1,15 +1,18 @@
 \section{Primeri v \aeff{}} \label{sec:primeri-aeff}
 
+\subsection{sinhrona/sekvenčna}
 Najprej si poglejmo nekaj primerov, na katerih lahko vidimo konkretne težave s katerimi se lahko srečamo ko programiramo. 
-Funkcija, ki pogosto pride prav, je funkcija \emph{map}. V tem konkretnem primeru naj map uporabi funkcijo $f$, ki vrne $true$, če je število praštevilo in false sicer, na trojici $(3,42,97)$ in vrne $(f(3),f(42),f(97))$.  
+V funkcijskem programiranju se pogosto uporablja funkcija \emph{map}. V tem konkretnem primeru naj map uporabi funkcijo $f$, ki vrne $true$, če je število praštevilo in false sicer, na trojici $(3,42,97)$ in vrne $(f(3),f(42),f(97))$. 
+
+
+ 
 
 \begin{lstlisting}[caption={TODO},label={prog:primer-map-seq}]
-run let f = [fun x -> (x, x)] in
-send op f;
-promise (op' y -> 
-<y>)
-as p in
-await p until <y'> in
-return y'
-
+run return 42
 \end{lstlisting}
+
+\subsection{asinhrona teoretično vzporedna}
+
+
+
+%. Uvedemo koraka $\tmkw{Promise}$ in $\tmkw{Await}$. Korak $\tmkw{Promise}$ ima dve ključni lastnosti. Je edini korak, ki je odvisen od korakov iz drugih procesov.  je da ne more biti odvisen od katerega koli koraka znotraj istega procesa. Od njega pa je lahko odvisen le korak $\tmkw{Await}$. Posledično lahko dinamično spre
