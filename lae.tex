@@ -6,7 +6,7 @@ Račun $\lambda$ je preprost teoretičen programski jezik. Leta 1930 ga je uvede
 Račun \lae{} je razširitev računa $\lambda$. Posledično je tudi \lae{}-račun Turingovo poln. Računu \lae{} dodamo izraze, ki poosebijo bistvo asinhrono vzporednega programiranja z pomočjo učinkov. Da \lae{}-račun čim bolj približamo vsakdanjim programskim jezikom, mu dodamo tudi izraze za  naravna števila, par, ujemanje vzorca...
 
 
-\subsection{Vrednosti in izračuni}
+\subsection{Izrazi}
 
 Izraze v \lae{}-računu razdelimo na vrednosti, izračune in procese. 
 
@@ -82,8 +82,7 @@ Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 
 \subsection{Operacijska semantika}
 
-Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z relacijo korak $M \reduces N$.
-
+Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z relacijo korak $M \reduces N$. Redukcijska pravila za izračune so podana na sliki~\ref{fig:small-step-semantics-of-computations}. Redukcijska pravila za procese so podana na sliki~\ref{fig:small-step-semantics-of-processes}.
 
 \begin{figure}[h]
 	\centering
@@ -100,7 +99,7 @@ Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z 
 	\\
 	\mathllap{\tmmatch{(\tminr[X]{W})}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}} &\reduces	N[W/y]
 	\\[1ex]
-	\intertext{\textbf{Algebraičnost signala, prestreznika in blokade}}
+	\intertext{\textbf{Algebraičnost signala in prestreznika}}
 	\tmlet{x}{(\tmopout{op}{V}{M})}{N} &\reduces \tmopout{op}{V}{\tmlet{x}{M}{N}}
 	\\
 	\tmlet{x}{(\tmwith{op}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwith{op}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
@@ -202,23 +201,55 @@ Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z 
 	\label{fig:small-step-semantics-of-processes}
 \end{figure}
 
+Poleg teh pravil, ki so identična pravilom iz \cite{aeff}, dodamo še dve novi.
+Prvo pravilo potegne blokado ven iz zaporedja. Drugo pravilo prestavi prekinitev takoj za blokado. Obe pravili skupaj dosežeta dvoje. Malenkost večji del prvotnega izračuna je postal asinhron. Kar nam lahko v primeru, da bo obljuba izpolnjena in bomo nadaljevali z izvajanjem tega dela, nekoliko pohitri izvajanje. Druga prednost pa je, da izračun, ki je v čakajočem stanju, se vedno začne z izračunom $\tmkw{Await}$. Posledično je prepoznati ali je izračun v čakajočem stanju trivialno in se bodo delni rezultati nekoliko poenostavili. 
 
+Rezultati ostanejo enaki kot v \cite{aeff}.
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+		\intertext{\textbf{Algebraičnost blokade}}
+		\tmlet{x}{(\tmawait{V}{y}{M})}{N} & \reduces \tmawait{V}{y}{(\tmlet{x}{M}{N})}
+		\\[1ex]
+		\intertext{\textbf{Komutativnost blokade in prekinitve}}
+		\tmopin{op}{V}{\tmawait{W}{x}{M}} &\reduces \tmawait{W}{x}{\tmopin{op}{V}{M}}
+	\end{align*}
+	
+	\caption{Dodatni pravili operacijske semantike.}
+	\label{fig:operacijska-semantika-poenostavitev}
+\end{figure}
 
 \subsection{Sistem tipov}
 
-Nekaterim napakam ob izvajanju se lahko i
-Runtime errorji niso zaželjeni. Da jih spremenimo v compile time error, uvedemo sistem tipov in efektov. 
 
-Da se izognemo nekaterim napakam ob izvajanju uvedemo sistem tipov. Za potrebe izreka o varnosti bi bilo dovolj, da bi imeli le tipe za vrednosti, izračune in procese. Vendar pa če izračunom in procesom dodamo tudi tipe efektov, lahko... 
+Da se izognemo nekaterim napakam ob izvajanju uvedemo sistem tipov.
+Tipe ločimo na tipe za vrednosti, izračune in procese.
+Večina vrednosti dobi standardne tipe, kot so naravno število, boolean, enota, par, vsota in funkcijski tip. 
 
-Tipe razdelimo v tri skupine. Tipe za vrednosti, tipe za izračune in tipe za procese.
-%Če nimamo halting problem; neskončnost korakov lahko poračunamo v trenutku:
-%  Ali lahko vsak izračun, ki nima signalov in prestreznikov in je njegov tip unit vedno nadomestimo z return unit??? 
-%  Ali lahko vsak izračun, ki nima signalov in je njegov tip unit vedno nadomestimo z return unit???
 
-%Kako težko je implementirati preverjanje tipov za efektov? Če ni preveč potem bi lahko prekinitve dajali le procesom z ustreznimi tipi efektov???
+%%Predolga/grda poved
+Ker funkcijski tip označuje funkcijo, ki vzame argument in mu priredi izračun, le tej pa imajo, kot bomo kasneje videli, poleg standardnih tipov, še tipe za učinke, ima tudi funkcijski tip dodane tipe za učinke.
 
-Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
+
+Dodatno za vrednost obljuba uvedemo tip \emph{obljuba} $\typromise{A}$. 
+Tipom za vrednosti, ki ne vsebujejo funkcijskega tipa ali obljube, pravimo osnovni tipi. 
+
+
+Izračunom poleg standardnega tipa dodamo še tipe signalov, ki jih lahko sprožimo, označene z $\o$ in tipe prekinitev, ki jih lahko prestrežemo, označene z $\i$.
+Tipi učinkov $\o$ in $\i$ so elementi množice $O$ oziroma $I$.
+Množica $\sig$ je množica vseh operacij, ki jih imamo na voljo.
+Množica $O$ je preprosto potenčna množica množice $\sig$ in posledično $\o$ predstavlja množico signalov, ki jih izračun lahko sproži.
+
+Ko prestrežemo neko prekinitev lahko ustrezen izračun obljuba začne sprožati nove signale in prestrezati nove prekinitve. Zato $I$ definiramo kot največjo fiksno točko preslikave $\omega$ definirane kot 
+$$\Omega(X) = \sig \Rightarrow (O \times X)_\bot $$,
+kjer je $\Rightarrow$ potenciranje, $\times$ je kartezični produkt in $(-)_\bot$ je dvig.
+
+
+Tipi procesov so odvisni od tipov izračunov in posledično vsebujejo tipe učinkov.
+
+Pravila za dodelitev tipa vidimo na sliki~\ref{fig:value-typing-rules} in~\ref{fig:computation-typing-rules}.
 
 
 \begin{figure}[h]
@@ -241,13 +272,20 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 	\label{fig:tipi}
 \end{figure}
 
+Vsaki operaciji priredimo nek tip, kot vidimo na sliki~\ref{fig:operacije}. Ker izračun 
+$$ \tmwith{op}{x}{M}{p}{\tmopout{op'}{V}{N}} $$
+lahko naredi korak v izračun
+$$ \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}} $$,
+je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu spremenljivka $p$ v vrednosti $V$ ni več dobro definiran. Da zagotovimo, da vrednost $V$ ne vsebuje spremenljivke $p$, omejimo tipe, ki pripadajo operacijam, na osnovne tipe.
+
 \begin{figure}[t]
 	\centering
 	\small
 	\begin{align*}
 	(op_1, \bar{A}_{op_1}),\, (op_2, \bar{A}_{op_2}),\, ... ,\, (op_n, \bar{A}_{op_k})
 	\end{align*}
-	\caption{Operacije in pripadajoči tipi}
+\vspace{-5ex}
+	\caption{Operacije in pripadajoči osnovni tipi.}
 	\label{fig:operacije}
 \end{figure}
 
@@ -416,9 +454,9 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 	\small
 	\begin{mathpar}
 		\coopinfer{TyProc-Run}{
-			\Gamma \types M : \tycomp{X}{(\o,\i)}
+			\Gamma \types M : \tycomp{X}{\o,\i}
 		}{
-			\Gamma \types \tmrun{M} : \tyrun{X}{\o}{\i}
+			\Gamma \types \tmrun{M} : \tyrun{X}{\o, \i}
 		}
 		\quad
 		\coopinfer{TyProc-Par}{
@@ -450,25 +488,25 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 \begin{figure}[h]
 	\centering
 
-	\textbf{Čakajoči izrazi}
-	\begin{mathpar}
-		\coopinfer{}{
-		}{
-			\awaiting p {\tmawait p x M}
-		}
-		\quad
-		\coopinfer{}{
-			\awaiting p M
-		}{
-			\awaiting p {\tmlet x M N}
-		}
-		\quad
-		\coopinfer{}{
-			\awaiting p M
-		}{
-			\awaiting p {\tmopin{op}{V}{M}}
-		}
-	\end{mathpar}
+%	\textbf{Čakajoči izrazi}
+%	\begin{mathpar}
+%		\coopinfer{}{
+%		}{
+%			\awaiting p {\tmawait p x M}
+%		}
+%		\quad
+%		\coopinfer{}{
+%			\awaiting p M
+%		}{
+%			\awaiting p {\tmlet x M N}
+%		}
+%		\quad
+%		\coopinfer{}{
+%			\awaiting p M
+%		}{
+%			\awaiting p {\tmopin{op}{V}{M}}
+%		}
+%	\end{mathpar}
 	
 	\textbf{Delni rezultati}
 	\begin{mathpar}
@@ -482,12 +520,11 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 		}{
 			\RunResult {\Psi} {\tmwith {op} x M p N}
 		}
-		\quad
+		\qquad
 		\coopinfer{}{
-			p \in \Psi \\
-			\awaiting p M
+			p \in \Psi
 		}{
-			\RunResult {\Psi} {M}
+			\RunResult {\Psi} {\tmawait{p}{x}{M}}
 		}
 	\end{mathpar}
 
@@ -522,17 +559,19 @@ Pravila za dodelitev tipa vidimo na~\ref{fig:tipi}.
 	\label{fig:results-rules}
 \end{figure}
 
-...
 
 Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku nam zagotavlja, da ne moremo dobiti runtime, če imamo tipe, kot smo jih definirali.
 
 \begin{izrek}[Izrek o varnosti]
-	Če ima izračun $M$ tip, potem je "varen".
+	Če...
 \end{izrek}
 
+\begin{izrek}[Izrek o napredku za izračune]
+	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Potem ali (i) obstaja izračun $N$, tak da $M \reduces N$, ali pa (ii) velja $\RunResult{\emptyset}{M}$.
+\end{izrek}
 
-\begin{izrek}[Izrek o napredku]
-	Če ima izraz $M$ v okolju $\Gamma$ tip $A$, je $M$ rezultat ali pa lahko naredi korak v izraz $M'$.
+\begin{izrek}[Izrek o napredku za procese]
+	Naj za proces $M$ velja $\Gamma \types M \of C$. Potem ali (i) obstaja proces $N$, tak da $M \reduces N$, ali pa (ii) velja $\ProcResult{M}$.
 \end{izrek}
 
 \begin{proof}

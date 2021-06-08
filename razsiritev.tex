@@ -268,55 +268,55 @@ run let f = fun x -> (x, x) in
 
 
 
-\subsection{Poenostavljeni rezultati}
-
-V operacijsko semantiko dodamo dve novi pravili. Prvo potegne $\tmkw{Await}$ ven iz zaporedja. Drugo pravilo prestavi prekinitev takoj za $\tmkw{Await}$. Obe pravili skupaj dosežeta dvoje. Malenkost večji del prvotnega izračuna je postal asinhron. Kar nam lahko v nekaterih primerih nekoliko pohitri izvajanje, če bo obljuba izpolnjena in bomo nadaljevali z izvajanjem tega dela. Druga prednost pa je, da izračun, ki je v čakajočem stanju, se vedno začne z izračunom $\tmkw{Await}$. Posledično je prepoznati ali je izračun v čakajočem stanju trivialno in se delni rezultati nekoliko poenostavijo. 
-
-Rezultati ostanejo nespremenjeni.
-
-
-\begin{figure}[h]
-	\centering
-	\small
-	\begin{align*}
-	\intertext{\textbf{Algebraičnost blokade}}
-	\tmlet{x}{(\tmawait{V}{y}{M})}{N} & \reduces \tmawait{V}{y}{(\tmlet{x}{M}{N})}
-	\\[1ex]
-	\intertext{\textbf{Komutativnost blokade in prekinitve}}
-	\tmopin{op}{V}{\tmawait{W}{x}{M}} &\reduces \tmawait{W}{x}{\tmopin{op}{V}{M}}
-	\end{align*}
-	
-	\caption{Dodatna pravila operacijske semantike.}
-	\label{fig:operacijska-semantika-poenostavitev}
-\end{figure}
-
-
-\begin{figure}[h]
-	\centering
-	\small
-	\begin{mathpar}
-	\coopinfer{}{
-	}{
-		\RunResult {\Psi} {\tmreturn V}
-	}
-	\\
-	\coopinfer{}{
-		\RunResult {\Psi \cup \{p\}} {N}
-	}{
-		\RunResult {\Psi} {\tmwith {op} x M p N}
-	}
-	\quad
-	\coopinfer{}{
-		p \in \Psi \\
-		\tmawait p x M
-	}{
-		\RunResult {\Psi} {M}
-	}
-	\end{mathpar}
-
-	\caption{Poenostavljeni delni rezultati.}
-	\label{fig:rezultati-poenostavitev}
-\end{figure}
+%\subsection{Poenostavljeni rezultati}
+%
+%V operacijsko semantiko dodamo dve novi pravili. Prvo potegne blokado ven iz zaporedja. Drugo pravilo prestavi prekinitev takoj za blokado. Obe pravili skupaj dosežeta dvoje. Malenkost večji del prvotnega izračuna je postal asinhron. Kar nam lahko v nekaterih primerih nekoliko pohitri izvajanje, če bo obljuba izpolnjena in bomo nadaljevali z izvajanjem tega dela. Druga prednost pa je, da izračun, ki je v čakajočem stanju, se vedno začne z izračunom $\tmkw{Await}$. Posledično je prepoznati ali je izračun v čakajočem stanju trivialno in se delni rezultati nekoliko poenostavijo. 
+%
+%Rezultati ostanejo enaki kot v \cite{aeff}.
+%
+%
+%\begin{figure}[h]
+%	\centering
+%	\small
+%	\begin{align*}
+%	\intertext{\textbf{Algebraičnost blokade}}
+%	\tmlet{x}{(\tmawait{V}{y}{M})}{N} & \reduces \tmawait{V}{y}{(\tmlet{x}{M}{N})}
+%	\\[1ex]
+%	\intertext{\textbf{Komutativnost blokade in prekinitve}}
+%	\tmopin{op}{V}{\tmawait{W}{x}{M}} &\reduces \tmawait{W}{x}{\tmopin{op}{V}{M}}
+%	\end{align*}
+%	
+%	\caption{Dodatna pravila operacijske semantike.}
+%	\label{fig:operacijska-semantika-poenostavitev}
+%\end{figure}
+%
+%
+%\begin{figure}[h]
+%	\centering
+%	\small
+%	\begin{mathpar}
+%	\coopinfer{}{
+%	}{
+%		\RunResult {\Psi} {\tmreturn V}
+%	}
+%	\\
+%	\coopinfer{}{
+%		\RunResult {\Psi \cup \{p\}} {N}
+%	}{
+%		\RunResult {\Psi} {\tmwith {op} x M p N}
+%	}
+%	\quad
+%	\coopinfer{}{
+%		p \in \Psi \\
+%		\tmawait p x M
+%	}{
+%		\RunResult {\Psi} {M}
+%	}
+%	\end{mathpar}
+%
+%	\caption{Poenostavljeni delni rezultati.}
+%	\label{fig:rezultati-poenostavitev}
+%\end{figure}
 
 
 
