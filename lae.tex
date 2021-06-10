@@ -564,16 +564,12 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 
 Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku nam zagotavlja, da ne moremo dobiti runtime, če imamo tipe, kot smo jih definirali.
 
-\begin{izrek}[Izrek o varnosti]
-	Če...
-\end{izrek}
 
-\begin{lema}[o substituciji]
-	content...
-\end{lema}
 
 \begin{trditev}[o napredku]
-	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$, kjer je $\Gamma = \{(x_1,\typromise{A_1}),(x_2,\typromise{A_2}),...,(x_i,\typromise{A_i})\}$. Potem ali (i) obstaja izračun $N$, tak da $M \reduces N$, ali pa (ii) velja $\RunResult{\emptyset}{M}$.
+	Naj za izračun $M$ velja $\emptyset \types M \of \tycomp{A}{\o, \i}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\RunResult{\emptyset}{M}$.
+
+	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$, kjer je $\Gamma = \{(x_1,\typromise{A_1}),(x_2,\typromise{A_2}),...,(x_i,\typromise{A_i})\}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\RunResult{\emptyset}{M}$.
 \end{trditev}
 
 \begin{proof}
@@ -619,8 +615,9 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 	
 \end{proof}
 
+
 \begin{izrek}[o napredku]
-	Naj za proces $M$ velja $\Gamma \types M \of C$. Potem ali (i) obstaja proces $N$, tak da $M \reduces N$, ali pa (ii) velja $\ProcResult{M}$.
+	Naj za proces $P$ velja $\Gamma \types P \of C$. Potem ali (i) obstaja proces $P'$, tak da $P \reduces P'$, ali pa (ii) velja $\ProcResult{P}$.
 \end{izrek}
 
 \begin{proof}
@@ -628,10 +625,27 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{proof}
 
 
+
+\begin{lema}[o substituciji]
+	Naj za vrednost $V$ velja $\Gamma \types V \of A$ in za izračun $M$ velja $\Gamma, x \of A \types M \of \tycomp{B}{\o, \i}$. Potem velja $\Gamma \types M[V/x] \of \tycomp{B}{\o, \i}$.
+\end{lema}
+
+\begin{proof}
+	...
+\end{proof}
+
+\begin{trditev}[o ohranitvi]
+	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Če izračun $M$ naredi korak v izračun $M'$, potem velja $\Gamma \types M' \of A'$, kjer je $A' = $.
+\end{trditev}
+
+\begin{proof}
+	...
+\end{proof}
+
 \begin{izrek}[o ohranitvi]
-	Če ima izraz $M$ v okolju $\Gamma$ tip $A$ in naredi korak v izraz $M'$, ima $M'$ v okolju $\Gamma$ tip $A$.
+	Naj za proces $P$ velja $\Gamma \types P \of C$. Če proces $P$ naredi korak v proces $P'$, potem velja $\Gamma \types P' \of C'$, kjer je $C' = $.
 \end{izrek}
 
 \begin{proof}
-	%Left for the reader as an exercise :D
+	...
 \end{proof}
