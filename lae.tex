@@ -91,6 +91,8 @@ Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z 
 	\intertext{\textbf{Pravila osnovnih izračunov}}
 	\tmapp{(\tmfun{x \of X}{M})}{V} &\reduces M[V/x]
 	\\
+	\tmapp{(\tmfunrec{f}{x \of X}{M})}{V} &\reduces M[V/x, (\tmfunrec{f}{x \of X}{M})/f]
+	\\
 	\tmlet{x}{(\tmreturn V)}{N} &\reduces N[V/x]
 	\\
 	\tmmatch{\tmpair{V}{W}}{\tmpair{x}{y} \mapsto M} &\reduces M[V/x, W/y]
@@ -566,11 +568,58 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 	Če...
 \end{izrek}
 
-\begin{izrek}[Izrek o napredku za izračune]
-	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Potem ali (i) obstaja izračun $N$, tak da $M \reduces N$, ali pa (ii) velja $\RunResult{\emptyset}{M}$.
-\end{izrek}
+\begin{lema}[o substituciji]
+	content...
+\end{lema}
 
-\begin{izrek}[Izrek o napredku za procese]
+\begin{trditev}[o napredku]
+	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$, kjer je $\Gamma = \{(x_1,\typromise{A_1}),(x_2,\typromise{A_2}),...,(x_i,\typromise{A_i})\}$. Potem ali (i) obstaja izračun $N$, tak da $M \reduces N$, ali pa (ii) velja $\RunResult{\emptyset}{M}$.
+\end{trditev}
+
+\begin{proof}
+	Osnutek
+	
+	
+	Ker ima izračun $M$ tip, obstaja drevo izpeljave za tip.
+	Dokazujemo z indukcijo na globino drevesa izpeljave za izračune.
+	
+	Za $n$ je $1$ ločimo dva primera glede na uporabljeno pravilo v drevesu izpeljave.
+	Če je $M = \tmreturn{V}$, potem po pravilu XYZ??? %Kako naj poimenujem pravila, korake... da se lahko kasneje sklicujem nanje???
+	sledi, da je $M$ delni rezultat in velja (ii).
+	Če je $M = V W$, potem mora biti $V$ oblike $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$ in lahko naredimo korak v $M[W/x]$ ali $M[V/x, (\tmfunrec{f}{x \of X}{M})/f]$.
+	
+	Sedaj pokažimo da, če velja trditev za $n = 1,...,n$ velja tudi za $n+1$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	Če je zadnje pravilo $TyComp-Let$ potem ima $M$ %Kako naj ločim M iz trditve in M iz let M in N???
+	tip in po $IP$ lahko naredi korak ali pa je delni rezultat. Če $M$ lahko naredi korak v $M'$ potem lahko po pravilu za evalvacijo v okolju tudi $M$ naredi korak.
+	Če pa je $M$ delni rezultat ločimo tri možnosti. Če je $M = return V$ potem lahko naredimo korak v $N[V/x]$. V drugih dveh primerih lahko uporabimo algebraičnost prestreznika ali blokade in naredimo ustrezen korak. 
+	
+	Če je zadnje pravilo $TyComp-MatchPair$ potem je $V$ oblike $(V,W)$ in posledično lahko naredimo korak XYZ.
+	
+	Če je zadnje pravilo $TyComp-MatchEmpty$ %Nimamo pravila za V : 0: Zakaj bi potem imeli to pravilo???
+	
+	Če je zadnje pravilo $TyComp-MatchSum$ potem je $V$ ali oblike $inl_YV$ in lahko naredimo korak XYZ ali pa je oblike $inr_XV$ in lahko naredimo korak XYZ.
+	
+	Če je zadnje pravilo $TyComp-Signal$ %Tukaj bi morali signal prenesti iz izračuna na proces, ampak ker smo ločili izračune in procese tega ne moremo narediti? Naj združim nazaj v samo en izrek? Se da lepše formulirati trditev da bo vredu? Lahko v trditvi rečem da M ne sme biti signal. In potem v izreku za procese ta primer posebej obravnavam???
+	
+	Če je zadnje pravilo $TyComp-Interupt$ potem ima $M$ tip in po indukcijski predpostavki lahko $M$ naredi korak ali pa je delna vrednost. Če $M$ lahko naredi korak v $M'$ potem lahko po pravilu za evalvacijo v okolju tudi $M$ naredi korak. Če pa je $M$ delni rezultat ločimo tri možnosti. Če je $M = return V$ potem lahko naredimo korak v $M$. Če je $M = \tmwith{op'}{x}{M}{p}{N}$ naredimo ali korak XYZ ali XYZ glede na to ali velja $op = op'$.
+	Tretja možnost se ne more zgodi saj je pripadajoči $\psi = \emptyset$.
+	
+	Če je zadnje pravilo $TyComp-promise$ potem ima $M$ tip in po indukcijski predpostavki lahko $M$ naredi korak ali pa je delna vrednost. Če $M$ lahko naredi korak v $M'$ potem lahko po pravilu za evalvacijo v okolju tudi $M$ naredi korak. Če pa je $M$ delni rezultat je tudi $M$ delni rezultat.
+	
+	Če je zadnje pravilo $TyComp-Await$, potem mora biti $V = <V>$ saj smo v praznem kontekstu. Tedaj lahko naredimo korak XYZ.
+	
+	Če je zadnje pravilo $TyComp-Subsume$ je $M$ po IP ali rezultat ali pa lahko naredi korak.
+	
+	%Nenehno se ponavlja "Če je zadnje pravilo...", "Ločimo primere ..." ... Glede na to da je to dokaz, ki mora biti čim bolj pregleden in razumljiv, ne pa estetsko oblikovan je to vredu??? 
+	
+	
+	
+	
+\end{proof}
+
+\begin{izrek}[o napredku]
 	Naj za proces $M$ velja $\Gamma \types M \of C$. Potem ali (i) obstaja proces $N$, tak da $M \reduces N$, ali pa (ii) velja $\ProcResult{M}$.
 \end{izrek}
 
@@ -579,7 +628,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{proof}
 
 
-\begin{izrek}[Izrek o ohranitvi]
+\begin{izrek}[o ohranitvi]
 	Če ima izraz $M$ v okolju $\Gamma$ tip $A$ in naredi korak v izraz $M'$, ima $M'$ v okolju $\Gamma$ tip $A$.
 \end{izrek}
 
