@@ -120,6 +120,9 @@ run promise (op f ->
 \subsection{Rekurzivni prestreznik}
 
 
+%%% v rekurzivni obljubi za efekte je dovolj da so podmnožica ne nujno ekvivalenca kot je v papirju.
+
+
 Kadar pričakujemo več prekinitev z isto operacijo, je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko, da je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
 
 To funkcionalnost smo do sedaj dosegli tako, da smo obljubo definirali v pomožni rekurzivni funkciji in po potrebi znotraj obljube ponovno klicali to funkcijo, kot lahko vidimo v programu~\ref{prog:obljuba-v-rekurzivni-funkciji}.
@@ -265,6 +268,8 @@ run let f = fun x -> (x, x) in
       await p until <x'> in
       return x')
 \end{lstlisting}
+
+
 
 
 

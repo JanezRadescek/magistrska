@@ -512,18 +512,18 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 	
 	\textbf{Delni rezultati}
 	\begin{mathpar}
-		\coopinfer{}{
+		\coopinfer{R-Return}{
 		}{
 			\RunResult {\Psi} {\tmreturn V}
 		}
 		\\
-		\coopinfer{}{
+		\coopinfer{R-Promise}{
 			\RunResult {\Psi \cup \{p\}} {N}
 		}{
 			\RunResult {\Psi} {\tmwith {op} x M p N}
 		}
 		\qquad
-		\coopinfer{}{
+		\coopinfer{R-Await}{
 			p \in \Psi
 		}{
 			\RunResult {\Psi} {\tmawait{p}{x}{M}}
@@ -532,26 +532,26 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 
 	\textbf{Rezultati}
 	\begin{mathpar}
-		\coopinfer{}{
+		\coopinfer{R-Out}{
 			\ProcResult {P}
 		}{
 			\ProcResult {\tmopout {op} V P}
 		}
 		\qquad
-		\coopinfer{}{
+		\coopinfer{R-Process}{
 			\ParResult {P}
 		}{
 			\ProcResult {P}
 		}
 		\\
-		\coopinfer{}{
+		\coopinfer{R-Parallel}{
 			\ParResult P \\
 			\ParResult Q
 		}{
 			\ParResult {\tmpar P Q}
 		}
 		\qquad
-		\coopinfer{}{
+		\coopinfer{R-Run}{
 			\RunResult {\emptyset} {M}
 		}{
 			\ParResult {\tmrun M}
@@ -569,7 +569,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \begin{trditev}[o napredku]
 	Naj za izračun $M$ velja $\emptyset \types M \of \tycomp{A}{\o, \i}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\RunResult{\emptyset}{M}$.
 
-	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$, kjer je $\Gamma = \{(x_1,\typromise{A_1}),(x_2,\typromise{A_2}),...,(x_i,\typromise{A_i})\}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\RunResult{\emptyset}{M}$.
+%	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$, kjer je $\Gamma = \{(x_1,\typromise{A_1}),(x_2,\typromise{A_2}),...,(x_i,\typromise{A_i})\}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\RunResult{\emptyset}{M}$.
 \end{trditev}
 
 \begin{proof}
@@ -580,22 +580,21 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 	Dokazujemo z indukcijo na globino drevesa izpeljave za izračune.
 	
 	Za $n$ je $1$ ločimo dva primera glede na uporabljeno pravilo v drevesu izpeljave.
-	Če je $M = \tmreturn{V}$, potem po pravilu XYZ??? %Kako naj poimenujem pravila, korake... da se lahko kasneje sklicujem nanje???
-	sledi, da je $M$ delni rezultat in velja (ii).
-	Če je $M = V W$, potem mora biti $V$ oblike $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$ in lahko naredimo korak v $M[W/x]$ ali $M[V/x, (\tmfunrec{f}{x \of X}{M})/f]$.
+	Če je uporabljeno pravilo $TyComp-Return$, potem je $M = \tmreturn{V}$ in po pravilu $R-Return$ sledi, da je $M$ delni rezultat in velja (ii).
+	Če je uporabljeno pravilo $TyComp-Apply$, potem je $M = V W$ in $V$ mora biti oblike $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$. Posledično lahko naredimo korak v $M[W/x]$ ali $M[V/x, (\tmfunrec{f}{x \of X}{M})/f]$.
 	
 	Sedaj pokažimo da, če velja trditev za $n = 1,...,n$ velja tudi za $n+1$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
-	Če je zadnje pravilo $TyComp-Let$ potem ima $M$ %Kako naj ločim M iz trditve in M iz let M in N???
-	tip in po $IP$ lahko naredi korak ali pa je delni rezultat. Če $M$ lahko naredi korak v $M'$ potem lahko po pravilu za evalvacijo v okolju tudi $M$ naredi korak.
-	Če pa je $M$ delni rezultat ločimo tri možnosti. Če je $M = return V$ potem lahko naredimo korak v $N[V/x]$. V drugih dveh primerih lahko uporabimo algebraičnost prestreznika ali blokade in naredimo ustrezen korak. 
+	Če je zadnje pravilo $TyComp-Let$, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
+	Izračun $N_1$ ima tip in po $IP$ lahko naredi korak ali pa je delni rezultat. Če $N_1$ lahko naredi korak v $N_1'$, potem lahko po pravilu za evalvacijo v okolju tudi $M$ naredi korak.
+	Če pa je $N_1$ delni rezultat ločimo tri možnosti. Če je $M = return V$, potem lahko naredimo korak v izračun $N[V/x]$. V drugih dveh primerih lahko uporabimo algebraičnost prestreznika ali blokade in naredimo ustrezen korak. 
 	
-	Če je zadnje pravilo $TyComp-MatchPair$ potem je $V$ oblike $(V,W)$ in posledično lahko naredimo korak XYZ.
+	Če je zadnje pravilo $TyComp-MatchPair$, potem je $M$ enak $\tmmatch{V}{(x,y) \mapsto N}$. Ker ima vrednost $V$ tip $X \times Y$, je $V$ oblike $(W_1,W_2)$ in posledično lahko naredimo korak v izračun $N[W_1/x,W_2/y]$.
 	
-	Če je zadnje pravilo $TyComp-MatchEmpty$ %Nimamo pravila za V : 0: Zakaj bi potem imeli to pravilo???
+	Zadnje pravilo ne more biti $TyComp-MatchEmpty$, saj bi potem morali imeti vrednost tipa $0$. Vrednost tega tipa ne obstaja.
 	
-	Če je zadnje pravilo $TyComp-MatchSum$ potem je $V$ ali oblike $inl_YV$ in lahko naredimo korak XYZ ali pa je oblike $inr_XV$ in lahko naredimo korak XYZ.
+	Če je zadnje pravilo $TyComp-MatchSum$, potem je $M$ enak $\tmmatch{V}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}$. Ker ima vrednost $V$ tip $X + Y$, je $V$ oblike $\tminl{W_1}$ ali $\tminr{W_2}$. Če je oblike $\tminl{W_1}$ lahko naredimo korak v $N_1[W_1/x]$. Sicer je oblike $\tminr{W_2}$ in lahko naredimo korak v $N[W_2/y]$.
 	
 	Če je zadnje pravilo $TyComp-Signal$ %Tukaj bi morali signal prenesti iz izračuna na proces, ampak ker smo ločili izračune in procese tega ne moremo narediti? Naj združim nazaj v samo en izrek? Se da lepše formulirati trditev da bo vredu? Lahko v trditvi rečem da M ne sme biti signal. In potem v izreku za procese ta primer posebej obravnavam???
 	
