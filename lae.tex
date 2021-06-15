@@ -576,9 +576,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{trditev}
 
 \begin{proof}
-	Osnutek
-	
-	Ker ima izračun $M$ tip, obstaja drevo izpeljave za tip.
+	Ker ima izračun $M$ tip, obstaja drevo izpeljave za njegov tip.
 	Dokazujemo z indukcijo na globino drevesa izpeljave za izračune.
 	
 	Za $n$ je $1$ ločimo dva primera glede na uporabljeno pravilo v drevesu izpeljave.
@@ -589,7 +587,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	Če je zadnje pravilo $TyComp-Let$, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
-	Izračun $N_1$ ima tip in po $IP$ lahko naredi korak ali pa je delni rezultat. Če $N_1$ lahko naredi korak v $N_1'$, potem lahko po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmlet{x}{N_1'}{N_2}$.
+	Izračun $N_1$ ima tip in po $IP$ lahko naredi korak ali pa je delni rezultat. Če $N_1$ lahko naredi korak v $N_1'$, potem lahko po pravilu za evalvacijo v okolju tudi $M$ naredi korak v $\tmlet{x}{N_1'}{N_2}$.
 	Če pa je $N_1$ delni rezultat, ločimo štiri možnosti. 
 	Če je $N_1$ enak $\tmreturn{V}$, potem lahko $M$ naredi korak v izračun $N_2[V/x]$. 
 	Če je $N_1$ enak $\tmopout{op}{V}{N_3}$, potem lahko $M$ naredi korak v $\tmopout{op}{V}{(\tmlet{x}{N_3}{N_2})}$
@@ -640,7 +638,35 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{izrek}
 
 \begin{proof}
-	Če je izraz $M$ rezultat smo končali. Sicer dokazujemo 
+	Ker ima proces $P$ tip, obstaja drevo izpeljave za njegov tip.
+	Dokazujemo z indukcijo na globino drevesa izpeljave za procese.
+	
+	Za $n$ je $1$ imamo en sam primer ko je $P$ enak $\tmrun{M}$. Ker ima $M$ tip, po posledici~\ref{pos:prazen-napredek} velja da, ali lahko $M$ naredi korak v $M'$ ali pa je $M$ delni rezultat.
+	Če $M$ lahko naredi korak v $M'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmrun{M'}$.
+	Sicer je $M$ delna vrednost in ločimo dva primera.
+	Če je $M$ enak $\tmopout{op}{V}{N}$, potem lahko $P$ naredi korak v $\tmopout{op}{V}{\tmrun{N}}$.
+	Sicer je tudi $P$ rezultat.
+	
+	Sedaj pokažimo da, če velja trditev za $n = 1,...,n$ velja tudi za $n+1$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	Če je zadnje pravilo $TyProc-Par$, potem je $P$ enak $\tmpar{Q_1}{Q_2}$. Ker imata $Q_1$ in $Q_2$ tip, lahko po $IP$ naredita korak ali pa sta že rezultata.
+	Če lahko eden izmed njiju naredi korak, recimo $Q_1$ lahko naredi korak v $Q_1'$, lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmpar{Q_1'}{Q_2}$. Podobno dokažemo, če lahko $Q_2$ naredi korak.
+	Sicer sta $Q_1$ in $Q_2$ rezultata. Ločimo dva primera.
+	Če je eden izmed njiju enak $\tmopout{op}{V}{Q'}$, recimo $Q_1$. Potem lahko $P$ naredi korak v $\tmopout{op}{V}{(\tmpair{Q'}{\tmopin{op}{V}{Q_2}})}$. Podobno za $Q_2$.
+	Sicer je tudi $P$ rezultat.
+	
+	Če je zadnje pravilo $TyProc-Signal$, potem je $P$ enak $\tmopout{op}{V}{Q}$. Proces $Q$ ima tip in po $IP$ lahko naredi korak ali pa je rezultat.
+	Če $Q$ lahko naredi korak v $Q'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmopout{op}{V}{Q'}$.
+	Sicer je tudi $P$ rezultat.
+	
+	
+	Če je zadnje pravilo $TyProc-Interrupt$, potem je $P$ enak $\tmopin{op}{V}{Q}$. Proces $Q$ ima tip in po $IP$ lahko naredi korak ali pa je rezultat.
+	Če $Q$ lahko naredi korak v $Q'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmopin{op}{V}{Q'}$.
+	Če pa je $Q$ rezultat ločimo tri primere.
+	Če je $Q$ enak $\tmrun{M}$, potem lahko $P$ naredi korak v $\tmrun{\tmopin{op}{V}{M}}$.
+	Če je $Q$ enak $\tmopout{op'}{V'}{Q'}$, potem lahko $P$ naredi korak v $\tmopout{op'}{V'}{(\tmopin{op}{V}{Q'})}$.
+	Če je $Q$ enak $\tmpar{Q_1}{Q_2}$, potem lahko $P$ naredi korak v $\tmpar{\tmopin{op}{V}{Q_1}}{\tmopin{op}{V}{Q_2}}$.	
 \end{proof}
 
 
@@ -650,7 +676,17 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{lema}
 
 \begin{proof}
-	...
+	Ker ima izračun $M$ tip, obstaja drevo izpeljave za njegov tip.
+	Dokazujemo z indukcijo na globino drevesa izpeljave za izračune.
+	
+	Za $n$ je $1$ imamo en sam primer, ko je $M$ enak $\tmreturn{W}$.
+	Če je $W = x$, potem je $B = A$ in $M[V/x] = \tmreturn{V}$. Ker ima $V$ tip $A$, ima $\tmreturn{V}$ tip $\tycomp{A}{\o, \i}$. Ker je $A = B$, ima $M[V/x]$ tip $\tycomp{B}{\o, \i}$.
+	Če je $W \neq x$, potem je $M[V/x] = M$ in posledično ima $M[V/x]$ tip $\tycomp{B}{\o, \i}$.
+	
+	Sedaj pokažimo da, če velja trditev za $n = 1,...,n$ velja tudi za $n+1$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	... TODO
 \end{proof}
 
 \begin{trditev}[o ohranitvi]
