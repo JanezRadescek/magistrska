@@ -297,63 +297,63 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 	\centering
 	\small
 	\begin{mathpar}
-		\coopinfer{Tip-Cons}{
+		\coopinfer{Ty-Cons}{
 		}{
 			\Gamma \types n : int
 		}
 		\qquad
-		\coopinfer{Tip-Cons}{
+		\coopinfer{Ty-Cons}{
 		}{
 			\Gamma \types true : bool
 		}
 		\qquad
-		\coopinfer{Tip-Cons}{
+		\coopinfer{Ty-Cons}{
 		}{
 			\Gamma \types false : bool
 		}
 		\quad
-		\coopinfer{Tip-Var}{
+		\coopinfer{Ty-Var}{
 		}{
 			\Gamma, x \of X, \Gamma' \types x : X
 		}
 		\quad
-		\coopinfer{Tip-Unit}{
+		\coopinfer{Ty-Unit}{
 		}{
 			\Gamma \types \tmunit : \tyunit
 		}
 		\\
-		\coopinfer{Tip-Pair}{
+		\coopinfer{Ty-Pair}{
 			\Gamma \types V : X \\
 			\Gamma \types W : Y
 		}{
 			\Gamma \types \tmpair{V}{W} : \typrod{X}{Y}
 		}
 		\quad
-		\coopinfer{Tip-Promise}{
+		\coopinfer{Ty-Promise}{
 			\Gamma \types V : X
 		}{
 			\Gamma \types \tmpromise V : \typromise X
 		}
 		\quad
-		\coopinfer{Tip-Inl}{
+		\coopinfer{Ty-Inl}{
 			\Gamma \types V : X
 		}{
 			\Gamma \types \tminl[Y]{V} : X + Y
 		}
 		\quad
-		\coopinfer{Tip-Inr}{
+		\coopinfer{Ty-Inr}{
 			\Gamma \types W : Y
 		}{
 			\Gamma \types \tminr[X]{W} : X + Y
 		}
 		\\
-		\coopinfer{Tip-Fun}{
+		\coopinfer{Ty-Fun}{
 			\Gamma, x \of X \types M : \tycomp{Y}{\o,\i}
 		}{
 			\Gamma \types \tmfun{x : X}{M} : \tyfun{X}{\tycomp{Y}{\o,\i}}
 		}
 		\quad
-		\coopinfer{Tip-Fun-Rec}{
+		\coopinfer{Ty-Fun-Rec}{
 			\Gamma,f \of \tyfun{X}{\tycomp{Y}{\o,\i}}, x \of X \types M : \tycomp{Y}{\o,\i}
 		}{
 			\Gamma \types \tmfunrec{f}{x : X}{M} : \tyfun{X}{\tycomp{Y}{\o,\i}}
@@ -569,6 +569,25 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 
 Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku nam zagotavlja, da ne moremo dobiti runtime, če imamo tipe, kot smo jih definirali.
 
+\begin{lema}\label{lem:ni-spremenljivka}
+	Če za vrednost $V$ velja $\Gamma \types V \of A$, kjer je $A$ tip, ki se ne pojavi v kontekstu $\Gamma$, potem vrednost $V$ ni spremenljivka.
+	\begin{itemize}
+		\item Če je $A$ enak $B_1 \times B_2$, potem je $V$ enak $(W_1,W_2)$.
+		\item Če je $A$ enak $B_1 + B_2$, potem je $V$ ali enak $\tminl{W_1}$ ali $\tminr{W_2}$.
+		\item Če je $A$ enak $\tyfun{B_1}{\tycomp{B_2}{\o, \i}}$, potem je $V$ ali enak $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$.
+	\end{itemize}
+\end{lema}
+
+\begin{proof}
+	Predpostavimo, da je $V$ spremenljivka. Edino pravilo za določitev tipa spremenljivke je \rulename{TIP-VAR}. Od tod sledi, da je tip $A$ v kontekstu $\Gamma$. Kar je v protislovju z predpostavko izreka, da se tip $A$ ne pojavi v kontekstu $\Gamma$.
+	\begin{itemize}
+		\item Edini pravili za tip $B_1 \times B_2$ sta \rulename{Ty-Var} in \rulename{Ty-Pair}. Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Pair}. Posledično je $V$ oblike $\tmpair{W_1}{W_2}$.
+		
+		\item Edina pravila za tip $B_1 + B_2$ so \rulename{Ty-Var}, \rulename{Ty-Inl} in \rulename{Ty-Inr}. Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Inl} ali \rulename{Ty-Inr}. Posledično je $V$ oblike $\tminl{W_1}$ ali $\tminr{W_2}$.
+		
+		\item Edina pravila za tip $\tyfun{B_1}{\tycomp{B_2}{\o, \i}}$ so \rulename{Ty-Var}, \rulename{Ty-Fun} in \rulename{Ty-Fun-Rec}. Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Fun} ali \rulename{Ty-Fun-Rec}. Posledično je $V$ oblike $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$.
+	\end{itemize}
+\end{proof}
 
 
 \begin{trditev}[o napredku]\label{trd:gamma-napredek}
@@ -579,48 +598,62 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 	Ker ima izračun $M$ tip, obstaja drevo izpeljave za njegov tip.
 	Dokazujemo z indukcijo na globino drevesa izpeljave za izračune.
 	
-	Za $n$ je $1$ ločimo dva primera glede na uporabljeno pravilo v drevesu izpeljave.
-	Če je uporabljeno pravilo $TyComp-Return$, potem je $M$ enak $\tmreturn{V}$. Po pravilu $R-Return$ sledi, da je $M$ delni rezultat in velja (ii).
-	Če je uporabljeno pravilo $TyComp-Apply$, potem je $M$ enak $V W$ in $V$ mora biti oblike $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$. Posledično lahko naredimo korak v $M[W/x]$ ali $M[V/x, (\tmfunrec{f}{x \of X}{M})/f]$.
+	Za $n$ je $1$ imamo en sam primer, ko je uprabljeno pravilo \rulename{TyComp-Return} in je $M$ enak $\tmreturn{V}$. 
+	Po pravilu \rulename{R-Return} sledi, da je $M$ delni rezultat in velja (ii).
 	
 	Sedaj pokažimo da, če velja trditev za $n = 1,...,n$ velja tudi za $n+1$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
-	Če je zadnje pravilo $TyComp-Let$, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
-	Izračun $N_1$ ima tip in po $IP$ lahko naredi korak ali pa je delni rezultat. Če $N_1$ lahko naredi korak v $N_1'$, potem lahko po pravilu za evalvacijo v okolju tudi $M$ naredi korak v $\tmlet{x}{N_1'}{N_2}$.
-	Če pa je $N_1$ delni rezultat, ločimo štiri možnosti. 
-	Če je $N_1$ enak $\tmreturn{V}$, potem lahko $M$ naredi korak v izračun $N_2[V/x]$. 
-	Če je $N_1$ enak $\tmopout{op}{V}{N_3}$, potem lahko $M$ naredi korak v $\tmopout{op}{V}{(\tmlet{x}{N_3}{N_2})}$
-	Če je $N_1$ enak $\tmwith{op}{x}{N_3}{p}{N_4}$, lahko $M$ naredi korak v $\tmwith{op}{x}{N_3}{p}{(\tmlet{x}{N_4}{N_2})}$. 
-	Če pa je $N_1$ enak $\tmawait{p}{y}{N_3}$, lahko $M$ naredi korak v $\tmawait{p}{y}{(\tmlet{x}{N_3}{N_2})}$
 	
-	Če je zadnje pravilo $TyComp-MatchPair$, potem je $M$ enak $\tmmatch{V}{(x,y) \mapsto N}$. Ker ima vrednost $V$ tip $X \times Y$ in v kontekstu nobena spremenljivka nima tipa $X \times Y$, je $V$ oblike $(W_1,W_2)$ in posledično lahko $M$ naredi korak v izračun $N[W_1/x,W_2/y]$.
+	\begin{itemize}
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
+		Izračun $N_1$ ima tip in po $IP$ lahko naredi korak ali pa je delni rezultat. Če $N_1$ lahko naredi korak v $N_1'$, potem lahko po pravilu za evalvacijo v okolju tudi $M$ naredi korak v $\tmlet{x}{N_1'}{N_2}$.
+		Če pa je $N_1$ delni rezultat, ločimo štiri možnosti. 
+		\begin{itemize}
+			\item Če je $N_1$ enak $\tmreturn{V}$, potem lahko $M$ naredi korak v izračun $N_2[V/x]$.
+			\item Če je $N_1$ enak $\tmopout{op}{V}{N_3}$, potem lahko $M$ naredi korak v $\tmopout{op}{V}{(\tmlet{x}{N_3}{N_2})}$.
+			\item Če je $N_1$ enak $\tmwith{op}{x}{N_3}{p}{N_4}$, lahko $M$ naredi korak v $\tmwith{op}{x}{N_3}{p}{(\tmlet{x}{N_4}{N_2})}$.
+			\item Če pa je $N_1$ enak $\tmawait{p}{y}{N_3}$, lahko $M$ naredi korak v $\tmawait{p}{y}{(\tmlet{x}{N_3}{N_2})}$.
+		\end{itemize}
 	
-	Zadnje pravilo ne more biti $TyComp-MatchEmpty$, saj bi potem morali imeti vrednost tipa $0$. Vrednost tega tipa ne obstaja.
+		\item Če je uporabljeno pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V W$. Ker ima vrednost $V$ tip $\tyfun{B_1}{B_2}$ in v kontekstu nobena spremenljivka nima tipa $X \times Y$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$. Posledično lahko naredimo korak v $M[W/x]$ ali $M[V/x, (\tmfunrec{f}{x \of X}{M})/f]$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{V}{(x,y) \mapsto N}$. Ker ima vrednost $V$ tip $X \times Y$ in v kontekstu nobena spremenljivka nima tipa $X \times Y$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $(W_1,W_2)$. Posledično lahko $M$ naredi korak v izračun $N[W_1/x,W_2/y]$.
+		
+		\item Zadnje pravilo ne more biti \rulename{TyComp-MatchEmpty}, saj bi potem morali imeti vrednost tipa $0$. Vrednost tega tipa ne obstaja.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $\tmmatch{V}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}$.
+		Ker ima vrednost $V$ tip $X + Y$ in v kontekstu nobena spremenljivka nima tipa $X + Y$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $\tminl{W_1}$ ali $\tminr{W_2}$.
+		\begin{itemize}
+			\item Če je oblike $\tminl{W_1}$ lahko $M$ naredi korak v $N_1[W_1/x]$.
+			\item Sicer je oblike $\tminr{W_2}$ in lahko $M$ naredi korak v $N[W_2/y]$.
+		\end{itemize}
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$ in po pravilu $R-Signal$ dokažemo (ii).
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Interupt}, potem je $M$ enak $\tmopin{op}{V}{N}$. Izračun $N$ ima tip in po $IP$ lahko naredi korak ali pa je že delna vrednost. Če $N$ lahko naredi korak v $N'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmopin{op}{V}{N'}$. 
+		Če pa je $N$ delni rezultat ločimo štiri možnosti.
+		\begin{itemize}
+			\item Če je $N$ enak $\tmreturn{V}$, potem lahko $M$ naredi korak v $\tmreturn{V}$.
+			\item Če je $N$ enak $\tmopout{op'}{W}{O}$, potem lahko $M$ naredi korak v $\tmopout{op'}{W}{(\tmopin{op}{V}{O})}$.
+			\item Če je $N$ enak $\tmwith{op'}{x}{O}{p}{O'}$, potem lahko $M$ naredi ali korak v $\tmlet{p}{O[V/x]}{O'}$, če velja $op = op'$, ali v $\tmwith{op'}{x}{O}{p}{\tmopin{op}{V}{O'}}$ sicer.
+			\item Če pa je $N$ enak $\tmawait{p}{x}{O}$, lahko $M$ naredi korak v $\tmawait{p}{x}{(\tmopin{op}{V}{O})}$.
+		\end{itemize}
+		
+		
+		\item Če je zadnje pravilo \rulename{TyComp-promise}, potem je $M$ enak $\tmwith{op}{x}{N_1}{p}{N_2}$. Izračun $N_2$ ima tip in po $IP$ lahko $N_2$ naredi korak ali pa je že delna vrednost. Če $N_2$ lahko naredi korak v $N_2'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmwith{op}{x}{N_1}{p}{N_2'}$.
+		Če pa je $N_2$ delni rezultat, je tudi $M$ delni rezultat po pravilu \rulename{R-Promise}.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Await}, potem je $M$ oblike $\tmawait{V}{p}{N}$.
+		Ločimo dva primera.
+		Če je $V$ spremenljivka v kontekstu $\Gamma$, potem je $M$ po pravilu $R-Await$ delni rezultat.
+		Sicer je $V$ enak $\tmpromise{W}$. Tedaj lahko $M$ naredi korak v $N[W/p]$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Subsume}, lahko $IP$ uporabimo direktno na $M$ in posledično lahko $M$ naredi korak ali pa je $M$ delni rezultat.
+			
+	\end{itemize}
 	
-	Če je zadnje pravilo $TyComp-MatchSum$, potem je $M$ enak $\tmmatch{V}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}$.
-	Ker ima vrednost $V$ tip $X + Y$ in v kontekstu nobena spremenljivka nima tipa $X + Y$, je $V$ oblike $\tminl{W_1}$ ali $\tminr{W_2}$.
-	Če je oblike $\tminl{W_1}$ lahko $M$ naredi korak v $N_1[W_1/x]$.
-	Sicer je oblike $\tminr{W_2}$ in lahko $M$ naredi korak v $N[W_2/y]$.
-	
-	Če je zadnje pravilo $TyComp-Signal$, potem je $M$ enak $\tmopout{op}{V}{N}$ in po pravilu $R-Signal$ dokažemo (ii).
-	
-	Če je zadnje pravilo $TyComp-Interupt$, potem je $M$ enak $\tmopin{op}{V}{N}$. Izračun $N$ ima tip in po $IP$ lahko naredi korak ali pa je že delna vrednost. Če $N$ lahko naredi korak v $N'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmopin{op}{V}{N'}$. 
-	Če pa je $N$ delni rezultat ločimo štiri možnosti.
-	Če je $N$ enak $\tmreturn{V}$, potem lahko $M$ naredi korak v $\tmreturn{V}$.
-	Če je $N$ enak $\tmopout{op'}{W}{O}$, potem lahko $M$ naredi korak v $\tmopout{op'}{W}{(\tmopin{op}{V}{O})}$.
-	Če je $N$ enak $\tmwith{op'}{x}{O}{p}{O'}$, potem lahko $M$ naredi ali korak v $\tmlet{p}{O[V/x]}{O'}$, če velja $op = op'$, ali v $\tmwith{op'}{x}{O}{p}{\tmopin{op}{V}{O'}}$ sicer.
-	Če pa je $N$ enak $\tmawait{p}{x}{O}$, lahko $M$ naredi korak v $\tmawait{p}{x}{(\tmopin{op}{V}{O})}$.
-	
-	Če je zadnje pravilo $TyComp-promise$, potem je $M$ enak $\tmwith{op}{x}{N_1}{p}{N_2}$. Izračun $N_2$ ima tip in po $IP$ lahko $N_2$ naredi korak ali pa je že delna vrednost. Če $N_2$ lahko naredi korak v $N_2'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmwith{op}{x}{N_1}{p}{N_2'}$.
-	Če pa je $N_2$ delni rezultat, je tudi $M$ delni rezultat.
-	
-	Če je zadnje pravilo $TyComp-Await$, potem je $M$ oblike $\tmawait{V}{p}{N}$.
-	Ločimo dva primera.
-	Če je $V$ spremenljivka v kontekstu $\Gamma$, potem je po pravilu $R-Await$ $M$ delni rezultat.
-	Sicer je $V$ enak $\tmpromise{W}$. Tedaj lahko $M$ naredi korak v $N[W/p]$.
-	
-	Če je zadnje pravilo $TyComp-Subsume$, lahko $IP$ uporabimo direktno na $M$ in posledično lahko $M$ naredi korak ali pa je $M$ delni rezultat.
 \end{proof}
 
 
@@ -634,14 +667,14 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 
 
 \begin{izrek}[o napredku]
-	Naj za proces $P$ velja $\Gamma \types P \of C$. Potem ali (i) obstaja proces $P'$, tak da $P \reduces P'$, ali pa (ii) velja $\ProcResult{P}$.
+	Naj za proces $P$ velja $\emptyset \types P \of C$. Potem ali (i) obstaja proces $P'$, tak da $P \reduces P'$, ali pa (ii) velja $\ProcResult{P}$.
 \end{izrek}
 
 \begin{proof}
 	Ker ima proces $P$ tip, obstaja drevo izpeljave za njegov tip.
 	Dokazujemo z indukcijo na globino drevesa izpeljave za procese.
 	
-	Za $n$ je $1$ imamo en sam primer ko je $P$ enak $\tmrun{M}$. Ker ima $M$ tip, po posledici~\ref{pos:prazen-napredek} velja da, ali lahko $M$ naredi korak v $M'$ ali pa je $M$ delni rezultat.
+	Za $n$ je $1$ imamo en sam primer, ko je $P$ enak $\tmrun{M}$. Ker ima $M$ tip, po posledici~\ref{pos:prazen-napredek} velja da, ali lahko $M$ naredi korak v $M'$ ali pa je $M$ delni rezultat.
 	Če $M$ lahko naredi korak v $M'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmrun{M'}$.
 	Sicer je $M$ delna vrednost in ločimo dva primera.
 	Če je $M$ enak $\tmopout{op}{V}{N}$, potem lahko $P$ naredi korak v $\tmopout{op}{V}{\tmrun{N}}$.
@@ -650,23 +683,28 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 	Sedaj pokažimo da, če velja trditev za $n = 1,...,n$ velja tudi za $n+1$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
-	Če je zadnje pravilo $TyProc-Par$, potem je $P$ enak $\tmpar{Q_1}{Q_2}$. Ker imata $Q_1$ in $Q_2$ tip, lahko po $IP$ naredita korak ali pa sta že rezultata.
-	Če lahko eden izmed njiju naredi korak, recimo $Q_1$ lahko naredi korak v $Q_1'$, lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmpar{Q_1'}{Q_2}$. Podobno dokažemo, če lahko $Q_2$ naredi korak.
-	Sicer sta $Q_1$ in $Q_2$ rezultata. Ločimo dva primera.
-	Če je eden izmed njiju enak $\tmopout{op}{V}{Q'}$, recimo $Q_1$. Potem lahko $P$ naredi korak v $\tmopout{op}{V}{(\tmpair{Q'}{\tmopin{op}{V}{Q_2}})}$. Podobno za $Q_2$.
-	Sicer je tudi $P$ rezultat.
-	
-	Če je zadnje pravilo $TyProc-Signal$, potem je $P$ enak $\tmopout{op}{V}{Q}$. Proces $Q$ ima tip in po $IP$ lahko naredi korak ali pa je rezultat.
-	Če $Q$ lahko naredi korak v $Q'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmopout{op}{V}{Q'}$.
-	Sicer je tudi $P$ rezultat.
-	
-	
-	Če je zadnje pravilo $TyProc-Interrupt$, potem je $P$ enak $\tmopin{op}{V}{Q}$. Proces $Q$ ima tip in po $IP$ lahko naredi korak ali pa je rezultat.
-	Če $Q$ lahko naredi korak v $Q'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmopin{op}{V}{Q'}$.
-	Če pa je $Q$ rezultat ločimo tri primere.
-	Če je $Q$ enak $\tmrun{M}$, potem lahko $P$ naredi korak v $\tmrun{\tmopin{op}{V}{M}}$.
-	Če je $Q$ enak $\tmopout{op'}{V'}{Q'}$, potem lahko $P$ naredi korak v $\tmopout{op'}{V'}{(\tmopin{op}{V}{Q'})}$.
-	Če je $Q$ enak $\tmpar{Q_1}{Q_2}$, potem lahko $P$ naredi korak v $\tmpar{\tmopin{op}{V}{Q_1}}{\tmopin{op}{V}{Q_2}}$.	
+	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{TyProc-Par}, potem je $P$ enak $\tmpar{Q_1}{Q_2}$. Ker imata $Q_1$ in $Q_2$ tip, lahko po $IP$ naredita korak ali pa sta že rezultata.
+		Če lahko eden izmed njiju naredi korak, recimo $Q_1$ lahko naredi korak v $Q_1'$, lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmpar{Q_1'}{Q_2}$. Podobno dokažemo, če lahko $Q_2$ naredi korak.
+		Sicer sta $Q_1$ in $Q_2$ rezultata. Ločimo dva primera.
+		Če je eden izmed njiju enak $\tmopout{op}{V}{Q'}$, recimo $Q_1$. Potem lahko $P$ naredi korak v $\tmopout{op}{V}{(\tmpair{Q'}{\tmopin{op}{V}{Q_2}})}$. Podobno za $Q_2$.
+		Sicer je tudi $P$ rezultat.
+		
+		\item Če je zadnje pravilo \rulename{TyProc-Signal}, potem je $P$ enak $\tmopout{op}{V}{Q}$. Proces $Q$ ima tip in po $IP$ lahko naredi korak ali pa je rezultat.
+		Če $Q$ lahko naredi korak v $Q'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmopout{op}{V}{Q'}$.
+		Sicer je tudi $P$ rezultat.
+		
+		\item Če je zadnje pravilo \rulename{TyProc-Interrupt}, potem je $P$ enak $\tmopin{op}{V}{Q}$. Proces $Q$ ima tip in po $IP$ lahko naredi korak ali pa je rezultat.
+		Če $Q$ lahko naredi korak v $Q'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmopin{op}{V}{Q'}$.
+		Če pa je $Q$ rezultat ločimo tri primere.
+		\begin{itemize}
+			\item Če je $Q$ enak $\tmrun{M}$, potem lahko $P$ naredi korak v $\tmrun{\tmopin{op}{V}{M}}$.
+			\item Če je $Q$ enak $\tmopout{op'}{V'}{Q'}$, potem lahko $P$ naredi korak v $\tmopout{op'}{V'}{(\tmopin{op}{V}{Q'})}$.
+			\item Če je $Q$ enak $\tmpar{Q_1}{Q_2}$, potem lahko $P$ naredi korak v $\tmpar{\tmopin{op}{V}{Q_1}}{\tmopin{op}{V}{Q_2}}$.
+		\end{itemize}
+		
+	\end{itemize}
+		
 \end{proof}
 
 
