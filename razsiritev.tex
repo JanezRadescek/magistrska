@@ -1,5 +1,49 @@
 \section{Razširjen \lae{}}\label{sec:razsirjen-lae}
 
+Poglejmo si primer~\ref{prog:razsiritev-1}, ki bi ga lahko napisali v \aeff{}, ki pripada osnovni verziji \lae{}\nobreakdash-računa. V primeru se dve pomožni vrednosti poračunata v drugem procesu, medtem ko se glavni proces nadaljuje. 
+Primer si lahko predstavljamo kot program, ki v pomožnem procesu poračuna časovno zahteven del, med tem ko glavni proces nemoteno nadaljuje delo.
+%Primer si lahko predstavljamo, kot klient, ki pošlje zahtevo na strežnik, le ta pa mu odgovori. 
+%Ali pa kot program, ki v pomožnem procesu poračuna računsko zahteven del, med tem ko glavni proces nemoteno nadaljuje delo.
+
+\jR{Kaj smo potem rekli glede [ ] ki je hkrati seznam in boxed???}
+
+\begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-0},float,floatplacement=h]
+operation call : int * int * int
+operation result : int * int
+
+let callWith =
+	fun callCounter fNo x ->
+		let callNo = !callCounter in
+		send call (callNo, fNO, x);
+		callCounter := callNo + 1;
+		promise (result (callNo', y) when callNo = callNo' ->
+			return <<y>>
+		) as p in
+		let valueThunk () = awaitValue p in
+		return valueThunk
+
+let remote fList =
+	let rec loop () =
+		promise (call (callNo, fNo, x) ->
+			let f = fList[fNo] in
+			let y = f x in
+			send result (callNo, y);
+			loop ()
+		) as p in
+		return p
+	in
+	loop ()
+
+run	let callCounter = ref 0 in
+	let y1t = callWith callCounter 0 2 in
+	let y2t = callWith callCounter 1 3 in
+	let z = 42 + 7 in
+	return yt () + zt () + z
+
+run remote (fun x |-> 2 * x)::(fun x |-> 7 * x)::[]
+\end{lstlisting}
+
+Ta primer, ima nekaj problemov. Prvi je, da, ker ne moremo pošiljati funkcij, mora imeti \emph{remote} vse funkcije v naprej podane. Temu se bomo izognili z prenosljivimi tipi.
 
 \subsection{Prenosljivi tipi}
 
@@ -98,23 +142,61 @@ Sedaj bo vrstni red v okolju pomemben, zato je okolje od sedaj naprej urejen sez
 	\label{fig:tipi-pravila-prenosljivi}
 \end{figure} 
 
+Sedaj lahko primer~\ref{prog:razsiritev-0} spremenimo v~\ref{prog:razsiritev-1}. Namesto, da ima \emph{remote} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora.  
 
-\begin{lstlisting}[caption={Primer uporabe prenosljivega tipa.},label={prog:primer-prenosljivega-tipa},float,floatplacement=h]
-run let f = [fun x -> (x, x)] in
-    send op f;
-    promise (op' y -> 
-      <y>)
-    as p in
-    await p until <y'> in
-    return y'
+\begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-1},float,floatplacement=h]
+operation call : int * [int -> int] * int
+operation result : int * int
 
-run promise (op f -> 
-    let r = f 3 in
-    send op' r;
-    <()>) 
-    as _ in
-    return ()
+let callWith =
+	fun callCounter fBoxed x ->
+		let callNo = !callCounter in
+		send call (callNo, fBoxed, x);
+		callCounter := callNo + 1;
+		promise (result (callNo', y) when callNo = callNo' ->
+			return <<y>>
+		) as p in
+		let valueThunk () = awaitValue p in
+		return valueThunk
+
+let remote () =
+	let rec loop () =
+		promise (call (callNo, fBoxed, x) ->
+			unbox fBoxed as [f] in
+			let y = f x in
+			send result (callNo, y);
+			loop ()
+		) as p in
+		return p
+	in
+	loop ()
+
+run	let callCounter = ref 0 in
+let y1t = callWith callCounter [fun x |-> 2 * x] 2 in
+let y2t = callWith callCounter [fun x |-> 7 * x] 3 in
+let z = 42 + 7 in
+return yt () + zt () + z
+
+run remote ()
+	
 \end{lstlisting}
+
+%\begin{lstlisting}[caption={Primer uporabe prenosljivega tipa.},label={prog:primer-prenosljivega-tipa},float,floatplacement=h]
+%run let f = [fun x -> (x, x)] in
+%    send op f;
+%    promise (op' y -> 
+%      <y>)
+%    as p in
+%    await p until <y'> in
+%    return y'
+%
+%run promise (op f -> 
+%    let r = f 3 in
+%    send op' r;
+%    <()>) 
+%    as _ in
+%    return ()
+%\end{lstlisting}
 
 
 \subsection{Rekurzivni prestreznik}
@@ -125,17 +207,8 @@ run promise (op f ->
 
 Kadar pričakujemo več prekinitev z isto operacijo, je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko, da je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
 
-To funkcionalnost smo do sedaj dosegli tako, da smo obljubo definirali v pomožni rekurzivni funkciji in po potrebi znotraj obljube ponovno klicali to funkcijo, kot lahko vidimo v programu~\ref{prog:obljuba-v-rekurzivni-funkciji}.
+To funkcionalnost smo do sedaj dosegli tako, da smo obljubo definirali v pomožni rekurzivni funkciji in po potrebi znotraj obljube ponovno klicali to funkcijo, kot lahko vidimo v programu~\ref{prog:razsiritev-2}.
 
-
-\begin{lstlisting}[caption={Obljuba v rekurzivni funkciji.},label={prog:obljuba-v-rekurzivni-funkciji},float,floatplacement=h]
-	let f = rec fun x ->
-	  (promise (op y -> 
-	    send op y;
-	    f()) 
-	  as _ in ()) in
-	f ()
-\end{lstlisting}
 
 Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in kontinuacije $N$ tudi spremenljivko $f$. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
 
@@ -193,19 +266,51 @@ Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrez
 	\label{fig:tipi-pravila-rekurzivni-prestreznik}
 \end{figure} 
 
-Program~\ref{prog:rekurzivna-obljuba} ima isti semantičen pomen kot program~\ref{prog:obljuba-v-rekurzivni-funkciji}, le da je tokrat napisan z rekurzivno obljubo.
+Program~\ref{prog:razsiritev-2} ima isti semantičen pomen kot program~\ref{prog:razsiritev-1}, le da je tokrat napisan z rekurzivno obljubo.
 
-\begin{lstlisting}[caption={Rekurzivna obljuba.},label={prog:rekurzivna-obljuba},float,floatplacement=h]
-promise (op x f -> 
-send op x;
-f())
-as _ in ()
+\begin{lstlisting}[caption={Primer z rekurzivnim prestreznikom},label={prog:razsiritev-2},float,floatplacement=h]
+operation call : int * [int -> int] * int
+operation result : int * int
+
+let callWith =
+	fun callCounter fBoxed x ->
+		let callNo = !callCounter in
+		send call (callNo, fBoxed, x);
+		callCounter := callNo + 1;
+		promise (result (callNo', y) when callNo = callNo' ->
+			return <<y>>
+		) as p in
+		let valueThunk () = awaitValue p in
+		return valueThunk
+
+let remote () =
+	promise (call f (callNo, fBoxed, x) ->
+		unbox fBoxed as [f] in
+		let y = f x in
+		send result (callNo, y);
+		f()
+	) as _ in
+	()
+
+run	let callCounter = ref 0 in
+	let y1t = callWith callCounter [fun x |-> 2 * x] 2 in
+	let y2t = callWith callCounter [fun x |-> 7 * x] 3 in
+	let z = 42 + 7 in
+	return yt () + zt () + z
+
+run remote ()
 \end{lstlisting}
 
 
 \subsection{Dinamični procesi}
 
-Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti na začetku. Da odstranimo to omejitev, dodamo dinamično ustvarjanje procesov s pomočjo izračuna $\tmspawn{M}{N}$. Le ta se bo pomikal navzven. Ko bo postal zgornji izračun v procesu, se bo ta proces razcepil v dva procesa. Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
+Funkcije $f$ v remote call se potencialno izvaja zelo počasi. Zato si želimo, da bi vsak $remote klic$ lahko opravili v svojem procesu, da lahko izvajamo vzporedno namesto zaporedno. 
+Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti na začetku.
+Posledično bi morali vnaprej vedeti, koliko klicov bo remote hkrati dobil, da bi imeli temu primerno pripravljenih procesov.
+
+Da rešimo ta problem, dodamo dinamično ustvarjanje novih procesov s pomočjo izračuna $\tmspawn{M}{N}$. 
+Le ta se bo pomikal navzven. Ko bo postal zgornji izračun v procesu, se bo ta proces razcepil v dva procesa. 
+Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
 
 
 \begin{figure}[h]	
@@ -254,75 +359,57 @@ Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo 
 \end{figure}
 
 
-Na primeru~\ref{prog:primer-dinamičen-proces} imamo program, ki naredi isto kot primer~\ref{prog:primer-prenosljivega-tipa}, le da tokrat uporabimo izračun $\tmkw{Spawn}$.
+Sedaj ko imamo dinamične procese, lahko obe evalvaciji funkcije $f$ opravimo hkrati v svojem procesu, kar potencialno pohitri izvajanje programa. Primer~\ref{prog:razsiritev-2} lahko sedaj spremenimo v~\ref{prog:razsiritev-3}. 
 
-\begin{lstlisting}[caption={Primer uporabe dinamičnih procesov.},label={prog:primer-dinamičen-proces},float,floatplacement=h]
-run let f = fun x -> (x, x) in
-    spawn(
-      let r = f 3 in
-      send op r;
-      (),
-      
-      promise (op x -> <x>)
-      as p in
-      await p until <x'> in
-      return x')
+\begin{lstlisting}[caption={Primer z dinamičnimi procesi},label={prog:razsiritev-3},float,floatplacement=h]
+operation call : int * [int -> int] * int
+operation result : int * int
+
+let callWith =
+	fun callCounter fBoxed x ->
+		let callNo = !callCounter in
+		send call (callNo, fBoxed, x);
+		callCounter := callNo + 1;
+		promise (result (callNo', y) when callNo = callNo' ->
+			return <<y>>
+		) as p in
+		let valueThunk () = awaitValue p in
+		return valueThunk
+
+let remote () =
+	promise (call f (callNo, fBoxed, x) ->
+		unbox fBoxed as [f] in
+		spawn(
+			let y = f x in
+			send result (callNo, y)
+		);
+		f()
+	) as _ in
+	()
+
+run	let callCounter = ref 0 in
+let y1t = callWith callCounter [fun x |-> 2 * x] 2 in
+let y2t = callWith callCounter [fun x |-> 7 * x] 3 in
+let z = 42 + 7 in
+return yt () + zt () + z
+
+run remote ()
 \end{lstlisting}
 
 
-
-
-
-%\subsection{Poenostavljeni rezultati}
-%
-%V operacijsko semantiko dodamo dve novi pravili. Prvo potegne blokado ven iz zaporedja. Drugo pravilo prestavi prekinitev takoj za blokado. Obe pravili skupaj dosežeta dvoje. Malenkost večji del prvotnega izračuna je postal asinhron. Kar nam lahko v nekaterih primerih nekoliko pohitri izvajanje, če bo obljuba izpolnjena in bomo nadaljevali z izvajanjem tega dela. Druga prednost pa je, da izračun, ki je v čakajočem stanju, se vedno začne z izračunom $\tmkw{Await}$. Posledično je prepoznati ali je izračun v čakajočem stanju trivialno in se delni rezultati nekoliko poenostavijo. 
-%
-%Rezultati ostanejo enaki kot v \cite{aeff}.
-%
-%
-%\begin{figure}[h]
-%	\centering
-%	\small
-%	\begin{align*}
-%	\intertext{\textbf{Algebraičnost blokade}}
-%	\tmlet{x}{(\tmawait{V}{y}{M})}{N} & \reduces \tmawait{V}{y}{(\tmlet{x}{M}{N})}
-%	\\[1ex]
-%	\intertext{\textbf{Komutativnost blokade in prekinitve}}
-%	\tmopin{op}{V}{\tmawait{W}{x}{M}} &\reduces \tmawait{W}{x}{\tmopin{op}{V}{M}}
-%	\end{align*}
-%	
-%	\caption{Dodatna pravila operacijske semantike.}
-%	\label{fig:operacijska-semantika-poenostavitev}
-%\end{figure}
-%
-%
-%\begin{figure}[h]
-%	\centering
-%	\small
-%	\begin{mathpar}
-%	\coopinfer{}{
-%	}{
-%		\RunResult {\Psi} {\tmreturn V}
-%	}
-%	\\
-%	\coopinfer{}{
-%		\RunResult {\Psi \cup \{p\}} {N}
-%	}{
-%		\RunResult {\Psi} {\tmwith {op} x M p N}
-%	}
-%	\quad
-%	\coopinfer{}{
-%		p \in \Psi \\
-%		\tmawait p x M
-%	}{
-%		\RunResult {\Psi} {M}
-%	}
-%	\end{mathpar}
-%
-%	\caption{Poenostavljeni delni rezultati.}
-%	\label{fig:rezultati-poenostavitev}
-%\end{figure}
-
+%Na primeru~\ref{prog:primer-dinamičen-proces} imamo program, ki naredi isto kot primer~\ref{prog:primer-prenosljivega-tipa}, le da tokrat uporabimo izračun $\tmkw{Spawn}$.
+%\begin{lstlisting}[caption={Primer uporabe dinamičnih procesov.},label={prog:primer-dinamičen-proces},float,floatplacement=h]
+%run let f = fun x -> (x, x) in
+%    spawn(
+%      let r = f 3 in
+%      send op r;
+%      (),
+%      
+%      promise (op x -> <x>)
+%      as p in
+%      await p until <x'> in
+%      return x')
+%\end{lstlisting}
 
 
 \subsection{Varnost}
