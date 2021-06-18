@@ -219,7 +219,7 @@ Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z reku
 	\begin{align*}
 	M, N
 	\bnfis& ...                            & &\text{obstoječi izračuni} \\
-	\bnfor& \tmwithrec{op}{f}{V}{M}{p}{N}  & &\text{rekurzivni prestreznik}
+	\bnfor& \tmwithrec{op}{f}{x}{M}{p}{N}  & &\text{rekurzivni prestreznik}
 	\end{align*}
  
 	\caption{Izračuni z rekurzivnim prestreznikom}
@@ -254,7 +254,7 @@ Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrez
 	\centering
 	\small
 	\begin{mathpar}
-		\coopinfer{}{\i\, (\op) = ({\o'} , {\i'}) \\
+		\coopinfer{}{\i\, (\op) \order{O \times I} ({\o'} , {\i'}) \\
 			\Gamma, x \of \tymobile{A}_\op, f \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\o', \i'}} \types M : \tycomp{\typromise B}{\o',\i'} \\
 			\Gamma, p \of \typromise B \types N : \tycomp{C}{\o,\i}
 		}{

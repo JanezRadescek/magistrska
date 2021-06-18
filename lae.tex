@@ -571,17 +571,17 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 
 
 \begin{trditev}[o napredku]\label{trd:gamma-napredek}
-	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$, kjer je $\Gamma = \{(x_1,\typromise{A_1}),(x_2,\typromise{A_2}),...,(x_i,\typromise{A_i})\}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\RunResult{\Gamma}{M}$.
+	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$, kjer je $\Gamma = x_1 \of \typromise{A_1}, x_2 \of \typromise{A_2},..., x_i \of \typromise{A_i}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\RunResult{\Gamma}{M}$.
 \end{trditev}
 
 \begin{proof}
 	Ker ima izračun $M$ tip, obstaja drevo izpeljave za njegov tip.
-	Dokazujemo z indukcijo na globino drevesa izpeljave za izračune.
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za izračune.
 	
-	Za $n$ je $1$ imamo en sam primer, ko je uprabljeno pravilo \rulename{TyComp-Return} in je $M$ enak $\tmreturn{V}$. 
+	Osnovni primer je en sam, ko je uprabljeno pravilo \rulename{TyComp-Return} in je $M$ enak $\tmreturn{V}$. 
 	Po pravilu \rulename{R-Return} sledi, da je $M$ delni rezultat in velja (ii).
 	
-	Sedaj pokažimo da, če velja trditev za $n = 1,...,n$ velja tudi za $n+1$.
+	Sedaj pokažimo, da trditev velja tudi za rekurzivno definirane izračune.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	
@@ -601,7 +601,10 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{V}{(x,y) \mapsto N}$. Ker ima vrednost $V$ tip $X \times Y$ in v kontekstu nobena spremenljivka nima tipa $X \times Y$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $(W_1,W_2)$. Posledično lahko $M$ naredi korak v izračun $N[W_1/x,W_2/y]$.
 		
-		\item Zadnje pravilo ne more biti \rulename{TyComp-MatchEmpty}, saj bi potem morali imeti vrednost tipa $0$. Vrednost tega tipa ne obstaja.
+		\item Zadnje pravilo ne more biti \rulename{TyComp-MatchEmpty}. Če bi bilo zadnje pravilo \rulename{TyComp-MatchEmpty}, bi vrednost $V$ imela tip $0$. 
+		Ker v kontekstu nobena spremenljivka nima tipa $0$, $V$ ne more biti spremenljivka po lemi~\ref{lem:ni-spremenljivka}.
+		Ker ne obstaja nobeno drugo pravilo za tip $0$, take vrednosti ne moremo imeti, in posledično zadnje uporabljeno pravilo ne more biti \rulename{TyComp-MatchEmpty}.
+
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $\tmmatch{V}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}$.
 		Ker ima vrednost $V$ tip $X + Y$ in v kontekstu nobena spremenljivka nima tipa $X + Y$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $\tminl{W_1}$ ali $\tminr{W_2}$.
@@ -652,15 +655,15 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 
 \begin{proof}
 	Ker ima proces $P$ tip, obstaja drevo izpeljave za njegov tip.
-	Dokazujemo z indukcijo na globino drevesa izpeljave za procese.
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za procese.
 	
-	Za $n$ je $1$ imamo en sam primer, ko je $P$ enak $\tmrun{M}$. Ker ima $M$ tip, po posledici~\ref{pos:prazen-napredek} velja da, ali lahko $M$ naredi korak v $M'$ ali pa je $M$ delni rezultat.
+	Osnovni primer je en sam, ko je $P$ enak $\tmrun{M}$. Ker ima $M$ tip, po posledici~\ref{pos:prazen-napredek} velja da, ali lahko $M$ naredi korak v $M'$ ali pa je $M$ delni rezultat.
 	Če $M$ lahko naredi korak v $M'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmrun{M'}$.
 	Sicer je $M$ delna vrednost in ločimo dva primera.
 	Če je $M$ enak $\tmopout{op}{V}{N}$, potem lahko $P$ naredi korak v $\tmopout{op}{V}{\tmrun{N}}$.
 	Sicer je tudi $P$ rezultat.
 	
-	Sedaj pokažimo da, če velja trditev za $n = 1,...,n$ velja tudi za $n+1$.
+	Sedaj pokažimo, da izrek velja tudi za rekurzivno definirane procese.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
@@ -688,23 +691,56 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{proof}
 
 
+\begin{lema}\label{lem:enolicnost-osnovnega-tipa}
+	Če velja $\Gamma \types M \of \tycomp{A}{\o, \i}$ in $\Gamma \types M \of \tycomp{A'}{\o', \i'}$, potem velja $A = A'$.
+\end{lema}
 
-\begin{lema}[o substituciji]
+\begin{proof}
+	content...
+\end{proof}
+
+
+\begin{lema}[o substituciji za vrednosti]\label{lem:substitucija-vrednosti}
+	Naj za vrednost $V$ velja $\Gamma \types V \of A$ in za vrednost $W$ velja $\Gamma, x \of A \types W \of B$. Potem velja $\Gamma \types W[V/x] \of B$.
+\end{lema}
+
+\begin{proof}
+	content...
+\end{proof}
+
+
+\begin{lema}[o substituciji za izračune]\label{lem:substitucija-izračuni}
 	Naj za vrednost $V$ velja $\Gamma \types V \of A$ in za izračun $M$ velja $\Gamma, x \of A \types M \of \tycomp{B}{\o, \i}$. Potem velja $\Gamma \types M[V/x] \of \tycomp{B}{\o, \i}$.
 \end{lema}
 
 \begin{proof}
 	Ker ima izračun $M$ tip, obstaja drevo izpeljave za njegov tip.
-	Dokazujemo z indukcijo na globino drevesa izpeljave za izračune.
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za izračune.
 	
-	Za $n$ je $1$ imamo en sam primer, ko je $M$ enak $\tmreturn{W}$.
-	Če je $W = x$, potem je $B = A$ in $M[V/x] = \tmreturn{V}$. Ker ima $V$ tip $A$, ima $\tmreturn{V}$ tip $\tycomp{A}{\o, \i}$. Ker je $A = B$, ima $M[V/x]$ tip $\tycomp{B}{\o, \i}$.
-	Če je $W \neq x$, potem je $M[V/x] = M$ in posledično ima $M[V/x]$ tip $\tycomp{B}{\o, \i}$.
+	Osnovni primer je en sam, ko je $M$ enak $\tmreturn{W}$. Ker ima $\tmreturn{W}$ tip $\tycomp{B}{\o, \i}$, ima $W$ tip $B$.
+	Po lemi~\ref{lem:substitucija-vrednosti} ima $W[V/x]$ tip $B$. Po pravilu \rulename{TyComp-Return} ima $\tmreturn{W[V/x]}$ tip $\tycomp{B}{\o, \i}$. Ker je $M[V/x]$ enak $\tmreturn{W[V/x]}$, ima tudi $M[V/x]$ tip $\tycomp{B}{\o, \i}$.
+%	\begin{itemize}
+%		\item Če je $W = x$, potem je $M$ enak  $\tmreturn{x}$ in ima tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:enolicnost-osnovnega-tipa} velja $B = A$ in posledično $\tycomp{A}{\o, \i} = \tycomp{B}{\o, \i}$. Izraz $M[V/x]$ je enak $\tmreturn{V}$. Ker ima $V$ tip $A$, ima $\tmreturn{V}$ tip $\tycomp{A}{\o, \i}$. Ker je $\tycomp{A}{\o, \i} = \tycomp{B}{\o, \i}$, ima $M[V/x]$ tip $\tycomp{B}{\o, \i}$.
+%		\item Če je $W \neq x$, potem je $M[V/x] = M$ in posledično ima $M[V/x]$ tip $\tycomp{B}{\o, \i}$.
+%	\end{itemize}
 	
-	Sedaj pokažimo da, če velja trditev za $n = 1,...,n$ velja tudi za $n+1$.
+	
+	Sedaj pokažimo, da lema velja tudi za rekurzivno definirane izračune.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
-	... TODO
+	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$. Izračuna $N_1$ in $N_2$ imata tip $\tycomp{C}{\o, \i}$ in $\tycomp{B}{\o, \i}$.
+		Po $IP$ velja, da imata $N_1[V/x]$ in $N_2[V/x]$ isti tip. Ker je $M[V/x]$ enak $\tmlet{x}{N_1[V/x]}{N_2[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Let}.
+		
+		\item Če je uporabljeno pravilo \rulename{TyComp-Apply}, potem je $M$ enak $W_1 W_2$. Vrednost $W_1$ ima tip $\tyfun{C}{\tycomp{B}{\o, \i}}$ in vrednost $W_2$ ima tip $C$.
+		Po lemi~\ref{lem:substitucija-vrednosti} imata $W_1[V/x]$ in $W_2[V/]$ isti tip. Ker je $M[V/x]$ enak $W_1[V/x] W_2[V/x]$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Apply}.
+		
+		\item ...TODO
+	\end{itemize}
+
+
+
+
 \end{proof}
 
 \begin{trditev}[o ohranitvi]
