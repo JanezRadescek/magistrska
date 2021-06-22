@@ -1,6 +1,6 @@
 \section{Razširjen \lae{}}\label{sec:razsirjen-lae}
 
-Poglejmo si primer~\ref{prog:razsiritev-1}, ki bi ga lahko napisali v \aeff{}, ki pripada osnovni verziji \lae{}\nobreakdash-računa. V primeru se dve pomožni vrednosti poračunata v drugem procesu, medtem ko se glavni proces nadaljuje. 
+Poglejmo si primer~\ref{prog:razsiritev-0}, ki bi ga lahko napisali v \aeff{}, ki pripada osnovni verziji \lae{}\nobreakdash-računa. V primeru se dve pomožni vrednosti poračunata v drugem procesu, medtem ko se glavni proces nadaljuje. 
 Primer si lahko predstavljamo kot program, ki v pomožnem procesu poračuna časovno zahteven del, med tem ko glavni proces nemoteno nadaljuje delo.
 %Primer si lahko predstavljamo, kot klient, ki pošlje zahtevo na strežnik, le ta pa mu odgovori. 
 %Ali pa kot program, ki v pomožnem procesu poračuna računsko zahteven del, med tem ko glavni proces nemoteno nadaljuje delo.
@@ -14,10 +14,10 @@ operation result : int * int
 let callWith =
 	fun callCounter fNo x ->
 		let callNo = !callCounter in
-		send call (callNo, fNO, x);
+		send call (callNo, fNo, x);
 		callCounter := callNo + 1;
 		promise (result (callNo', y) when callNo = callNo' ->
-			return <<y>>
+			return <y>
 		) as p in
 		let valueThunk () = awaitValue p in
 		return valueThunk
@@ -35,10 +35,10 @@ let remote fList =
 	loop ()
 
 run	let callCounter = ref 0 in
-	let y1t = callWith callCounter 0 2 in
-	let y2t = callWith callCounter 1 3 in
+	let y1 = callWith callCounter 0 2 in
+	let y2 = callWith callCounter 1 3 in
 	let z = 42 + 7 in
-	return yt () + zt () + z
+	return y1 () + y2 () + z
 
 run remote (fun x |-> 2 * x)::(fun x |-> 7 * x)::[]
 \end{lstlisting}
@@ -142,7 +142,7 @@ Sedaj bo vrstni red v okolju pomemben, zato je okolje od sedaj naprej urejen sez
 	\label{fig:tipi-pravila-prenosljivi}
 \end{figure} 
 
-Sedaj lahko primer~\ref{prog:razsiritev-0} spremenimo v~\ref{prog:razsiritev-1}. Namesto, da ima \emph{remote} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora.  
+Sedaj lahko program~\ref{prog:razsiritev-0} spremenimo v program~\ref{prog:razsiritev-1}. Namesto, da ima \emph{remote} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora.  
 
 \begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-1},float,floatplacement=h]
 operation call : int * [int -> int] * int
@@ -154,7 +154,7 @@ let callWith =
 		send call (callNo, fBoxed, x);
 		callCounter := callNo + 1;
 		promise (result (callNo', y) when callNo = callNo' ->
-			return <<y>>
+			return <y>
 		) as p in
 		let valueThunk () = awaitValue p in
 		return valueThunk
@@ -172,10 +172,10 @@ let remote () =
 	loop ()
 
 run	let callCounter = ref 0 in
-let y1t = callWith callCounter [fun x |-> 2 * x] 2 in
-let y2t = callWith callCounter [fun x |-> 7 * x] 3 in
+let y1 = callWith callCounter [fun x |-> 2 * x] 2 in
+let y2 = callWith callCounter [fun x |-> 7 * x] 3 in
 let z = 42 + 7 in
-return yt () + zt () + z
+return y1 () + y2 () + z
 
 run remote ()
 	
@@ -278,7 +278,7 @@ let callWith =
 		send call (callNo, fBoxed, x);
 		callCounter := callNo + 1;
 		promise (result (callNo', y) when callNo = callNo' ->
-			return <<y>>
+			return <y>
 		) as p in
 		let valueThunk () = awaitValue p in
 		return valueThunk
@@ -293,10 +293,10 @@ let remote () =
 	()
 
 run	let callCounter = ref 0 in
-	let y1t = callWith callCounter [fun x |-> 2 * x] 2 in
-	let y2t = callWith callCounter [fun x |-> 7 * x] 3 in
+	let y1 = callWith callCounter [fun x |-> 2 * x] 2 in
+	let y2 = callWith callCounter [fun x |-> 7 * x] 3 in
 	let z = 42 + 7 in
-	return yt () + zt () + z
+	return y1 () + y2 () + z
 
 run remote ()
 \end{lstlisting}
@@ -371,7 +371,7 @@ let callWith =
 		send call (callNo, fBoxed, x);
 		callCounter := callNo + 1;
 		promise (result (callNo', y) when callNo = callNo' ->
-			return <<y>>
+			return <y>
 		) as p in
 		let valueThunk () = awaitValue p in
 		return valueThunk
@@ -388,10 +388,10 @@ let remote () =
 	()
 
 run	let callCounter = ref 0 in
-let y1t = callWith callCounter [fun x |-> 2 * x] 2 in
-let y2t = callWith callCounter [fun x |-> 7 * x] 3 in
+let y1 = callWith callCounter [fun x |-> 2 * x] 2 in
+let y2 = callWith callCounter [fun x |-> 7 * x] 3 in
 let z = 42 + 7 in
-return yt () + zt () + z
+return y1 () + y2 () + z
 
 run remote ()
 \end{lstlisting}

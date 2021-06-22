@@ -33,11 +33,11 @@ Prestreznik vsebuje ime operacije, ime spremeljivke, Izračun M in izračun N.
 blokada
 
 
-Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
+Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 
 
 
-\begin{figure}[h]
+\begin{figure}[H]
 	\parbox{\textwidth}{
 		\centering
 		\small
@@ -84,7 +84,7 @@ Pripadajočo sintakso vidimo na~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 
 Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z relacijo korak $M \reduces N$. Redukcijska pravila za izračune so podana na sliki~\ref{fig:small-step-semantics-of-computations}. Redukcijska pravila za procese so podana na sliki~\ref{fig:small-step-semantics-of-processes}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
 	\small
 	\begin{align*}
@@ -143,11 +143,11 @@ Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z 
 	\bnfor \tmwith{op}{x}{M}{p}{\E}
 	\end{align*}
 	
-	\caption{Operacijska semantika malih korakov za izračune.}
+	\caption{Redukcijska pravila za izračune.}
 	\label{fig:small-step-semantics-of-computations}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
 	\small
 	\begin{minipage}[t]{0.4\textwidth}
@@ -199,16 +199,16 @@ Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z 
 	\bnfor \tmopin{op}{V}{\F}
 	\end{align*}
 	
-	\caption{Operacijska semantika malih korakov za procese.}
+	\caption{Redukcijska pravila za procese.}
 	\label{fig:small-step-semantics-of-processes}
 \end{figure}
 
-Poleg teh pravil, ki so identična pravilom iz \cite{aeff}, dodamo še dve novi.
+Poleg teh pravil, ki so identična pravilom iz članka od Ahmana in Pretnarja~\cite{aeff}, dodamo še dve novi.
 Prvo pravilo potegne blokado ven iz zaporedja. Drugo pravilo prestavi prekinitev takoj za blokado. Obe pravili skupaj dosežeta dvoje. Malenkost večji del prvotnega izračuna je postal asinhron. Kar nam lahko v primeru, da bo obljuba izpolnjena in bomo nadaljevali z izvajanjem tega dela, nekoliko pohitri izvajanje. Druga prednost pa je, da izračun, ki je v čakajočem stanju, se vedno začne z izračunom $\tmkw{Await}$. Posledično je prepoznati ali je izračun v čakajočem stanju trivialno in se bodo delni rezultati nekoliko poenostavili. 
 
-Rezultati ostanejo enaki kot v \cite{aeff}.
+Rezultati ostanejo enaki kot v originalnem članku~\cite{aeff}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
 	\small
 	\begin{align*}
@@ -244,17 +244,18 @@ Tipi učinkov $\o$ in $\i$ so elementi množice $O$ oziroma $I$.
 Množica $\sig$ je množica vseh operacij, ki jih imamo na voljo.
 Množica $O$ je preprosto potenčna množica množice $\sig$ in posledično $\o$ predstavlja množico signalov, ki jih izračun lahko sproži.
 
-Ko prestrežemo neko prekinitev lahko ustrezen izračun obljuba začne sprožati nove signale in prestrezati nove prekinitve. Zato $I$ definiramo kot največjo fiksno točko preslikave $\omega$ definirane kot 
-$$\Omega(X) = \sig \Rightarrow (O \times X)_\bot $$,
+Ko prestrežemo neko prekinitev lahko ustrezen izračun obljuba začne sprožati nove signale in prestrezati nove prekinitve. Zato $I$ definiramo kot največjo fiksno točko preslikave $\Omega$ definirane kot 
+$$\Omega(X) = \sig \Rightarrow (O \times X)_\bot ,$$
 kjer je $\Rightarrow$ potenciranje, $\times$ je kartezični produkt in $(-)_\bot$ je dvig.
 
+...TODO
 
 Tipi procesov so odvisni od tipov izračunov in posledično vsebujejo tipe učinkov.
 
 Pravila za dodelitev tipa vidimo na sliki~\ref{fig:value-typing-rules} in~\ref{fig:computation-typing-rules}.
 
 
-\begin{figure}[h]
+\begin{figure}[H]
 	\parbox{\textwidth}{
 		\centering
 		\small
@@ -280,7 +281,7 @@ lahko naredi korak v izračun
 $$ \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}} $$,
 je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu spremenljivka $p$ v vrednosti $V$ ni več dobro definiran. Da zagotovimo, da vrednost $V$ ne vsebuje spremenljivke $p$, omejimo tipe, ki pripadajo operacijam, na osnovne tipe.
 
-\begin{figure}[t]
+\begin{figure}[H]
 	\centering
 	\small
 	\begin{align*}
@@ -293,7 +294,7 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 
 
 
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
 	\small
 	\begin{mathpar}
@@ -363,7 +364,7 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 	\label{fig:value-typing-rules}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
 	\small
 	\begin{mathpar}
@@ -451,7 +452,7 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 	\label{fig:computation-typing-rules}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
 	\small
 	\begin{mathpar}
@@ -487,7 +488,7 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 	\label{fig:process-typing-rules}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
 
 	\textbf{Delni rezultati}
@@ -549,8 +550,28 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 
 Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku nam zagotavlja, da ne moremo dobiti runtime, če imamo tipe, kot smo jih definirali.
 
+%\begin{lema}\label{lem:ni-spremenljivka}
+%	Če za vrednost $V$ velja $\Gamma \types V \of A$, kjer je $A$ tip, ki se ne pojavi v kontekstu $\Gamma$, potem vrednost $V$ ni spremenljivka.
+%	\begin{itemize}
+%		\item Če je $A$ enak $B_1 \times B_2$, potem je $V$ enak $(W_1,W_2)$.
+%		\item Če je $A$ enak $B_1 + B_2$, potem je $V$ ali enak $\tminl{W_1}$ ali $\tminr{W_2}$.
+%		\item Če je $A$ enak $\tyfun{B_1}{\tycomp{B_2}{\o, \i}}$, potem je $V$ ali enak $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$.
+%	\end{itemize}
+%\end{lema}
+%
+%\begin{proof}
+%	Predpostavimo, da je $V$ spremenljivka. Edino pravilo za določitev tipa spremenljivke je \rulename{TIP-VAR}. Od tod sledi, da je tip $A$ v kontekstu $\Gamma$. Kar je v protislovju z predpostavko leme, da se tip $A$ ne pojavi v kontekstu $\Gamma$.
+%	\begin{itemize}
+%		\item Edini pravili za tip $B_1 \times B_2$ sta \rulename{Ty-Var} in \rulename{Ty-Pair}. Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Pair}. Posledično je $V$ oblike $\tmpair{W_1}{W_2}$.
+%		
+%		\item Edina pravila za tip $B_1 + B_2$ so \rulename{Ty-Var}, \rulename{Ty-Inl} in \rulename{Ty-Inr}. Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Inl} ali \rulename{Ty-Inr}. Posledično je $V$ oblike $\tminl{W_1}$ ali $\tminr{W_2}$.
+%		
+%		\item Edina pravila za tip $\tyfun{B_1}{\tycomp{B_2}{\o, \i}}$ so \rulename{Ty-Var}, \rulename{Ty-Fun} in \rulename{Ty-Fun-Rec}. Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Fun} ali \rulename{Ty-Fun-Rec}. Posledično je $V$ oblike $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$.
+%	\end{itemize}
+%\end{proof}
+
 \begin{lema}\label{lem:ni-spremenljivka}
-	Če za vrednost $V$ velja $\Gamma \types V \of A$, kjer je $A$ tip, ki se ne pojavi v kontekstu $\Gamma$, potem vrednost $V$ ni spremenljivka.
+	Če za vrednost $V$ velja $x_1 \of \typromise{A_1}, x_2 \of \typromise{A_2}, ..., x_n \of \typromise{A_n} \types V \of A$, kjer je $A$ tip, ki se ne pojavi v kontekstu $\Gamma$, potem vrednost $V$ ni spremenljivka.
 	\begin{itemize}
 		\item Če je $A$ enak $B_1 \times B_2$, potem je $V$ enak $(W_1,W_2)$.
 		\item Če je $A$ enak $B_1 + B_2$, potem je $V$ ali enak $\tminl{W_1}$ ali $\tminr{W_2}$.
@@ -559,7 +580,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{lema}
 
 \begin{proof}
-	Predpostavimo, da je $V$ spremenljivka. Edino pravilo za določitev tipa spremenljivke je \rulename{TIP-VAR}. Od tod sledi, da je tip $A$ v kontekstu $\Gamma$. Kar je v protislovju z predpostavko izreka, da se tip $A$ ne pojavi v kontekstu $\Gamma$.
+	Predpostavimo, da je $V$ spremenljivka. Edino pravilo za določitev tipa spremenljivke je \rulename{TIP-VAR}. Od tod sledi, da je tip $A$ v kontekstu $\Gamma$. Kar je v protislovju z predpostavko leme, da se tip $A$ ne pojavi v kontekstu $\Gamma$.
 	\begin{itemize}
 		\item Edini pravili za tip $B_1 \times B_2$ sta \rulename{Ty-Var} in \rulename{Ty-Pair}. Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Pair}. Posledično je $V$ oblike $\tmpair{W_1}{W_2}$.
 		
@@ -691,20 +712,38 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{proof}
 
 
-%\begin{lema}\label{lem:enolicnost-osnovnega-tipa}
-%	Če velja $\Gamma \types M \of \tycomp{A}{\o, \i}$ in $\Gamma \types M \of \tycomp{A'}{\o', \i'}$, potem velja $A = A'$.
-%\end{lema}
-%
-%\begin{proof}
-%	content...
-%\end{proof}
+Ko imamo par procesov in eden izmed njiju pošlje signal, se bo ta signal spremenil v prekinitev na drugem procesu. 
+Le to bo povzročilo, da se bo tip efektov spremenil na drugem procesu.
+Potencialno spremembo tipa formaliziramo z pravili za redukcijo tipov, ki jih lahko vidimo na sliki~\ref{fig:process-type-reductions}.
 
+\begin{figure}[H]
+	\centering
+	\begin{mathpar}
+		\coopinfer{TyRedu-Same}{
+		}{
+			\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\o, \i}
+		}
+		\quad
+		\coopinfer{TyRedu-Change}{
+		}{
+			\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\opincomp{op}{\o, \i}}
+		}
+		\\
+		\coopinfer{TyRedu-Pair}{
+			C \tyreduces C' \\
+			D \tyreduces D'
+		}{
+			\typar{C}{D} \tyreduces \typar{C'}{D'}
+		}
+	\end{mathpar}
+	\caption{Pravila za redukcijo tipov.}
+	\label{fig:process-type-reductions}
+	
+\end{figure}
 
-%Kaj naj z kontekstom? Naj ga vedno pišem, samo kadar ni očiten???
-%Kaj naj z napredkom? Naredi tudi tip korak v ???
 
 \begin{lema}\label{lem:strengthening-gamma}
-	Naj velja $\Gamma_1, x \of A, \Gamma_2 \types y \of B$ za $y \neq x$. Potem velja $\Gamma_1, \Gamma_2 \types y \of B$.
+	Naj za spremenljivko $y$ velja $\Gamma_1, x \of A, \Gamma_2 \types y \of B$ za $y \neq x$. Potem velja $\Gamma_1, \Gamma_2 \types y \of B$.
 \end{lema}
 
 \begin{proof}
@@ -713,7 +752,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 
 
 \begin{lema}[o substituciji za vrednosti]\label{lem:substitucija-vrednosti}
-	Naj za vrednost $V$ velja $\Gamma \types V \of A$ in za vrednost $W$ velja $\Gamma, x \of A \types W \of B$. Potem velja $\Gamma \types W[V/x] \of B$.
+	Naj za vrednost $V$ velja $\Gamma_1 \types V \of A$ in za vrednost $W$ velja $\Gamma_1, x \of A, \Gamma_2 \types W \of B$. Potem velja $\Gamma_1, \Gamma_2 \types W[V/x] \of B$.
 \end{lema}
 
 \begin{proof}
@@ -721,28 +760,22 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 	Dokazujemo z strukturno indukcijo na drevo izpeljave za vrednosti.
 	
 	
-	Za osnovni primer imamo več možnosti, ki jih ločimo glede na uporabljeno pravilo.
-	\begin{itemize}
-		\item Če je uporabljeno pravilo \rulename{Ty-Cons-N}, potem je $W$ enak $n$ in $B$ enak $int$. Ker je $n[V/x] = n$, ima $W[V/x]$ tip $int = B$.
-		\item Če je uporabljeno pravilo \rulename{Ty-Cons-T}, potem je $W$ enak $true$ in $B$ enak $bool$. Ker je $true[V/x] = true$, ima $W[V/x]$ tip $bool = B$. 
-		\item Če je uporabljeno pravilo \rulename{Ty-Cons-F}, potem je $W$ enak $false$ in $B$ enak $bool$. Ker je $false[V/x] = false$, ima $W[V/x]$ tip $bool = B$.
-		\item Če je uporabljeno pravilo \rulename{Ty-Var}, potem je $W$ enak $a$. Ločimo dva primera.
-		\begin{itemize}
-			\item Če je spremenljivka $a = x$, potem je $a[V/x] = V$. Ker je $B = A$, je tip $W[V/x] = V$ enak $B$.
-			\item Če je spremenljivka $a \neq x$, potem je $W[V/x] = a$. Po lemi~\ref{lem:strengthening-gamma} ima $a$ tip $B$.
-		\end{itemize}
-		
-		
-	\end{itemize}
-
-	
-	Sedaj pokažimo, da lema velja tudi za rekurzivno definirane izračune.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{Ty-Cons-N}, potem je $W=n$ in $B=int$. Ker je $W[V/x] = n[V/x] = n$, ima $W[V/x]$ tip $int = B$, po pravilu \rulename{Ty-Cons-N}.
+		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $W=true$ in $B=bool$. Ker je $W[V/x] = true[V/x] = true$, ima $W[V/x]$ tip $bool = B$, po pravilu \rulename{Ty-Cons-T}. 
+		\item Če je zadnje pravilo \rulename{Ty-Cons-F}, potem je $W$ enak $false$ in $B$ enak $bool$. Ker je $W[V/x] = false[V/x] = false$, ima $W[V/x]$ tip $bool = B$, po pravilu \rulename{Ty-Cons-F}.
+		\item Če je zadnje pravilo \rulename{Ty-Var}, potem je $W$ enak $y$. Ločimo dva primera.
+		\begin{itemize}
+			\item Če je spremenljivka $y = x$, potem je $W[V/x] = y[V/x] = V$. Ker je $y = x$, je $A = B$. Ker je $A = B$, je tip $W[V/x] = V$ enak $B$.
+			\item Če je spremenljivka $y \neq x$, potem je $W[V/x] = y$. Po lemi~\ref{lem:strengthening-gamma} ima $y$ tip $B$.
+		\end{itemize}
+		
 		\item Če je zadnje pravilo \rulename{Ty-Pair}, potem je $W =\tmpair{W_1}{W_2}$ in $B = B_1 \times B_2$. Po $IP$ imata $W_1[V/x]$ in $W_2[V/x]$ tip $B_1$ in $B_2$.
 		Ker je $W[V/x] = \tmpair{W_1[V/x]}{W_2[V/x]}$, ima vrednost $W[V/x]$ tip $\typrod{B_1}{B_2} = B$ po pravilu \rulename{Ty-Pair}.
 		
-		\item Če je zadnje pravilo \rulename{Ty-Promise}, ... ???
+		\item Če je zadnje pravilo \rulename{Ty-Promise}, potem je $W = \tmpromise{W'}$ in $B = \typromise{B'}$. Po $IP$ ima $W'[V/x]$ tip $B'$.
+		Ker je $W[V/x] = \tmpromise{W'}$, ima vrednost $W[V/x]$ tip $\typromise{B'} = B$ po pravilu \rulename{Ty-Promise}.
 		
 		\item Če je zadnje pravilo \rulename{Ty-Inl}, potem je $W = \tminl{W_1}$ in $B = B_1 + B_2$. Po $IP$ ima $W_1[V/x]$ tip $B_1$.
 		Ker je $W[V/x] = \tminl{W_1[V/x]}$, ima vrednost $W[V/x]$ tip $B_1 + B_2 = B$ po pravilu \rulename{Ty-Sum}.
@@ -760,7 +793,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 
 
 \begin{lema}[o substituciji za izračune]\label{lem:substitucija-izračuni}
-	Naj za vrednost $V$ velja $\Gamma \types V \of A$ in za izračun $M$ velja $\Gamma, x \of A \types M \of \tycomp{B}{\o, \i}$. Potem velja $\Gamma \types M[V/x] \of \tycomp{B}{\o, \i}$.
+	Naj za vrednost $V$ velja $\Gamma_1 \types V \of A$ in za izračun $M$ velja $\Gamma_1, x \of A, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$. Potem velja $\Gamma_1, \Gamma_2 \types M[V/x] \of \tycomp{B}{\o, \i}$.
 \end{lema}
 
 \begin{proof}
@@ -822,7 +855,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{proof}
 
 \begin{trditev}[o ohranitvi]
-	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Če izračun $M$ naredi korak v izračun $M'$, potem velja $\Gamma \types M' \of A'$, kjer je $A' = ???$.
+	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Če izračun $M$ naredi korak $M \reduces M'$, potem velja $\Gamma \types M' \of A$.
 \end{trditev}
 
 \begin{proof}
@@ -830,7 +863,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{proof}
 
 \begin{izrek}[o ohranitvi]
-	Naj za proces $P$ velja $\Gamma \types P \of C$. Če proces $P$ naredi korak v proces $P'$, potem velja $\Gamma \types P' \of C'$, kjer je $C' = ???$.
+	Naj za proces $P$ velja $\Gamma \types P \of C$. Če proces $P$ naredi korak $P \reduces P'$, potem obstaja tak $C'$, da velja $C \tyreduces C'$ in $\Gamma \types P' \of C'$.
 \end{izrek}
 
 \begin{proof}
