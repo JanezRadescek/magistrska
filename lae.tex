@@ -712,36 +712,6 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{proof}
 
 
-Ko imamo par procesov in eden izmed njiju pošlje signal, se bo ta signal spremenil v prekinitev na drugem procesu. 
-Le to bo povzročilo, da se bo tip efektov spremenil na drugem procesu.
-Potencialno spremembo tipa formaliziramo z pravili za redukcijo tipov, ki jih lahko vidimo na sliki~\ref{fig:process-type-reductions}.
-
-\begin{figure}[H]
-	\centering
-	\begin{mathpar}
-		\coopinfer{TyRedu-Same}{
-		}{
-			\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\o, \i}
-		}
-		\quad
-		\coopinfer{TyRedu-Change}{
-		}{
-			\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\opincomp{op}{\o, \i}}
-		}
-		\\
-		\coopinfer{TyRedu-Pair}{
-			C \tyreduces C' \\
-			D \tyreduces D'
-		}{
-			\typar{C}{D} \tyreduces \typar{C'}{D'}
-		}
-	\end{mathpar}
-	\caption{Pravila za redukcijo tipov.}
-	\label{fig:process-type-reductions}
-	
-\end{figure}
-
-
 \begin{lema}\label{lem:strengthening-gamma}
 	Naj za spremenljivko $y$ velja $\Gamma_1, x \of A, \Gamma_2 \types y \of B$ za $y \neq x$. Potem velja $\Gamma_1, \Gamma_2 \types y \of B$.
 \end{lema}
@@ -758,9 +728,8 @@ Potencialno spremembo tipa formaliziramo z pravili za redukcijo tipov, ki jih la
 \begin{proof}
 	Ker ima vrednost $W$ tip, obstaja drevo izpeljave za njegov tip.
 	Dokazujemo z strukturno indukcijo na drevo izpeljave za vrednosti.
-	
-	
 	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{Ty-Cons-N}, potem je $W=n$ in $B=int$. Ker je $W[V/x] = n[V/x] = n$, ima $W[V/x]$ tip $int = B$, po pravilu \rulename{Ty-Cons-N}.
 		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $W=true$ in $B=bool$. Ker je $W[V/x] = true[V/x] = true$, ima $W[V/x]$ tip $bool = B$, po pravilu \rulename{Ty-Cons-T}. 
@@ -799,14 +768,11 @@ Potencialno spremembo tipa formaliziramo z pravili za redukcijo tipov, ki jih la
 \begin{proof}
 	Ker ima izračun $M$ tip, obstaja drevo izpeljave za njegov tip.
 	Dokazujemo z strukturno indukcijo na drevo izpeljave za izračune.
-	
-	Osnovni primer je en sam, ko je $M$ enak $\tmreturn{W}$. Ker ima $\tmreturn{W}$ tip $\tycomp{B}{\o, \i}$, ima $W$ tip $B$.
-	Po lemi~\ref{lem:substitucija-vrednosti} ima $W[V/x]$ tip $B$. Po pravilu \rulename{TyComp-Return} ima $\tmreturn{W[V/x]}$ tip $\tycomp{B}{\o, \i}$. Ker je $M[V/x]$ enak $\tmreturn{W[V/x]}$, ima tudi $M[V/x]$ tip $\tycomp{B}{\o, \i}$.
-		
-	Sedaj pokažimo, da lema velja tudi za rekurzivno definirane izračune.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{TyComp-Return}, potem je $M$ enak $\tmreturn{W}$. Vrednost $W$ ima tip $B$. Po lemi~\ref{lem:substitucija-vrednosti} ima $W[V/x]$ tip $B$. Po pravilu \rulename{TyComp-Return} ima $M'$ tip $\tycomp{B}{\o, \i}$.
+		
 		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$. Izračuna $N_1$ in $N_2$ imata tip $\tycomp{C}{\o, \i}$ in $\tycomp{B}{\o, \i}$.
 		Po $IP$ velja, da imata $N_1[V/x]$ in $N_2[V/x]$ isti tip. Ker je $M[V/x]$ enak $\tmlet{x}{N_1[V/x]}{N_2[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Let}.
 		
@@ -854,13 +820,105 @@ Potencialno spremembo tipa formaliziramo z pravili za redukcijo tipov, ki jih la
 
 \end{proof}
 
+\begin{lema}\label{lem:tovor-osnovni-tip}
+	Naj za vrednost $V$ velja $\Gamma, x \of \typromise{A} \types V \of B$, kjer je $B$ osnovni tip. Potem velja $\Gamma \types V \of B$.
+\end{lema}
+
+\begin{proof}
+	...TODO
+\end{proof}
+
 \begin{trditev}[o ohranitvi]
-	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Če izračun $M$ naredi korak $M \reduces M'$, potem velja $\Gamma \types M' \of A$.
+	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Če izračun $M$ naredi korak $M \reduces M'$, potem velja $\Gamma \types M' \of \tycomp{A}{\o, \i}$.
 \end{trditev}
 
 \begin{proof}
-	...
+	Dokazujemo z strukturno indukcijo na drevo izpeljave koraka $M \reduces M'$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	\begin{itemize}
+		\item Če je zadnje pravilo $$\tmapp{(\tmfun{x : A'}{N})}{V} \reduces N[V/x],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Apply}. Posledično ima $\tmfun{x : A'}{N}$ tip $\tyfun{A'}{\tycomp{A}{\o, \i}}$ in $V$ tip $A'$. Posledično ima $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N[V/x]$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmapp{(\tmfunrec{f}{x \of A'}{N})}{V} \reduces N[V/x, (\tmfunrec{f}{x \of A'}{N})/f],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Apply}. Posledično ima $\tmfunrec{f}{x \of A'}{N}$ tip $\tyfun{A'}{\tycomp{A}{\o, \i}}$ in $V$ tip $A'$. Posledično ima $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $\widetilde{M} = N[V/x]$ tip $\tycomp{A}{\o, \i}$ in po isti lemi ima $M' = \widetilde{M}[(\tmfunrec{f}{x \of A'}{N})/f]$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmlet{x}{(\tmreturn V)}{N} \reduces N[V/x],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Let}. Posledično ima $V$ tip $B$ in $N$ tip $\tycomp{A}{\o, \i}$.
+		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N[V/x]$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmmatch{\tmpair{V}{W}}{\tmpair{x}{y} \mapsto N} \reduces N[V/x, W/y],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-MatchPair}. Posledično ima $\tmpair{V}{W}$ tip $B_1 \times B_2$, $V$ tip $B_1$, $W$ tip $B_2$ in $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $\widetilde{M} = N[V/x]$ tip $\tycomp{A}{\o, \i}$ in po isti lemi ima $M' = \widetilde{M}[W/y]$ tip $\tycomp{A}{\o, \i}$
+		
+		\item Če je zadnje pravilo $$\tmmatch{(\tminl[Y]{V})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces	N_1[V/x],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-MatchSum}. Posledično ima $\tminl{V}$ tip $B_1 + B_2$, $V$ tip $B_1$ in $N_1$ tip $\tycomp{A}{\o, \i}$.
+		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N_1[V/x]$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmmatch{(\tminr[X]{W})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces	N_2[W/y],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-MatchSum}. Posledično ima $\tminr{W}$ tip $B_1 + B_2$, $W$ tip $B_2$ in $N_2$ tip $\tycomp{A}{\o, \i}$.
+		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N_2[W/y]$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmlet{x}{(\tmopout{op}{V}{N_1})}{N_2} \reduces \tmopout{op}{V}{\tmlet{x}{M}{N}},$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Let}. Posledično ima $V$ tip $B_{op}$, $\tmopout{op}{V}{N_1}$ tip $\tycomp{B}{\o, \i}$, $N_1$ tip $\tycomp{B}{\o, \i}$ in $N_2$ tip $\tycomp{A}{\o, \i}$. Po pravilih \rulename{TyComp-Let} in \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmlet{x}{(\tmwith{op}{y}{N_1}{p}{N_2})}{N_3} \reduces \tmwith{op}{y}{N_1}{p}{(\tmlet{x}{N_2}{N_3})},$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Let}. Posledično ima $y$ tip $B_{op}$, $N_1$ tip $\tycomp{B}{\o, \i}$, $N_1$ tip $\tycomp{\typromise{A_1}}{\o, \i}$, $N_2$ tip $A_2$ in $N_3$ tip $\tycomp{A}{\o, \i}$. Po pravilih \rulename{TyComp-Let} in \rulename{TyComp-Promise} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmwith{op}{x}{N_1}{p}{\tmopout{op'}{V}{N_2}} \reduces \tmopout{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}},$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Promise}.
+		Posledično ima $N_1$ tip $\tycomp{B}{\o', \i'}$, $\tmopout{op'}{V}{N_2}$ tip $\tycomp{A}{\o, \i}$, $N_2$ tip $\tycomp{A}{\o, \i}$ in $V$ tip $A_{op}$. Po pravilih \rulename{TyComp-promise} ima $\tmwith{op}{x}{N_1}{p}{N_2}$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:tovor-osnovni-tip} ima $V$ še zmeraj tip $A_{op}$ tudi v manjšem kontekstu. Po pravilu \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmopout{op'}{W}{N}} \reduces \tmopout{op'}{W}{\tmopin{op}{V}{N}},$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
+		Posledično ima $V$ tip $A_{op}$, $W$ tip $A_{op'}$ in $N$ tip $\tycomp{A}{\o, \i}$. Po pravilu \rulename{TyComp-Signal} in \rulename{TyComp-Interrupt} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmreturn W} \reduces \tmreturn W,$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
+		Posledično ima $\tmreturn W$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces \tmlet{p}{N_1[V/x]}{\tmopin{op}{V}{N_2}},$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
+		Posledično ima $V$ tip $A_{op}$,  $N_1$ tip $\tycomp{\typromise{B}}{\o', \i'}$ in $N_2$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\o', \i'}$. Po pravilih \rulename{TyComp-Interrupt} in \rulename{TyComp-Let} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmopin{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces \tmwith{op}{x}{N_1}{p}{\tmopin{op'}{V}{N}_2},$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
+		Posledično ima $V$ tip $A_{op}$,  $N_1$ tip $\tycomp{\typromise{B}}{\o', \i'}$ in $N_2$ tip $\tycomp{A}{\o, \i}$. Po pravilih \rulename{TyComp-Promise} in \rulename{TyComp-Interrupt} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		
+		
+		\item Če je zadnje pravilo $$\tmawait{\tmpromise V}{x}{N} \reduces N[V/x],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Await}.
+		Posledično ima $\tmpromise{V}$ tip $\typromise{B}$, $V$ tip $B$ in $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		
+		
+		
+		
+		\item Če je zadnje pravilo $$\coopinfer{}{
+			N \reduces N'
+		}{
+			\E[N] \reduces \E[N']
+		},$$
+		potem ima po $IP$ $N'$ isti tip kot $N$ in posledično tudi $M'$ isti tip kot $M$.
+	\end{itemize}
+
 \end{proof}
+
+
+Ko imamo par procesov in eden izmed njiju pošlje signal, se bo ta signal spremenil v prekinitev na drugem procesu. 
+Le to bo povzročilo, da se bo tip efektov spremenil na drugem procesu.
+Potencialno spremembo tipa formaliziramo z pravili za redukcijo tipov, ki jih lahko vidimo na sliki~\ref{fig:process-type-reductions}.
+
+\begin{figure}[H]
+	\centering
+	\begin{mathpar}
+		\coopinfer{TyRedu-Same}{
+		}{
+			\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\o, \i}
+		}
+		\quad
+		\coopinfer{TyRedu-Change}{
+		}{
+			\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\opincomp{op}{(\o, \i)}}
+		}
+		\\
+		\coopinfer{TyRedu-Pair}{
+			C \tyreduces C' \\
+			D \tyreduces D'
+		}{
+			\typar{C}{D} \tyreduces \typar{C'}{D'}
+		}
+	\end{mathpar}
+	\caption{Pravila za redukcijo tipov.}
+	\label{fig:process-type-reductions}
+	
+\end{figure}
+
+
 
 \begin{izrek}[o ohranitvi]
 	Naj za proces $P$ velja $\Gamma \types P \of C$. Če proces $P$ naredi korak $P \reduces P'$, potem obstaja tak $C'$, da velja $C \tyreduces C'$ in $\Gamma \types P' \of C'$.
