@@ -820,8 +820,16 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 
 \end{proof}
 
-\begin{lema}\label{lem:tovor-osnovni-tip}
+\begin{lema}\label{lem:tovor-osnovni-tip-skrcitev}
 	Naj za vrednost $V$ velja $\Gamma, x \of \typromise{A} \types V \of B$, kjer je $B$ osnovni tip. Potem velja $\Gamma \types V \of B$.
+\end{lema}
+
+\begin{proof}
+	...TODO
+\end{proof}
+
+\begin{lema}\label{lem:tovor-osnovni-tip-razsiritev}
+	Naj za vrednost $V$ velja $\Gamma \types V \of B$, kjer je $B$ osnovni tip. Potem velja $\Gamma, x \of \typromise{A} \types V \of B$.
 \end{lema}
 
 \begin{proof}
@@ -837,42 +845,50 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
-		\item Če je zadnje pravilo $$\tmapp{(\tmfun{x : A'}{N})}{V} \reduces N[V/x],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Apply}. Posledično ima $\tmfun{x : A'}{N}$ tip $\tyfun{A'}{\tycomp{A}{\o, \i}}$ in $V$ tip $A'$. Posledično ima $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N[V/x]$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmapp{(\tmfun{x : A'}{N})}{V} \reduces N[V/x],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Apply}. Posledično ima $\tmfun{x : A'}{N}$ tip $\tyfun{A'}{\tycomp{A}{\o, \i}}$ in $V$ tip $A'$. Posledično ima $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N[V/x]$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmapp{(\tmfunrec{f}{x \of A'}{N})}{V} \reduces N[V/x, (\tmfunrec{f}{x \of A'}{N})/f],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Apply}. Posledično ima $\tmfunrec{f}{x \of A'}{N}$ tip $\tyfun{A'}{\tycomp{A}{\o, \i}}$ in $V$ tip $A'$. Posledično ima $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $\widetilde{M} = N[V/x]$ tip $\tycomp{A}{\o, \i}$ in po isti lemi ima $M' = \widetilde{M}[(\tmfunrec{f}{x \of A'}{N})/f]$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmapp{(\tmfunrec{f}{x \of A'}{N})}{V} \reduces N[V/x, (\tmfunrec{f}{x \of A'}{N})/f],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Apply}. Posledično ima $\tmfunrec{f}{x \of A'}{N}$ tip $\tyfun{A'}{\tycomp{A}{\o, \i}}$ in $V$ tip $A'$. Posledično ima $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $\widetilde{M} = N[V/x]$ tip $\tycomp{A}{\o, \i}$ in po isti lemi ima $M' = \widetilde{M}[(\tmfunrec{f}{x \of A'}{N})/f]$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmlet{x}{(\tmreturn V)}{N} \reduces N[V/x],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Let}. Posledično ima $V$ tip $B$ in $N$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmlet{x}{(\tmreturn V)}{N} \reduces N[V/x],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Let}. Posledično ima $V$ tip $B$ in $N$ tip $\tycomp{A}{\o, \i}$.
 		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N[V/x]$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmmatch{\tmpair{V}{W}}{\tmpair{x}{y} \mapsto N} \reduces N[V/x, W/y],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-MatchPair}. Posledično ima $\tmpair{V}{W}$ tip $B_1 \times B_2$, $V$ tip $B_1$, $W$ tip $B_2$ in $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $\widetilde{M} = N[V/x]$ tip $\tycomp{A}{\o, \i}$ in po isti lemi ima $M' = \widetilde{M}[W/y]$ tip $\tycomp{A}{\o, \i}$
+		\item Če je zadnje pravilo $$\tmmatch{\tmpair{V}{W}}{\tmpair{x}{y} \mapsto N} \reduces N[V/x, W/y],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-MatchPair}. Posledično ima $\tmpair{V}{W}$ tip $B_1 \times B_2$, $V$ tip $B_1$, $W$ tip $B_2$ in $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $\widetilde{M} = N[V/x]$ tip $\tycomp{A}{\o, \i}$ in po isti lemi ima $M' = \widetilde{M}[W/y]$ tip $\tycomp{A}{\o, \i}$
 		
-		\item Če je zadnje pravilo $$\tmmatch{(\tminl[Y]{V})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces	N_1[V/x],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-MatchSum}. Posledično ima $\tminl{V}$ tip $B_1 + B_2$, $V$ tip $B_1$ in $N_1$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmmatch{(\tminl[Y]{V})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces	N_1[V/x],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-MatchSum}. Posledično ima $\tminl{V}$ tip $B_1 + B_2$, $V$ tip $B_1$ in $N_1$ tip $\tycomp{A}{\o, \i}$.
 		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N_1[V/x]$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmmatch{(\tminr[X]{W})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces	N_2[W/y],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-MatchSum}. Posledično ima $\tminr{W}$ tip $B_1 + B_2$, $W$ tip $B_2$ in $N_2$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmmatch{(\tminr[X]{W})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces	N_2[W/y],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-MatchSum}. Posledično ima $\tminr{W}$ tip $B_1 + B_2$, $W$ tip $B_2$ in $N_2$ tip $\tycomp{A}{\o, \i}$.
 		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N_2[W/y]$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmlet{x}{(\tmopout{op}{V}{N_1})}{N_2} \reduces \tmopout{op}{V}{\tmlet{x}{M}{N}},$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Let}. Posledično ima $V$ tip $B_{op}$, $\tmopout{op}{V}{N_1}$ tip $\tycomp{B}{\o, \i}$, $N_1$ tip $\tycomp{B}{\o, \i}$ in $N_2$ tip $\tycomp{A}{\o, \i}$. Po pravilih \rulename{TyComp-Let} in \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmlet{x}{(\tmopout{op}{V}{N_1})}{N_2} \reduces \tmopout{op}{V}{\tmlet{x}{M}{N}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Let}. Posledično ima $V$ tip $B_{op}$, $\tmopout{op}{V}{N_1}$ tip $\tycomp{B}{\o, \i}$, $N_1$ tip $\tycomp{B}{\o, \i}$ in $N_2$ tip $\tycomp{A}{\o, \i}$. Po pravilih \rulename{TyComp-Let} in \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmlet{x}{(\tmwith{op}{y}{N_1}{p}{N_2})}{N_3} \reduces \tmwith{op}{y}{N_1}{p}{(\tmlet{x}{N_2}{N_3})},$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Let}. Posledično ima $y$ tip $B_{op}$, $N_1$ tip $\tycomp{B}{\o, \i}$, $N_1$ tip $\tycomp{\typromise{A_1}}{\o, \i}$, $N_2$ tip $A_2$ in $N_3$ tip $\tycomp{A}{\o, \i}$. Po pravilih \rulename{TyComp-Let} in \rulename{TyComp-Promise} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmlet{x}{(\tmwith{op}{y}{N_1}{p}{N_2})}{N_3} \reduces \tmwith{op}{y}{N_1}{p}{(\tmlet{x}{N_2}{N_3})},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Let}. Posledično ima $y$ tip $B_{op}$, $N_1$ tip $\tycomp{B}{\o, \i}$, $N_1$ tip $\tycomp{\typromise{A_1}}{\o, \i}$, $N_2$ tip $A_2$ in $N_3$ tip $\tycomp{A}{\o, \i}$. Po pravilih \rulename{TyComp-Let} in \rulename{TyComp-Promise} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmwith{op}{x}{N_1}{p}{\tmopout{op'}{V}{N_2}} \reduces \tmopout{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}},$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Promise}.
-		Posledično ima $N_1$ tip $\tycomp{B}{\o', \i'}$, $\tmopout{op'}{V}{N_2}$ tip $\tycomp{A}{\o, \i}$, $N_2$ tip $\tycomp{A}{\o, \i}$ in $V$ tip $A_{op}$. Po pravilih \rulename{TyComp-promise} ima $\tmwith{op}{x}{N_1}{p}{N_2}$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:tovor-osnovni-tip} ima $V$ še zmeraj tip $A_{op}$ tudi v manjšem kontekstu. Po pravilu \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmwith{op}{x}{N_1}{p}{\tmopout{op'}{V}{N_2}} \reduces \tmopout{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Promise}.
+		Posledično ima $N_1$ tip $\tycomp{B}{\o', \i'}$, $\tmopout{op'}{V}{N_2}$ tip $\tycomp{A}{\o, \i}$, $N_2$ tip $\tycomp{A}{\o, \i}$ in $V$ tip $A_{op}$. Po pravilih \rulename{TyComp-promise} ima $\tmwith{op}{x}{N_1}{p}{N_2}$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:tovor-osnovni-tip-skrcitev} ima $V$ še zmeraj tip $A_{op}$ tudi v manjšem kontekstu. Po pravilu \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmopout{op'}{W}{N}} \reduces \tmopout{op'}{W}{\tmopin{op}{V}{N}},$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
+		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmopout{op'}{W}{N}} \reduces \tmopout{op'}{W}{\tmopin{op}{V}{N}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
 		Posledično ima $V$ tip $A_{op}$, $W$ tip $A_{op'}$ in $N$ tip $\tycomp{A}{\o, \i}$. Po pravilu \rulename{TyComp-Signal} in \rulename{TyComp-Interrupt} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmreturn W} \reduces \tmreturn W,$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
+		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmreturn W} \reduces \tmreturn W,$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
 		Posledično ima $\tmreturn W$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces \tmlet{p}{N_1[V/x]}{\tmopin{op}{V}{N_2}},$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
-		Posledično ima $V$ tip $A_{op}$,  $N_1$ tip $\tycomp{\typromise{B}}{\o', \i'}$ in $N_2$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\o', \i'}$. Po pravilih \rulename{TyComp-Interrupt} in \rulename{TyComp-Let} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces \tmlet{p}{N_1[V/x]}{\tmopin{op}{V}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
+		Posledično ima $V$ tip $A_{op}$ in $N_1$ tip $\tycomp{\typromise{B}}{\o', \i'}$.
+		Ker je tip $\tycomp{A}{\o, \i}$ enak $\tycomp{A}{\opincomp{op}{(\o'', \i'')}}$, ima $N_2$ tip $\tycomp{A}{\o'', \i''}$. 
+		Po lemi~\ref{lem:substitucija-izračuni} ima $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N_2}$ tip $\tycomp{A}{\opincomp{op}{(\o'', \i'')}}$
+		Ker velja $\i(op) = (\o', \i')$, velja $(\o', \i') \order{O \times I} \opincomp{op}{(\o'', \i'')}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\opincomp{op}{(\o'', \i'')}}$
+		Po pravilu \rulename{TyComp-Let} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o'', \i'')}} = \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmopin{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces \tmwith{op}{x}{N_1}{p}{\tmopin{op'}{V}{N}_2},$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
-		Posledično ima $V$ tip $A_{op}$,  $N_1$ tip $\tycomp{\typromise{B}}{\o', \i'}$ in $N_2$ tip $\tycomp{A}{\o, \i}$. Po pravilih \rulename{TyComp-Promise} in \rulename{TyComp-Interrupt} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmopin{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces \tmwith{op}{x}{N_1}{p}{\tmopin{op'}{V}{N}_2},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
+		Posledično ima $V$ tip $A_{op}$ in $N_1$ tip $\tycomp{\typromise{B}}{\o', \i'}$.
+		Ker je tip $\tycomp{A}{\o, \i}$ enak $\tycomp{A}{\opincomp{op}{(\o'', \i'')}}$, ima $N_2$ tip $\tycomp{A}{\o'', \i''}$.
+		Po lemi~\ref{lem:tovor-osnovni-tip-razsiritev}, ima $V$ tudi v razširjenem kontekstu isti tip.
+		Po pravilih \rulename{TyComp-Promise} in \rulename{TyComp-Interrupt} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		
-		\item Če je zadnje pravilo $$\tmawait{\tmpromise V}{x}{N} \reduces N[V/x],$$ potem je bilo pravilo za določitev tipa $M$ \rulename{TyComp-Await}.
+		\item Če je zadnje pravilo $$\tmawait{\tmpromise V}{x}{N} \reduces N[V/x],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Await}.
 		Posledično ima $\tmpromise{V}$ tip $\typromise{B}$, $V$ tip $B$ in $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
 		
@@ -883,7 +899,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 		}{
 			\E[N] \reduces \E[N']
 		},$$
-		potem ima po $IP$ $N'$ isti tip kot $N$ in posledično tudi $M'$ isti tip kot $M$.
+		potem ima po $IP$ $N'$ isti tip kot $N$. Posledično ima $M'$ isti tip kot $M$, po ustreznem pravilu glede na konkretno okolje.
 	\end{itemize}
 
 \end{proof}
