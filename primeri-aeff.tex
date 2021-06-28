@@ -1,18 +1,117 @@
 \section{Primeri v \aeff{}} \label{sec:primeri-aeff}
 
-\subsection{sinhrona/sekvenčna}
-Najprej si poglejmo nekaj primerov, na katerih lahko vidimo konkretne težave s katerimi se lahko srečamo ko programiramo. 
-V funkcijskem programiranju se pogosto uporablja funkcija \emph{map}. V tem konkretnem primeru naj map uporabi funkcijo $f$, ki vrne $true$, če je število praštevilo in false sicer, na trojici $(3,42,97)$ in vrne $(f(3),f(42),f(97))$. 
+%\subsection{sinhrona/sekvenčna}
+%Najprej si poglejmo nekaj primerov, na katerih lahko vidimo konkretne težave s katerimi se lahko srečamo ko programiramo. 
+%V funkcijskem programiranju se pogosto uporablja funkcija \emph{map}. V tem konkretnem primeru naj map uporabi funkcijo $f$, ki vrne $true$, če je število praštevilo in false sicer, na trojici $(3,42,97)$ in vrne $(f(3),f(42),f(97))$. 
+%
+%
+% 
+%
+%\begin{lstlisting}[caption={TODO},label={prog:primer-map-seq}]
+%run return 42
+%\end{lstlisting}
+%
+%\subsection{asinhrona teoretično vzporedna}
+%
+%
+%
+%%. Uvedemo koraka $\tmkw{Promise}$ in $\tmkw{Await}$. Korak $\tmkw{Promise}$ ima dve ključni lastnosti. Je edini korak, ki je odvisen od korakov iz drugih procesov.  je da ne more biti odvisen od katerega koli koraka znotraj istega procesa. Od njega pa je lahko odvisen le korak $\tmkw{Await}$. Posledično lahko dinamično spre\begin{flushleft}
 
 
- 
 
-\begin{lstlisting}[caption={TODO},label={prog:primer-map-seq}]
-run return 42
+
+
+
+
+%Poglejmo si abstrakten primer, ki predstavlja program za delo z bazami.
+%Program mora znati brati ukaze iz tipkovnice, jih izvesti in na zaslonu izpisati neko povratno informacijo.
+%Uporabnik lahko preko grafičnega umesnika podaja razne ukaze, kot so odpri bazo, spremeni vrednost, zamenjaj geslo...
+%Program na zaslon podaja povratne informacije 
+%Program lahko dostopa do baze na disku ali omrežju.
+%
+%
+%ki prikaže težave s katerimi se lahko srečamo, če je program izključno sinhron in sekvenčen.
+
+Poglejmo si abstrakten primer, ki predstavlja video predvajalnik.
+Ko se program zažene, čaka da dobi lokacijo datoteke. Nato začne predvajati video. Kadarkoli na zahtevo uporabnika ustavi in nato nadaljuje predvajanje. Če dobi novo lokacijo datoteke, preneha z predvajanjem trenutnega videa in začne predvajati nov video.
+
+Naivna verzija takega programa napisana v Pythonu, bi lahko zgledala sledeče.
+
+\begin{lstlisting}[caption={Naiven program.},label={prog:predvajalnik-naiven}]
+video = None
+while true:
+	c = get_command()
+	if is_file_path(c):
+		video = read_file(c)
+		play_video_on_scren(video)
+	elif c == stop
+		
 \end{lstlisting}
 
-\subsection{asinhrona teoretično vzporedna}
+
+Poglejmo si preprost primer, ki predstavlja preprost urejevalnik slik.
+Ko se program zažene, čaka da dobi uporabnikov vhod.
+Če dobi lokacijo slike, jo prebere in si jo shrani v sloje.
+Sicer dobi številko sloja in navodila kaj naj naredi z pripadajočo sliko.
+
+\begin{lstlisting}[caption={Sinhron program.},label={prog:editor-python}]
+layers = []
+
+while true:
+	input = get_input()
+	
+	if is_file_path(input):
+		img = read_file(input)
+		layers.append(img)
+	else:
+		layer, command = input	
+		edit_img(layers[layer], command)
+\end{lstlisting}
+
+Ena izmed težav, ki se lahko pojavi je da branje datoteke traja zelo dolgo.
 
 
 
-%. Uvedemo koraka $\tmkw{Promise}$ in $\tmkw{Await}$. Korak $\tmkw{Promise}$ ima dve ključni lastnosti. Je edini korak, ki je odvisen od korakov iz drugih procesov.  je da ne more biti odvisen od katerega koli koraka znotraj istega procesa. Od njega pa je lahko odvisen le korak $\tmkw{Await}$. Posledično lahko dinamično spre
+\begin{lstlisting}[caption={Asinhron program.},label={prog:editor-aeff}]
+
+
+let main () = 
+	let rec loop () = 
+		promise (input i ->
+			if is_file_path(input):
+				send read_file input
+				promise (img i ->
+					layers layers.append(img))
+				let img = read_file(input)
+				
+			else:
+			layer, command = input	
+			edit_img(layers[layer], command)
+			loop ()
+		) as _ 
+		in return p
+	in
+	loop ()
+	
+let thread_save_layers () = 
+	let layers = ref [] in
+	let rec add_img () =
+		promise (img_add img ->
+			layers := append(!layers, img);
+			add_img()
+		) as _ in
+		()
+	in	
+	let rec get_img () =
+		promise (img_request i ->
+			let img = nth(!layers, i) in
+			send img_answer img;
+			get_img()
+		) as _ in
+		()
+	in
+	
+	add_img();
+	get_img()
+
+\end{lstlisting}

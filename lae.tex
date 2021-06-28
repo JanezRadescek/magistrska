@@ -127,20 +127,22 @@ Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z 
 	\begin{align*}
 	\intertext{\textbf{Evalvacija v okolju}}
 	\coopinfer{}{
-		M \reduces N
+		N \reduces N'
 	}{
-		\E[M] \reduces \E[N]
+		M[N] \reduces M[N']
 	}
 	\end{align*}
 	\vspace{-6ex}
 	\begin{align*}
 	\intertext{\textbf{kjer}}
-	\text{$\E$}
-	\bnfis [~]
-	\bnfor \tmlet{x}{\E}{N}
-	\bnfor \tmopout{op}{V}{\E}
-	\bnfor \tmopin{op}{V}{\E} 
-	\bnfor \tmwith{op}{x}{M}{p}{\E}
+	\text{$M[N]$}
+	\bnfis & \tmlet{x}{N}{N''}
+	\\
+	\bnfor & \tmopout{op}{V}{N}
+	\\
+	\bnfor & \tmopin{op}{V}{N} 
+	\\
+	\bnfor & \tmwith{op}{x}{N''}{p}{N}
 	\end{align*}
 	
 	\caption{Redukcijska pravila za izračune.}
@@ -184,19 +186,22 @@ Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z 
 	\shortintertext{\quad\textbf{Evalvacija v okolju}}
 	\quad
 	\coopinfer{}{
-		P \reduces Q
+		Q \reduces Q'
 	}{
-		\F[P] \reduces \F[Q]
+		P[Q] \reduces P[Q']
 	}
 	\end{align*}
 	\vspace{-6ex}
 	\begin{align*}
 	\intertext{\textbf{kjer}}
-	\text{$\F$}
-	\bnfis& [~]
-	\bnfor \tmpar \F Q \bnfor\! \tmpar P \F
-	\bnfor \tmopout{op}{V}{\F}
-	\bnfor \tmopin{op}{V}{\F}
+	\text{$P[Q]$}
+	\bnfis & \tmpar{Q}{Q''} 
+	\\
+	\bnfor & \tmpar{Q''}{Q}
+	\\
+	\bnfor & \tmopout{op}{V}{Q}
+	\\
+	\bnfor & \tmopin{op}{V}{Q}
 	\end{align*}
 	
 	\caption{Redukcijska pravila za procese.}
@@ -550,26 +555,6 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 
 Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku nam zagotavlja, da ne moremo dobiti runtime, če imamo tipe, kot smo jih definirali.
 
-%\begin{lema}\label{lem:ni-spremenljivka}
-%	Če za vrednost $V$ velja $\Gamma \types V \of A$, kjer je $A$ tip, ki se ne pojavi v kontekstu $\Gamma$, potem vrednost $V$ ni spremenljivka.
-%	\begin{itemize}
-%		\item Če je $A$ enak $B_1 \times B_2$, potem je $V$ enak $(W_1,W_2)$.
-%		\item Če je $A$ enak $B_1 + B_2$, potem je $V$ ali enak $\tminl{W_1}$ ali $\tminr{W_2}$.
-%		\item Če je $A$ enak $\tyfun{B_1}{\tycomp{B_2}{\o, \i}}$, potem je $V$ ali enak $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$.
-%	\end{itemize}
-%\end{lema}
-%
-%\begin{proof}
-%	Predpostavimo, da je $V$ spremenljivka. Edino pravilo za določitev tipa spremenljivke je \rulename{TIP-VAR}. Od tod sledi, da je tip $A$ v kontekstu $\Gamma$. Kar je v protislovju z predpostavko leme, da se tip $A$ ne pojavi v kontekstu $\Gamma$.
-%	\begin{itemize}
-%		\item Edini pravili za tip $B_1 \times B_2$ sta \rulename{Ty-Var} in \rulename{Ty-Pair}. Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Pair}. Posledično je $V$ oblike $\tmpair{W_1}{W_2}$.
-%		
-%		\item Edina pravila za tip $B_1 + B_2$ so \rulename{Ty-Var}, \rulename{Ty-Inl} in \rulename{Ty-Inr}. Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Inl} ali \rulename{Ty-Inr}. Posledično je $V$ oblike $\tminl{W_1}$ ali $\tminr{W_2}$.
-%		
-%		\item Edina pravila za tip $\tyfun{B_1}{\tycomp{B_2}{\o, \i}}$ so \rulename{Ty-Var}, \rulename{Ty-Fun} in \rulename{Ty-Fun-Rec}. Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Fun} ali \rulename{Ty-Fun-Rec}. Posledično je $V$ oblike $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$.
-%	\end{itemize}
-%\end{proof}
-
 \begin{lema}\label{lem:ni-spremenljivka}
 	Če za vrednost $V$ velja $x_1 \of \typromise{A_1}, x_2 \of \typromise{A_2}, ..., x_n \of \typromise{A_n} \types V \of A$, kjer je $A$ tip, ki se ne pojavi v kontekstu $\Gamma$, potem vrednost $V$ ni spremenljivka.
 	\begin{itemize}
@@ -636,7 +621,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$ in po pravilu $R-Signal$ dokažemo (ii).
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Interupt}, potem je $M$ enak $\tmopin{op}{V}{N}$. Izračun $N$ ima tip in po $IP$ lahko naredi korak ali pa je že delna vrednost. Če $N$ lahko naredi korak v $N'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmopin{op}{V}{N'}$. 
+		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$. Izračun $N$ ima tip in po $IP$ lahko naredi korak ali pa je že delna vrednost. Če $N$ lahko naredi korak v $N'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmopin{op}{V}{N'}$. 
 		Če pa je $N$ delni rezultat ločimo štiri možnosti.
 		\begin{itemize}
 			\item Če je $N$ enak $\tmreturn{V}$, potem lahko $M$ naredi korak v $\tmreturn{V}$.
@@ -798,7 +783,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 		Ker ima $N$ tip $\tycomp{B}{\o, \i}$, ima tudi $N[V/x]$ tip $\tycomp{B}{\o, \i}$ po $IP$.
 		Ker je $M[V/x]$ enak $\tmopout{op}{W[V/x]}{N[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Signal}.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Interupt}, potem je $M$ enak $\tmopin{op}{W}{N}$ in $(\o, \i) = \opincomp{op}{\o', \i'}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{W}{N}$ in $(\o, \i) = \opincomp{op}{\o', \i'}$.
 		Ker ima vrednost $W$ tip $C_{op}$, ima tudi $W[V/x]$ tip $C_{op}$ po lemi~\ref{lem:substitucija-vrednosti}.
 		Ker ima $N$ tip $\tycomp{B}{\o', \i'}$, ima tudi $N[V/x]$ tip $\tycomp{B}{\o', \i'}$ po $IP$.
 		Ker je $M[V/x]$ enak $\tmopin{op}{W[V/x]}{N[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Signal}.
@@ -836,7 +821,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 	...TODO
 \end{proof}
 
-\begin{trditev}[o ohranitvi]
+\begin{trditev}[o ohranitvi]\label{trd:ohranitev-izracuni}
 	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Če izračun $M$ naredi korak $M \reduces M'$, potem velja $\Gamma \types M' \of \tycomp{A}{\o, \i}$.
 \end{trditev}
 
@@ -897,9 +882,31 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 		\item Če je zadnje pravilo $$\coopinfer{}{
 			N \reduces N'
 		}{
-			\E[N] \reduces \E[N']
+			M[N] \reduces M[N']
 		},$$
-		potem ima po $IP$ $N'$ isti tip kot $N$. Posledično ima $M'$ isti tip kot $M$, po ustreznem pravilu glede na konkretno okolje.
+		ločimo primere glede na obliko $M[N]$.
+		\begin{itemize}
+			\item Če je oblike $$\tmlet{x}{N}{N''},$$ potem je bilo zadnje pravilo za določitev tipa $M[N]$ \rulename{TyComp-Let}.
+			Posledično ima $N$ tip $\tycomp{B}{\o, \i}$ in $N''$ tip $\tycomp{A}{\o, \i}$.
+			Po $IP$ ima $N'$ tip $\tycomp{B}{\o, \i}$.
+			Po pravilu \rulename{TyComp-Let} ima $\tmlet{x}{N'}{N''}$ tip $\tycomp{A}{\o, \i}$.
+			
+			\item Če je oblike $$\tmopout{op}{V}{N},$$ potem je bilo zadnje pravilo za določitev tipa $M[N]$ \rulename{TyComp-Signal}.
+			Posledično ima $N$ tip $\tycomp{A}{\o, \i}$.
+			Po $IP$ ima $N'$ tip $\tycomp{A}{\o, \i}$.
+			Po pravilu \rulename{TyComp-Signal} ima $\tmopout{op}{V}{N'}$ tip $\tycomp{A}{\o, \i}$.
+			
+			\item Če je oblike $$\tmopin{op}{V}{N},$$ potem je bilo zadnje pravilo za določitev tipa $M[N]$ \rulename{TyComp-Interrupt}.
+			Posledično ima $N$ tip $\tycomp{A}{\o, \i}$.
+			Po $IP$ ima $N'$ tip $\tycomp{A}{\o, \i}$.
+			Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N'}$ tip $\tycomp{A}{\o, \i}$.
+			
+			\item Če je oblike $$\tmwith{op}{x}{N''}{N},$$ potem je bilo zadnje pravilo za določitev tipa $M[N]$ \rulename{TyComp-Promise}.
+			Posledično ima $N$ tip $\tycomp{A}{\o, \i}$ in $N''$ tip $\tycomp{\typromise{B}}{\o, \i}$.
+			Po $IP$ ima $N'$ tip $\tycomp{A}{\o, \i}$.
+			Po pravilu \rulename{TyComp-promise} ima $\tmwith{op}{x}{N''}{N'}$ tip $\tycomp{A}{\o, \i}$.
+		\end{itemize}
+
 	\end{itemize}
 
 \end{proof}
@@ -922,7 +929,7 @@ Potencialno spremembo tipa formaliziramo z pravili za redukcijo tipov, ki jih la
 			\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\opincomp{op}{(\o, \i)}}
 		}
 		\\
-		\coopinfer{TyRedu-Pair}{
+		\coopinfer{TyRedu-Par}{
 			C \tyreduces C' \\
 			D \tyreduces D'
 		}{
@@ -941,5 +948,96 @@ Potencialno spremembo tipa formaliziramo z pravili za redukcijo tipov, ki jih la
 \end{izrek}
 
 \begin{proof}
-	...
+	Dokazujemo z strukturno indukcijo na drevo izpeljave koraka $P \reduces P'$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	\begin{itemize}
+		\item Če je zadnje pravilo $$\tmapp{(\tmfun{x : A'}{N})}{V} \reduces N[V/x],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Apply}. Posledično ima $\tmfun{x : A'}{N}$ tip $\tyfun{A'}{\tycomp{A}{\o, \i}}$ in $V$ tip $A'$. Posledično ima $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N[V/x]$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje uporabljeno pravilo
+		$$
+		\coopinfer{}{
+			M \reduces N
+		}{
+			\tmrun M \reduces \tmrun N
+		},$$
+		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Run}. Tip $C$ je oblike $\tyrun{A}{\o, \i}$.
+		Posledično ima izračun $M$ tip $\tycomp{A}{\o, \i}$. Po trditvi~\ref{trd:ohranitev-izracuni} ima $N$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyProc-Run} ima $P'$ tip $\tyrun{A}{\o, \i}$, kjer je $C$ naredil korak \rulename{TyRedu-Same}.
+	
+		\item Če je zadnje uporabljeno pravilo
+		$$\tmrun {(\tmopout{op}{V}{M})}  \reduces \tmopout{op}{V}{\tmrun M},$$
+		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Run}. Tip $C$ je oblike $\tyrun{A}{\o, \i}$.
+		Posledično ima $V$ tip $B$ in $M$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyProc-Run} ima $\tmrun{M}$ tip $\tyrun{A}{\o, \i}$.
+		Po pravilu \rulename{TyProc-Signal} ima $P'$ tip $\tyrun{A}{\o, \i}$, kjer je $C$ naredil korak \rulename{TyRedu-Same}.
+		
+		\item Če je zadnje uporabljeno pravilo
+		$$\tmopin{op}{V}{\tmrun M} \reduces \tmrun {(\tmopin{op}{V}{M})},$$
+		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Interrupt}. Tip $C$ je oblike $\tyrun{A}{\o, \i}$.
+		Posledično ima $V$ tip $B$ in $M$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{M}$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyProc-Run} ima $P'$ tip $\tyrun{A}{\o, \i}$, kjer je $C$ naredil korak \rulename{TyRedu-Same}.
+		
+		\item Če je zadnje uporabljeno pravilo
+		$$\tmpar{\tmopout{op}{V}{Q_1}}{Q_2} \reduces \tmopout{op}{V}{\tmpar{Q_1}{\tmopin{op}{V}{Q_2}}},$$
+		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Par}. Tip $C$ je oblike $\typar{C_1}{C_2}$.
+		Posledično ima $V$ tip $B$, $Q_1$ tip $C_1$ in $Q_2$ tip $C_2$.
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{Q_2}$ tip $\opincomp{op}{C_2}$.
+		Po pravilu \rulename{TyProc-Par} ima $P'$ tip $\typar{C_1}{\opincomp{op}{C_2}}$, kjer je $C_2$ naredil korak \rulename{TyRedu-Change} in $C$ naredil korak \rulename{TyRedu-Par}.
+
+		\item Če je zadnje uporabljeno pravilo
+		$$\tmpar{Q_1}{\tmopout{op}{V}{Q_2}} \reduces \tmopout{op}{V}{\tmpar{\tmopin{op}{V}{Q_1}}{Q_2}},$$
+		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Par}. Tip $C$ je oblike $\typar{C_1}{C_2}$.
+		Posledično ima $V$ tip $B$, $Q_1$ tip $C_1$ in $Q_2$ tip $C_2$.
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{Q_1}$ tip $\opincomp{op}{C_1}$.
+		Po pravilu \rulename{TyProc-Par} ima $P'$ tip $\typar{\opincomp{op}{C_1}}{C_2}$, kjer je $C_1$ naredil korak \rulename{TyRedu-Change} in $C$ naredil korak \rulename{TyRedu-Par}.
+	
+		\item Če je zadnje uporabljeno pravilo
+		$$\tmopin{op}{V}{\tmpar{Q_1}{Q_2}} \reduces \tmpar {\tmopin{op}{V}{Q_1}} {\tmopin{op}{V}{Q_2}},$$
+		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Interrupt}.
+		Posledično ima $V$ tip $B$, $Q_1$ tip $C_1$ in $Q_2$ tip $C_2$.
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{Q_1}$ tip $\opincomp{op}{C_1}$ in $\tmopin{op}{V}{Q_2}$ tip $\opincomp{op}{C_2}$.
+		Po pravilu \rulename{TyProc-Par} ima $P'$ tip $\typar{\opincomp{op}{C_1}}{\opincomp{op}{C_2}}$, kjer sta $C_1$ in $C_2$ naredila korak \rulename{TyRedu-Change} in $C$ naredil korak \rulename{TyRedu-Par}.
+		
+		\item Če je zadnje uporabljeno pravilo
+		$$\tmopin{op}{V}{\tmopout{op'}{W}{Q}} \reduces \tmopout{op'}{V'}{\tmopin{op}{V}{Q}},$$
+		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Interrupt}. Tip $C$ je oblike $\opincomp{op}{C'}$
+		Posledično ima $V$ tip $B$, $V'$ tip $B'$ in $Q$ tip $C'$.
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{Q}$ tip $C$.
+		Po pravilu \rulename{TyProc-Signal} ima $P'$ tip $C$, kjer je $C$ naredil korak \rulename{TyRedu-Same}.
+		
+		\item Če je zadnje uporabljeno pravilo
+		$$\coopinfer{}{
+						Q \reduces Q'
+					}{
+						P[Q] \reduces P[Q']
+					},$$
+		ločimo primere glede na obliko $P[Q]$.
+		\begin{itemize}
+			\item Če je oblike $$\tmpar{Q}{Q''},$$ potem je bilo zadnje pravilo za določitev tipa $P[Q]$ \rulename{TyProc-Par}. Tip $C$ je oblike $\typar{C_1}{C_2}$.
+			Posledično ima $Q$ tip $C_1$ in $Q''$ tip $C_2$.
+			Po $IP$ ima $Q'$ tip $C_1'$.
+			Po pravilu \rulename{TyProc-Par} ima $\tmpar{Q'}{Q''}$ tip $\typar{C_1'}{C_2}$, kjer je $C$ naredil korak \rulename{TyRedu-Par}.
+			
+			\item Če je oblike $$\tmpar{Q''}{Q},$$ potem je bilo zadnje pravilo za določitev tipa $P[Q]$ \rulename{TyProc-Par}. Tip $C$ je oblike $\typar{C_1}{C_2}$.
+			Posledično ima $Q''$ tip $C_1$ in $Q$ tip $C_2$.
+			Po $IP$ ima $Q'$ tip $C_2'$.
+			Po pravilu \rulename{TyProc-Par} ima $\tmpar{Q''}{Q'}$ tip $\typar{C_1}{C_2'}$, kjer je $C$ naredil korak \rulename{TyRedu-Par}.
+			
+			\item Če je oblike $$\tmopout{op}{V}{Q},$$ potem je bilo zadnje pravilo za določitev tipa $P[Q]$ \rulename{TyProc-Signal}.
+			Posledično ima $V$ tip $B$ in $Q$ tip $C$.
+			Po $IP$ ima $Q'$ tip $C'$.
+			Po pravilu \rulename{TyProc-Signal} ima $\tmopout{op}{V}{Q'}$ tip $C'$, kjer je $C$ naredil korak \rulename{TyRedu-Change}.
+			
+			\item Če je oblike $$\tmopin{op}{V}{Q},$$ potem je bilo zadnje pravilo za določitev tipa $P[Q]$ \rulename{TyProc-Interrupt}.
+			Posledično ima $V$ tip $B$ in $Q$ tip $C$.
+			Po $IP$ ima $Q'$ tip $C'$.
+			Po pravilu \rulename{TyProc-Interrupt} ima $\tmopin{op}{V}{Q'}$ tip $C'$, kjer je $C$ naredil korak \rulename{TyRedu-Change}.
+		\end{itemize}
+	
+	\end{itemize}
+
 \end{proof}
+
+
