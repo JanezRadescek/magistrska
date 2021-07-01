@@ -122,17 +122,20 @@ Sedaj bo vrstni red v okolju pomemben, zato je okolje od sedaj naprej urejen sez
 	\centering
 	\small
 	\begin{mathpar}
-		\coopinfer{}{\text{A prenosljiv ali } \bb \notin \Gamma'
+		\coopinfer{Ty-Var'}{
+			\text{A prenosljiv ali } \bb \notin \Gamma'
 		}{
 			\Gamma, x \of A, \Gamma' \types x \of A
 		}
 		\quad
-		\coopinfer{}{\Gamma, \bb \types V \of A
+		\coopinfer{Ty-Boxed}{
+			\Gamma, \bb \types V \of A
 		}{
 			\Gamma \types \tmboxed{V} \of \tyboxed{A}
 		}
 		\quad
-		\coopinfer{}{\Gamma \types V \of \tyboxed{A} \\ \Gamma, x \of A \types M \of \tycomp{B}{\o, \i}
+		\coopinfer{TyComp-Unbox}{
+			\Gamma \types V \of \tyboxed{A} \\ \Gamma, x \of A \types M \of \tycomp{B}{\o, \i}
 		}{
 			\Gamma \types \tmunbox{V}{x}{M} \of \tycomp{B}{\o, \i}
 		}
@@ -181,23 +184,6 @@ run remote ()
 	
 \end{lstlisting}
 
-%\begin{lstlisting}[caption={Primer uporabe prenosljivega tipa.},label={prog:primer-prenosljivega-tipa},float,floatplacement=h]
-%run let f = [fun x -> (x, x)] in
-%    send op f;
-%    promise (op' y -> 
-%      <y>)
-%    as p in
-%    await p until <y'> in
-%    return y'
-%
-%run promise (op f -> 
-%    let r = f 3 in
-%    send op' r;
-%    <()>) 
-%    as _ in
-%    return ()
-%\end{lstlisting}
-
 
 \subsection{Rekurzivni prestreznik}
 
@@ -219,7 +205,7 @@ Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z reku
 	\begin{align*}
 	M, N
 	\bnfis& ...                            & &\text{obstoječi izračuni} \\
-	\bnfor& \tmwithrec{op}{f}{x}{M}{p}{N}  & &\text{rekurzivni prestreznik}
+	\bnfor& \tmwithrec{op}{r}{x}{M}{p}{N}  & &\text{rekurzivni prestreznik}
 	\end{align*}
  
 	\caption{Izračuni z rekurzivnim prestreznikom}
@@ -234,13 +220,13 @@ Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verzij
 	\centering
 	\small
 	\begin{align*}
-	\tmlet{x}{(\tmwithrec{op}{f}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwithrec{op}{f}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
+	\tmlet{x}{(\tmwithrec{op}{r}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwithrec{op}{r}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
 	\\
-	\tmwithrec{op}{f}{x}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}}
+	\tmwithrec{op}{r}{x}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwithrec{op}{r}{x}{M}{p}{N}}
 	\\
-	\tmopin{op}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, F/f]}{\tmopin{op}{V}{N}} \\
-	F = \;& \tmfunano{y}{(\tmwithrec{op}{f}{x}{M}{p}{\tmreturn{p}})} \\
-	\tmopin{op'}{V}{\tmwithrec{op}{f}{x}{M}{p}{N}} &\reduces \tmwithrec{op}{f}{x}{M}{p}{\tmopin{op'}{V}{N}} \\
+	\tmopin{op}{V}{\tmwithrec{op}{r}{x}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, R/r]}{\tmopin{op}{V}{N}} \\
+	R = \;& \tmfunano{y}{(\tmwithrec{op}{r}{x}{M}{p}{\tmreturn{p}})} \\
+	\tmopin{op'}{V}{\tmwithrec{op}{r}{x}{M}{p}{N}} &\reduces \tmwithrec{op}{r}{x}{M}{p}{\tmopin{op'}{V}{N}} \\
 	&\qquad {\color{rulenameColor}(\op \neq \op')}
 	\end{align*}
 	
@@ -254,11 +240,12 @@ Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrez
 	\centering
 	\small
 	\begin{mathpar}
-		\coopinfer{}{\i\, (\op) \order{O \times I} ({\o'} , {\i'}) \\
-			\Gamma, x \of \tymobile{A}_\op, f \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\o', \i'}} \types M : \tycomp{\typromise B}{\o',\i'} \\
+		\coopinfer{TyComp-RecPromise}{
+			\i\, (\op) \order{O \times I} ({\o'} , {\i'}) \\
+			\Gamma, x \of \tymobile{A}_\op, r \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\o', \i'}} \types M : \tycomp{\typromise B}{\o',\i'} \\
 			\Gamma, p \of \typromise B \types N : \tycomp{C}{\o,\i}
 		}{
-			\Gamma \types \tmwithrec{op}{x}{f}{M}{p}{N} \of \tycomp{C}{\o, \i}
+			\Gamma \types \tmwithrec{op}{x}{r}{M}{p}{N} \of \tycomp{C}{\o, \i}
 		}
 	\end{mathpar}
 	
@@ -332,11 +319,13 @@ Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
 	\begin{align*}
 	\tmlet{x}{(\tmspawn{M_1}{M_2})}{N} & \reduces \tmspawn{M_1}{\tmlet{x}{M_2}{N}}
 	\\
-	\tmwithrec{op}{x}{f}{M}{p}{\tmspawn{N_1}{N_2}} & \reduces \tmspawn{N_1}{\tmwithrec{op}{x}{f}{M}{p}{N_2}}
+	\tmwithrec{op}{x}{r}{M}{p}{\tmspawn{N_1}{N_2}} & \reduces \tmspawn{N_1}{\tmwithrec{op}{x}{r}{M}{p}{N_2}}
 	\\
 	\tmopin{op}{V}{\tmspawn{M}{N}} & \reduces \tmspawn{M}{\tmopin{op}{V}{N}}
 	\\
 	\tmrun{(\tmspawn{M}{N})} & \reduces \tmpar{\tmrun{M}}{\tmrun{N}}
+	\\
+	\tmrun{(\tmspawn{M}{N})} & \reduces \tmpar{\tmrun{N}}{\tmrun{M}}
 	\end{align*}
 	
 	\caption{Operacijska semantika dinamičnih procesov.}
@@ -351,7 +340,8 @@ Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo 
 	\small
 	\textbf{Pravila za tipe računov}
 	\begin{mathpar}
-		\coopinfer{}{\Gamma, \blacksquare \types M : \tycomp{B}{\o', \i'} \\ \Gamma \types N : \tycomp{A}{\o, \i}
+		\coopinfer{TyComp-Spawn}{
+			\Gamma, \blacksquare \types M : \tycomp{B}{\o', \i'} \\ \Gamma \types N : \tycomp{A}{\o, \i}
 		}{
 			\Gamma \types \tmspawn{M}{N} : \tycomp{A}{\o, \i}
 		}
@@ -361,7 +351,7 @@ Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo 
 
 Sedaj ko imamo dinamične procese, lahko obe evalvaciji funkcije $f$ opravimo hkrati v svojem procesu, kar potencialno pohitri izvajanje programa. Primer~\ref{prog:razsiritev-2} lahko sedaj spremenimo v~\ref{prog:razsiritev-3}. 
 
-\begin{lstlisting}[caption={Primer z dinamičnimi procesi},label={prog:razsiritev-3},float,floatplacement=h]
+\begin{lstlisting}[caption={Primer z dinamičnimi procesi},label={prog:razsiritev-3},float,floatplacement=H]
 operation call : int * [int -> int] * int
 operation result : int * int
 
@@ -397,36 +387,188 @@ run remote ()
 \end{lstlisting}
 
 
-%Na primeru~\ref{prog:primer-dinamičen-proces} imamo program, ki naredi isto kot primer~\ref{prog:primer-prenosljivega-tipa}, le da tokrat uporabimo izračun $\tmkw{Spawn}$.
-%\begin{lstlisting}[caption={Primer uporabe dinamičnih procesov.},label={prog:primer-dinamičen-proces},float,floatplacement=h]
-%run let f = fun x -> (x, x) in
-%    spawn(
-%      let r = f 3 in
-%      send op r;
-%      (),
-%      
-%      promise (op x -> <x>)
-%      as p in
-%      await p until <x'> in
-%      return x')
-%\end{lstlisting}
-
-
 \subsection{Varnost}
 
 Sedaj dokažemo izrek o varnosti za \lae{} razširjen z rekurzivnimi prestrezniki, prenosljivimi tipi, in dinamičnimi procesi.
 
-Dokazujem samo nove primere v indukciji???
 
-\begin{izrek}[o napredku za razširitev]
+\begin{izrek}[o napredku]
 	Če ...
 \end{izrek}
 
 
+\begin{lema}\label{lem:razsiritev-konteksta-2}
+	Naj za vrednost $V$ velja $\Gamma_1 \types V \of A$. Če je $A$ prenosljiv tip velja $\Gamma_1, \Gamma_2 \types V \of A$ za vsak $\Gamma_2$.
+	\begin{itemize}
+		\item Če je $A$ prenosljiv tip velja $\Gamma_1, \Gamma_2 \types V \of A$ za "vsak" $\Gamma_2$.
+		\item Če $A$ ni prenosljiv tip velja $\Gamma_1, \Gamma_2 \types V \of A$ za "vsak" $\Gamma_2$, ki ne vsebuje $\bb$.
+	\end{itemize}
+\end{lema}
 
-\begin{izrek}[izrek o ohranitvi]
-	Če ...
+\begin{proof}
+	...TODO
+\end{proof}
+
+\begin{lema}[o substituciji za vrednosti]\label{lem:substitucija-vrednosti-2}
+	Naj za vrednost $V$ velja $\Gamma_1 \types V \of A$ in za vrednost $W$ velja $\Gamma_1, x \of A, \Gamma_2 \types W \of B$. Potem velja $\Gamma_1, \Gamma_2 \types W[V/x] \of B$.
+\end{lema}
+
+\begin{proof}
+	Ker ima vrednost $W$ tip, obstaja drevo izpeljave za njegov tip.
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za vrednosti.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{Ty-Var'}, potem je $W = y$.
+		Ločimo dva primera.
+		\begin{itemize}
+			\item Če je $y = x$, potem je $A = B$ in $W[V/x] = x[V/x] = V$. Če je $A$ prenosljiv tip ima $W[V/x]$ tip $A$ po lemi~\ref{lem:razsiritev-konteksta-2}. Če $A$ ni prenosljiv tip, potem $\Gamma_2$ ne vsebuje $\bb$ in ima $W[V/x]$ tip $A$ po lemi~\ref{lem:razsiritev-konteksta-2}.
+			
+			\item Če $Y \neq x$, potem je $W[V/x] = y[V/x] = y = W$. Posledično ima $W[V/x]$ tip $B$.
+		\end{itemize}
+		
+		\item Če je zadnje pravilo \rulename{Ty-Boxed}, potem je $W=\tmboxed{W'}$ in $B=\tyboxed{B'}$. Po $IP$ ima $W'[V/x]$ tip $B'$. Ker je $W[V/x] = \tmboxed{W'[V/x]}$, ima $W[V/x]$ tip $B$, po pravilu \rulename{Ty-Boxed}.
+		
+	\end{itemize}
+\end{proof}
+
+\begin{lema}[o substituciji za izračune]\label{lem:substitucija-izračuni-2}
+	Naj za vrednost $V$ velja $\Gamma_1 \types V \of A$ in za izračun $M$ velja $\Gamma_1, x \of A, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$. Potem velja $\Gamma_1, \Gamma_2 \types M[V/x] \of \tycomp{B}{\o, \i}$.
+\end{lema}
+
+\begin{proof}
+	Ker ima izračun $M$ tip, obstaja drevo izpeljave za njegov tip.
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za izračune.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{TyComp-Unbox}, potem je $M$ enak $\tmunbox{W}{x}{N}$. Vrednost $W$ ima tip $B$ in izračun $N$ tip $\tycomp{B}{\o, \i}$.
+		Po $IP$ velja, da ima $N[V/x]$ isti tip. Po lemi~\ref{lem:substitucija-vrednosti-2} ima $W[V/x]$ isti tip. Ker je $M[V/x]$ enak $\tmunbox{W[V/x]}{x}{N[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Unbox}.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$. Izračun $N_1$ ima tip $\tycomp{C}{\o', \i'}$ in $N_2$ tip $\tycomp{B}{\o, \i}$.
+		Po $IP$ velja, da imata $N_1[V/x]$ in $N_2[V/x]$ isti tip. Ker je $M[V/x]$ enak $\tmwithrec{op}{x}{r}{N_1[V/x]}{p}{N_2[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-RecPromise}.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Spawn}, potem je $M$ enak $\tmspawn{N_1}{N_2}$. Izračun $N_1$ ima tip $\tycomp{C}{\o', \i'}$ in $N_2$ tip $\tycomp{B}{\o, \i}$.
+		Po $IP$ velja, da imata $N_1[V/x]$ in $N_2[V/x]$ isti tip. Ker je $M[V/x]$ enak $\tmspawn{N_1[V/x]}{N_2[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Spawn}.	
+	\end{itemize}
+	
+\end{proof}
+
+\begin{lema}\label{lem:promise-blackbox}
+	Naj za izračun $M$ velja $\Gamma, p \of \typromise{A}, \bb \types M \of B$. Potem velja $\Gamma, \bb \types M \of B$.
+\end{lema}
+
+\begin{proof}
+	...TODO
+\end{proof}
+
+\begin{trditev}[o ohranitvi]\label{trd:ohranitev-izracuni-2}
+	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Če izračun $M$ naredi korak $M \reduces M'$, potem velja $\Gamma \types M' \of \tycomp{A}{\o, \i}$.
+\end{trditev}
+
+\begin{proof}
+	Dokazujemo z strukturno indukcijo na drevo izpeljave koraka $M \reduces M'$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	\begin{itemize}
+		\item Če je zadnje pravilo $$\tmunbox{[V]}{x}{N} \reduces N[V/x],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Unbox}. Posledično ima $\tmboxed{V}$ tip $\tyboxed{B}$, $V$ tip $B$ in $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni-2} ima $M' = N[V/x]$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmlet{x}{(\tmwithrec{op}{r}{y}{N_1}{p}{N_2})}{N_3} \reduces \tmwithrec{op}{r}{y}{N_1}{p}{(\tmlet{x}{N_2}{N_3})},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Let}.
+		Posledično ima $N_1$ tip $\tycomp{B_1}{\o', \i'}$, $N_2$ tip $\tycomp{B_2}{\o, \i}$ in $N_3$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Let} ima $\tmlet{x}{N_2}{N_3}$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyComp-RecPromise} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmwithrec{op}{r}{x}{N_1}{p}{\tmopout{op'}{V}{N_2}} \reduces \tmopout{op'}{V}{\tmwithrec{op}{r}{x}{N_1}{p}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-RecPromise}.
+		Posledično ima  $N_1$ tip $\tycomp{B}{\o', \i'}$, $V$ tip $C_{op'}$ in $N_2$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyComp-RecPromise} ima $\tmwithrec{op}{r}{x}{N_1}{p}{N_2}$ tip $\tycomp{A}{\o, \i}$.
+		Po lemi~\ref{lem:tovor-osnovni-tip-skrcitev} ima $V$ še zmeraj tip $C_{op}$ tudi v manjšem kontekstu.
+		Po pravilu \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmwithrec{op}{r}{x}{N_1}{p}{N_2}} \reduces \tmlet{p}{N_1[V/x, F/f]}{\tmopin{op}{V}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
+		Posledično ima $V$ tip $B_{op}$, $N_1$ tip $\tycomp{\typromise{B}}{\o', \i'}$, $N_2$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N_2}$ tip $\tycomp{A}{\o, \i}$.
+		Po lemi~\ref{lem:substitucija-izračuni-2} ima $N_1[V/x, F/f]$ tip $\tycomp{B}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Let} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo $$\tmopin{op'}{V}{\tmwithrec{op}{r}{x}{N_1}{p}{N_2}} \reduces \tmwithrec{op}{r}{x}{N_1}{p}{\tmopin{op'}{V}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
+		Posledično ima $V$ tip $B_{op}$, $N_1$ tip $\tycomp{\typromise{B}}{\o', \i'}$, $N_2$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N_2}$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyComp-RecPromise} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+
+		\item Če je zadnje pravilo $$\tmlet{x}{(\tmspawn{N_1}{N_2})}{N_3} \reduces \tmspawn{N_1}{\tmlet{x}{N_2}{N_3}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Let}.
+		Posledično ima $N_1$ tip $\tycomp{\typromise{B'}}{\o', \i'}$, $N_2$ tip $\tycomp{B}{\o, \i}$ in $N_3$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Let} ima $\tmlet{x}{N_2}{N_3}$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Spawn} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+
+
+		\item Če je zadnje pravilo $$\tmwithrec{op}{x}{r}{N_1}{p}{\tmspawn{N_2}{N_3}} \reduces \tmspawn{N_2}{\tmwithrec{op}{x}{r}{N_1}{p}{N_3}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-RecPromise}.
+		Posledično ima $N_1$ tip $\tycomp{\typromise{B}}{\o', \i'}$, $N_2$ tip $\tycomp{C}{\o'', \i''}$ in $N_3$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyComp-RecPromise} ima $\tmwithrec{op}{x}{r}{N_1}{p}{N_3}$ tip $\tycomp{A}{\o, \i}$.
+		Po lemi~\ref{lem:promise-blackbox} ima $N_2$ tip $\tycomp{C}{\o'', \i''}$ tudi v manjšem kontekstu.
+		Po pravilu \rulename{TyComp-Spawn} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+
+		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmspawn{N_1}{N_2}} \reduces \tmspawn{N_1}{\tmopin{op}{V}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
+		Posledično ima $V$ tip $B$, $N_1$ tip $\tycomp{C}{\o', \i'}$ in $N_2$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N_2}$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Spawn} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		
+	\end{itemize}
+	
+\end{proof}
+
+
+Ko iz enega procesa ustvarimo dva paralelna procesa se temu primerno tip spremeni v paralelni tip. 
+Redukcijskim pravilom na sliki~\ref{fig:process-type-reductions}, dodamo pravili na sliki~\ref{fig:process-type-reductions-spawn}.
+
+\begin{figure}[H]
+	\centering
+	\begin{mathpar}
+		\coopinfer{TyRedu-Spawn-L}{
+		}{
+			\tyrun{A}{\o, \i} \tyreduces \typar{\tyrun{A'}{\o', \i'}}{\tyrun{A}{\o, \i}}
+		}	
+		\quad
+		\coopinfer{TyRedu-Spawn-R}{
+		}{
+			\tyrun{A}{\o, \i} \tyreduces \typar{\tyrun{A}{\o, \i}}{\tyrun{A'}{\o', \i'}}
+		}
+	\end{mathpar}
+	\caption{Dodatna pravila za redukcijo tipov.}
+	\label{fig:process-type-reductions-spawn}
+	
+\end{figure}
+
+\begin{izrek}[o ohranitvi]
+	Naj za proces $P$ velja $\Gamma \types P \of C$. Če proces $P$ naredi korak $P \reduces P'$, potem obstaja tak $C'$, da velja $C \tyreduces C'$ in $\Gamma \types P' \of C'$.
 \end{izrek}
+
+
+\begin{proof}
+	Dokazujemo z strukturno indukcijo na drevo izpeljave koraka $P \reduces P'$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	\begin{itemize}
+		
+		\item Če je zadnje uporabljeno pravilo
+		$$\tmrun{(\tmspawn{M}{N})} \reduces \tmpar{\tmrun{M}}{\tmrun{N}},$$
+		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Run}. Tip $C$ je oblike $\tyrun{A}{\o, \i}$.
+		Izračun $M$ ima tip $\tycomp{B}{\o', \i'}$ in $N$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyProc.Par} ima $P'$ tip $\typar{\tycomp{B}{\o', \i'}}{\tycomp{A}{\o, \i}}$, kjer je $C$ naredil korak \rulename{TyRedu-Spawn-L}.
+		
+		\item Če je zadnje uporabljeno pravilo
+		$$\tmrun{(\tmspawn{M}{N})} \reduces \tmpar{\tmrun{N}}{\tmrun{M}},$$
+		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Run}. Tip $C$ je oblike $\tyrun{A}{\o, \i}$.
+		Izračun $M$ ima tip $\tycomp{B}{\o', \i'}$ in $N$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyProc.Par} ima $P'$ tip $\typar{\tycomp{A}{\o, \i}}{\tycomp{B}{\o', \i'}}$, kjer je $C$ naredil korak \rulename{TyRedu-Spawn-R}.
+		
+
+		
+		\item Preostali primeri so identični kot v dokazu ???
+	\end{itemize}
+
+\end{proof}
+
+
 
 
 

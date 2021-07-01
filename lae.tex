@@ -952,8 +952,6 @@ Potencialno spremembo tipa formaliziramo z pravili za redukcijo tipov, ki jih la
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
-		\item Če je zadnje pravilo $$\tmapp{(\tmfun{x : A'}{N})}{V} \reduces N[V/x],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Apply}. Posledično ima $\tmfun{x : A'}{N}$ tip $\tyfun{A'}{\tycomp{A}{\o, \i}}$ in $V$ tip $A'$. Posledično ima $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N[V/x]$ tip $\tycomp{A}{\o, \i}$.
-		
 		\item Če je zadnje uporabljeno pravilo
 		$$
 		\coopinfer{}{
