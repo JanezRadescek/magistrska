@@ -498,26 +498,33 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 
 	\textbf{Delni rezultati}
 	\begin{mathpar}
-		\coopinfer{R-Return}{
-		}{
-			\RunResult {\Psi} {\tmreturn V}
-		}
-		\qquad
 		\coopinfer{R-Signal}{
+			\RunResult {\Psi} {M}
 		}{
 			\RunResult {\Psi} {\tmopout{op}{V}{M}}
 		}
-		\\
-		\coopinfer{R-Promise}{
-			\RunResult {\Psi \cup \{p\}} {N}
+		\qquad
+		\coopinfer{R-Comp}{
+			\CompResult {\Psi} {M}
 		}{
-			\RunResult {\Psi} {\tmwith {op} x M p N}
+			\RunResult {\Psi} {M}
+		}
+		\\
+		\coopinfer{R-Return}{
+		}{
+			\CompResult {\Psi} {\tmreturn V}
 		}
 		\qquad
+		\coopinfer{R-Promise}{
+			\CompResult {\Psi \cup \{p\}} {N}
+		}{
+			\CompResult {\Psi} {\tmwith {op} x M p N}
+		}
+		\\
 		\coopinfer{R-Await}{
 			p \in \Psi
 		}{
-			\RunResult {\Psi} {\tmawait{p}{x}{M}}
+			\CompResult {\Psi} {\tmawait{p}{x}{M}}
 		}
 	\end{mathpar}
 
@@ -583,15 +590,11 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \begin{proof}
 	Ker ima izračun $M$ tip, obstaja drevo izpeljave za njegov tip.
 	Dokazujemo z strukturno indukcijo na drevo izpeljave za izračune.
-	
-	Osnovni primer je en sam, ko je uprabljeno pravilo \rulename{TyComp-Return} in je $M$ enak $\tmreturn{V}$. 
-	Po pravilu \rulename{R-Return} sledi, da je $M$ delni rezultat in velja (ii).
-	
-	Sedaj pokažimo, da trditev velja tudi za rekurzivno definirane izračune.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
-	
 	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{TyComp-Return},je $M$ enak $\tmreturn{V}$. 
+		Po pravilih \rulename{R-Return} in \rulename{R-Comp} sledi, da je $M$ delni rezultat in velja (ii).
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
 		Izračun $N_1$ ima tip in po $IP$ lahko naredi korak ali pa je delni rezultat. Če $N_1$ lahko naredi korak v $N_1'$, potem lahko po pravilu za evalvacijo v okolju tudi $M$ naredi korak v $\tmlet{x}{N_1'}{N_2}$.
@@ -619,7 +622,9 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 			\item Sicer je oblike $\tminr{W_2}$ in lahko $M$ naredi korak v $N[W_2/y]$.
 		\end{itemize}
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$ in po pravilu $R-Signal$ dokažemo (ii).
+		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$.
+		Po $IP$ lahko ali $N$ naredi korak v $N'$ posledično lahko $M$ naredi korak v $\tmopout{op}{V}{N'}$.
+		Ali pa je $N$ delni rezultat in je posledično po pravilu \rulename{R-Signal} tudi $M$ delni rezultat.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$. Izračun $N$ ima tip in po $IP$ lahko naredi korak ali pa je že delna vrednost. Če $N$ lahko naredi korak v $N'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmopin{op}{V}{N'}$. 
 		Če pa je $N$ delni rezultat ločimo štiri možnosti.
@@ -632,12 +637,19 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 		
 		
 		\item Če je zadnje pravilo \rulename{TyComp-promise}, potem je $M$ enak $\tmwith{op}{x}{N_1}{p}{N_2}$. Izračun $N_2$ ima tip in po $IP$ lahko $N_2$ naredi korak ali pa je že delna vrednost. Če $N_2$ lahko naredi korak v $N_2'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmwith{op}{x}{N_1}{p}{N_2'}$.
-		Če pa je $N_2$ delni rezultat, je tudi $M$ delni rezultat po pravilu \rulename{R-Promise}.
+		Če pa je $N_2$ delni rezultat, ločimo dva primera.
+		\begin{itemize}
+			\item Če je zadnje pravilo za določitev delnega rezultata $N_2$ pravilo \rulename{R-Comp}, potem je tudi $M$ delni rezultat po pravilih \rulename{R-Comp} in \rulename{R-Promise}.
+			\item Če pa je zadnje pravilo za določitev delnega rezultata $N_2$ pravilo \rulename{R-Signal}, potem je $N_2$ oblike $\tmopout{op'}{V}{N_3}$ in posledično lahko $M$ naredi korak v $\tmopout{op}{V}{\tmwith{op}{x}{N_1}{p}{N_3}}$.
+		\end{itemize}
+		 
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Await}, potem je $M$ oblike $\tmawait{V}{p}{N}$.
 		Ločimo dva primera.
-		Če je $V$ spremenljivka v kontekstu $\Gamma$, potem je $M$ po pravilu $R-Await$ delni rezultat.
-		Sicer je $V$ enak $\tmpromise{W}$. Tedaj lahko $M$ naredi korak v $N[W/p]$.
+		\begin{itemize}
+			\item Če je $V$ spremenljivka v kontekstu $\Gamma$, potem je po pravilih \rulename{R-Comp} in \rulename{R-Await} $M$ delni rezultat.
+			\item Sicer je $V$ enak $\tmpromise{W}$. Tedaj lahko $M$ naredi korak v $N[W/p]$.
+		\end{itemize}
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Subsume}, lahko $IP$ uporabimo direktno na $M$ in posledično lahko $M$ naredi korak ali pa je $M$ delni rezultat.
 			
@@ -662,22 +674,27 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \begin{proof}
 	Ker ima proces $P$ tip, obstaja drevo izpeljave za njegov tip.
 	Dokazujemo z strukturno indukcijo na drevo izpeljave za procese.
-	
-	Osnovni primer je en sam, ko je $P$ enak $\tmrun{M}$. Ker ima $M$ tip, po posledici~\ref{pos:prazen-napredek} velja da, ali lahko $M$ naredi korak v $M'$ ali pa je $M$ delni rezultat.
-	Če $M$ lahko naredi korak v $M'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmrun{M'}$.
-	Sicer je $M$ delna vrednost in ločimo dva primera.
-	Če je $M$ enak $\tmopout{op}{V}{N}$, potem lahko $P$ naredi korak v $\tmopout{op}{V}{\tmrun{N}}$.
-	Sicer je tudi $P$ rezultat.
-	
-	Sedaj pokažimo, da izrek velja tudi za rekurzivno definirane procese.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{TyProc-Run}, potem je $P$ enak $\tmrun{M}$. Ker ima $M$ tip, po posledici~\ref{pos:prazen-napredek} velja da, ali lahko $M$ naredi korak v $M'$ ali pa je $M$ delni rezultat.
+		\begin{itemize}
+			\item Če $M$ lahko naredi korak v $M'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmrun{M'}$.
+			\item Sicer je $M$ delna vrednost in ločimo dva primera.
+			\begin{itemize}
+				\item Če je $M$ enak $\tmopout{op}{V}{N}$, potem lahko $P$ naredi korak v $\tmopout{op}{V}{\tmrun{N}}$.
+				\item Sicer je tudi $P$ rezultat.
+			\end{itemize}
+		\end{itemize}
+		\jR{Should i make itemize when ever we separate cases???}
+		
 		\item Če je zadnje pravilo \rulename{TyProc-Par}, potem je $P$ enak $\tmpar{Q_1}{Q_2}$. Ker imata $Q_1$ in $Q_2$ tip, lahko po $IP$ naredita korak ali pa sta že rezultata.
 		Če lahko eden izmed njiju naredi korak, recimo $Q_1$ lahko naredi korak v $Q_1'$, lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmpar{Q_1'}{Q_2}$. Podobno dokažemo, če lahko $Q_2$ naredi korak.
 		Sicer sta $Q_1$ in $Q_2$ rezultata. Ločimo dva primera.
-		Če je eden izmed njiju enak $\tmopout{op}{V}{Q'}$, recimo $Q_1$. Potem lahko $P$ naredi korak v $\tmopout{op}{V}{(\tmpair{Q'}{\tmopin{op}{V}{Q_2}})}$. Podobno za $Q_2$.
-		Sicer je tudi $P$ rezultat.
+		\begin{itemize}
+			\item Če je eden izmed njiju enak $\tmopout{op}{V}{Q'}$, recimo $Q_1$. Potem lahko $P$ naredi korak v $\tmopout{op}{V}{(\tmpair{Q'}{\tmopin{op}{V}{Q_2}})}$. Podobno za $Q_2$.
+			\item Sicer je tudi $P$ rezultat.
+		\end{itemize}
 		
 		\item Če je zadnje pravilo \rulename{TyProc-Signal}, potem je $P$ enak $\tmopout{op}{V}{Q}$. Proces $Q$ ima tip in po $IP$ lahko naredi korak ali pa je rezultat.
 		Če $Q$ lahko naredi korak v $Q'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmopout{op}{V}{Q'}$.

@@ -392,16 +392,34 @@ run remote ()
 Sedaj dokažemo izrek o varnosti za \lae{} razširjen z rekurzivnimi prestrezniki, prenosljivimi tipi, in dinamičnimi procesi.
 
 
+\begin{figure}[H]
+	\centering
+	
+	\textbf{Delni rezultati}
+	\begin{mathpar}
+		\coopinfer{R-Spawn}{
+			\RunResult {\Psi} {N}
+		}{
+			\RunResult {\Psi} {\tmspawn{M}{N}}
+		}
+	\end{mathpar}
+	
+
+	\caption{Rezultati in delni rezultati.}
+	\label{fig:results-rules}
+\end{figure}
+
+
 \begin{izrek}[o napredku]
-	Če ...
+	Naj za proces $P$ velja $\emptyset \types P \of C$. Potem ali (i) obstaja proces $P'$, tak da $P \reduces P'$, ali pa (ii) velja $\ProcResult{P}$.
 \end{izrek}
 
 
 \begin{lema}\label{lem:razsiritev-konteksta-2}
 	Naj za vrednost $V$ velja $\Gamma_1 \types V \of A$. Če je $A$ prenosljiv tip velja $\Gamma_1, \Gamma_2 \types V \of A$ za vsak $\Gamma_2$.
 	\begin{itemize}
-		\item Če je $A$ prenosljiv tip velja $\Gamma_1, \Gamma_2 \types V \of A$ za "vsak" $\Gamma_2$.
-		\item Če $A$ ni prenosljiv tip velja $\Gamma_1, \Gamma_2 \types V \of A$ za "vsak" $\Gamma_2$, ki ne vsebuje $\bb$.
+		\item Če je $A$ prenosljiv tip velja $\Gamma_1, \Gamma_2 \types V \of A$ za "vsak smiseln" $\Gamma_2$.
+		\item Če $A$ ni prenosljiv tip velja $\Gamma_1, \Gamma_2 \types V \of A$ za "vsak smiseln" $\Gamma_2$, ki ne vsebuje $\bb$.
 	\end{itemize}
 \end{lema}
 
