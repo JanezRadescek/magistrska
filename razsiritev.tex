@@ -2,10 +2,6 @@
 
 Poglejmo si primer~\ref{prog:razsiritev-0}, ki bi ga lahko napisali v \aeff{}, ki pripada osnovni verziji \lae{}\nobreakdash-računa. V primeru se dve pomožni vrednosti poračunata v drugem procesu, medtem ko se glavni proces nadaljuje. 
 Primer si lahko predstavljamo kot program, ki v pomožnem procesu poračuna časovno zahteven del, med tem ko glavni proces nemoteno nadaljuje delo.
-%Primer si lahko predstavljamo, kot klient, ki pošlje zahtevo na strežnik, le ta pa mu odgovori. 
-%Ali pa kot program, ki v pomožnem procesu poračuna računsko zahteven del, med tem ko glavni proces nemoteno nadaljuje delo.
-
-\jR{Kaj smo potem rekli glede [ ] ki je hkrati seznam in boxed???}
 
 \begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-0},float,floatplacement=h]
 operation call : int * int * int
@@ -25,7 +21,7 @@ let callWith =
 let remote fList =
 	let rec loop () =
 		promise (call (callNo, fNo, x) ->
-			let f = fList[fNo] in
+			let f = nth fList fNo in
 			let y = f x in
 			send result (callNo, y);
 			loop ()
@@ -43,7 +39,110 @@ run	let callCounter = ref 0 in
 run remote (fun x |-> 2 * x)::(fun x |-> 7 * x)::[]
 \end{lstlisting}
 
-Ta primer, ima nekaj problemov. Prvi je, da, ker ne moremo pošiljati funkcij, mora imeti \emph{remote} vse funkcije v naprej podane. Temu se bomo izognili z prenosljivimi tipi.
+Ta primer, ima nekaj problemov, ki jih bomo v nadaljevanju odpravili.
+
+
+\subsection{Rekurzivni prestreznik}
+
+
+Kadar pričakujemo več prekinitev z isto operacijo, je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko, da je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
+
+To funkcionalnost smo do sedaj dosegli tako, da smo obljubo definirali v pomožni rekurzivni funkciji in po potrebi znotraj obljube ponovno klicali to funkcijo, kot lahko vidimo v programu~\ref{prog:razsiritev-2}.
+
+
+Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in kontinuacije $N$ tudi spremenljivko $f$. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
+
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+		M, N
+		\bnfis& ...                            & &\text{obstoječi izračuni} \\
+		\bnfor& \tmwithrec{op}{x}{r}{M}{p}{N}  & &\text{rekurzivni prestreznik}
+	\end{align*}
+	
+	\caption{Izračuni z rekurzivnim prestreznikom}
+	\label{fig:izrazi-prestreznik}
+\end{figure}
+
+
+Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. S to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira z lambda funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik.   
+
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{align*}
+		\tmlet{x}{(\tmwithrec{op}{y}{r}{M}{p}{N_1})}{N_2} &\reduces \tmwithrec{op}{y}{r}{M}{p}{(\tmlet{x}{N_1}{N_2})}
+		\\
+		\tmwithrec{op}{x}{r}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}}
+		\\
+		\tmopin{op}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, R/r]}{\tmopin{op}{V}{N}} \\
+		R = \;& \tmfunano{y}{(\tmwithrec{op}{r}{x}{M}{p}{\tmreturn{p}})} \\
+		\tmopin{op'}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmwithrec{op}{x}{r}{M}{p}{\tmopin{op'}{V}{N}} \\
+		&\qquad {\color{rulenameColor}(\op \neq \op')}
+	\end{align*}
+	
+	\caption{Operacijska semantika rekurzivnega prestreznika}
+	\label{fig:semantika-prestreznik}
+\end{figure}
+
+Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrezniku.
+
+\begin{figure}[h]
+	\centering
+	\small
+	\begin{mathpar}
+		\coopinfer{TyComp-RecPromise}{
+			\i\, (\op) \order{O \times I} ({\o'} , {\i'}) \\
+			\Gamma, x \of \tymobile{A}_\op, r \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\o', \i'}} \types M : \tycomp{\typromise B}{\o',\i'} \\
+			\Gamma, p \of \typromise B \types N : \tycomp{C}{\o,\i}
+		}{
+			\Gamma \types \tmwithrec{op}{x}{r}{M}{p}{N} \of \tycomp{C}{\o, \i}
+		}
+	\end{mathpar}
+	
+	\caption{Pravilo za izračun tipa rekurzivnega prestreznika.}
+	\label{fig:tipi-pravila-rekurzivni-prestreznik}
+\end{figure} 
+
+Program~\ref{prog:razsiritev-1} ima isti semantičen pomen kot program~\ref{prog:razsiritev-0}, le da je tokrat napisan z rekurzivno obljubo.
+
+\begin{lstlisting}[caption={Primer z rekurzivnim prestreznikom},label={prog:razsiritev-1},float,floatplacement=h]
+operation call : int * int * int
+operation result : int * int
+
+let callWith =
+	fun callCounter fBoxed x ->
+		let callNo = !callCounter in
+		send call (callNo, fBoxed, x);
+		callCounter := callNo + 1;
+		promise (result (callNo', y) when callNo = callNo' ->
+			return <y>
+		) as p in
+		let valueThunk () = awaitValue p in
+		return valueThunk
+
+let remote fList =
+	promise (call (callNo, fNo, x) r ->
+		let f = nth fList fNo in
+		let y = f x in
+		send result (callNo, y);
+		r()
+	) as _ in
+	()
+
+run	let callCounter = ref 0 in
+	let y1 = callWith callCounter 0 2 in
+	let y2 = callWith callCounter 1 3 in
+	let z = 42 + 7 in
+	return y1 () + y2 () + z
+
+run remote (fun x |-> 2 * x)::(fun x |-> 7 * x)::[]
+\end{lstlisting}
+
+
 
 \subsection{Prenosljivi tipi}
 
@@ -145,7 +244,7 @@ Sedaj bo vrstni red v okolju pomemben, zato je okolje od sedaj naprej urejen sez
 	\label{fig:tipi-pravila-prenosljivi}
 \end{figure} 
 
-Sedaj lahko program~\ref{prog:razsiritev-0} spremenimo v program~\ref{prog:razsiritev-1}. Namesto, da ima \emph{remote} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora.  
+Sedaj lahko program~\ref{prog:razsiritev-1} spremenimo v program~\ref{prog:razsiritev-2}. Namesto, da ima \emph{remote} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora.  
 
 \begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-1},float,floatplacement=h]
 operation call : int * [int -> int] * int
@@ -163,16 +262,13 @@ let callWith =
 		return valueThunk
 
 let remote () =
-	let rec loop () =
-		promise (call (callNo, fBoxed, x) ->
-			unbox fBoxed as [f] in
-			let y = f x in
-			send result (callNo, y);
-			loop ()
-		) as p in
-		return p
-	in
-	loop ()
+	promise (call (callNo, fBoxed, x) r ->
+		unbox fBoxed as [f] in
+		let y = f x in
+		send result (callNo, y);
+		r ()
+	) as _ in
+	()
 
 run	let callCounter = ref 0 in
 let y1 = callWith callCounter [fun x |-> 2 * x] 2 in
@@ -183,111 +279,6 @@ return y1 () + y2 () + z
 run remote ()
 	
 \end{lstlisting}
-
-
-\subsection{Rekurzivni prestreznik}
-
-
-%%% v rekurzivni obljubi za efekte je dovolj da so podmnožica ne nujno ekvivalenca kot je v papirju.
-
-
-Kadar pričakujemo več prekinitev z isto operacijo, je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko, da je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
-
-To funkcionalnost smo do sedaj dosegli tako, da smo obljubo definirali v pomožni rekurzivni funkciji in po potrebi znotraj obljube ponovno klicali to funkcijo, kot lahko vidimo v programu~\ref{prog:razsiritev-2}.
-
-
-Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in kontinuacije $N$ tudi spremenljivko $f$. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
-
-
-\begin{figure}[h]
-	\centering
-	\small
-	\begin{align*}
-	M, N
-	\bnfis& ...                            & &\text{obstoječi izračuni} \\
-	\bnfor& \tmwithrec{op}{r}{x}{M}{p}{N}  & &\text{rekurzivni prestreznik}
-	\end{align*}
- 
-	\caption{Izračuni z rekurzivnim prestreznikom}
-	\label{fig:izrazi-prestreznik}
-\end{figure}
-
-
-Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. S to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $f$ substituira z lambda funkcijo $F$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo $F$ in tako ponovno namestimo prestreznik.   
-
-
-\begin{figure}[h]
-	\centering
-	\small
-	\begin{align*}
-	\tmlet{x}{(\tmwithrec{op}{r}{y}{M}{p}{N_1})}{N_2} &\reduces \tmwithrec{op}{r}{y}{M}{p}{(\tmlet{x}{N_1}{N_2})}
-	\\
-	\tmwithrec{op}{r}{x}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwithrec{op}{r}{x}{M}{p}{N}}
-	\\
-	\tmopin{op}{V}{\tmwithrec{op}{r}{x}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, R/r]}{\tmopin{op}{V}{N}} \\
-	R = \;& \tmfunano{y}{(\tmwithrec{op}{r}{x}{M}{p}{\tmreturn{p}})} \\
-	\tmopin{op'}{V}{\tmwithrec{op}{r}{x}{M}{p}{N}} &\reduces \tmwithrec{op}{r}{x}{M}{p}{\tmopin{op'}{V}{N}} \\
-	&\qquad {\color{rulenameColor}(\op \neq \op')}
-	\end{align*}
-	
-	\caption{Operacijska semantika rekurzivnega prestreznika}
-	\label{fig:semantika-prestreznik}
-\end{figure}
-
-Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrezniku.
-
-\begin{figure}[h]
-	\centering
-	\small
-	\begin{mathpar}
-		\coopinfer{TyComp-RecPromise}{
-			\i\, (\op) \order{O \times I} ({\o'} , {\i'}) \\
-			\Gamma, x \of \tymobile{A}_\op, r \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\o', \i'}} \types M : \tycomp{\typromise B}{\o',\i'} \\
-			\Gamma, p \of \typromise B \types N : \tycomp{C}{\o,\i}
-		}{
-			\Gamma \types \tmwithrec{op}{x}{r}{M}{p}{N} \of \tycomp{C}{\o, \i}
-		}
-	\end{mathpar}
-	
-	\caption{Pravilo za izračun tipa rekurzivnega prestreznika.}
-	\label{fig:tipi-pravila-rekurzivni-prestreznik}
-\end{figure} 
-
-Program~\ref{prog:razsiritev-2} ima isti semantičen pomen kot program~\ref{prog:razsiritev-1}, le da je tokrat napisan z rekurzivno obljubo.
-
-\begin{lstlisting}[caption={Primer z rekurzivnim prestreznikom},label={prog:razsiritev-2},float,floatplacement=h]
-operation call : int * [int -> int] * int
-operation result : int * int
-
-let callWith =
-	fun callCounter fBoxed x ->
-		let callNo = !callCounter in
-		send call (callNo, fBoxed, x);
-		callCounter := callNo + 1;
-		promise (result (callNo', y) when callNo = callNo' ->
-			return <y>
-		) as p in
-		let valueThunk () = awaitValue p in
-		return valueThunk
-
-let remote () =
-	promise (call f (callNo, fBoxed, x) ->
-		unbox fBoxed as [f] in
-		let y = f x in
-		send result (callNo, y);
-		f()
-	) as _ in
-	()
-
-run	let callCounter = ref 0 in
-	let y1 = callWith callCounter [fun x |-> 2 * x] 2 in
-	let y2 = callWith callCounter [fun x |-> 7 * x] 3 in
-	let z = 42 + 7 in
-	return y1 () + y2 () + z
-
-run remote ()
-\end{lstlisting}
-
 
 \subsection{Dinamični procesi}
 
@@ -367,13 +358,13 @@ let callWith =
 		return valueThunk
 
 let remote () =
-	promise (call f (callNo, fBoxed, x) ->
+	promise (call (callNo, fBoxed, x) r ->
 		unbox fBoxed as [f] in
 		spawn(
 			let y = f x in
 			send result (callNo, y)
 		);
-		f()
+		r ()
 	) as _ in
 	()
 
@@ -463,8 +454,8 @@ Sedaj dokažemo izrek o varnosti za \lae{} razširjen z rekurzivnimi prestreznik
 		\item Če je zadnje pravilo \rulename{TyComp-Unbox}, potem je $M$ enak $\tmunbox{W}{x}{N}$. Vrednost $W$ ima tip $B$ in izračun $N$ tip $\tycomp{B}{\o, \i}$.
 		Po $IP$ velja, da ima $N[V/x]$ isti tip. Po lemi~\ref{lem:substitucija-vrednosti-2} ima $W[V/x]$ isti tip. Ker je $M[V/x]$ enak $\tmunbox{W[V/x]}{x}{N[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Unbox}.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$. Izračun $N_1$ ima tip $\tycomp{C}{\o', \i'}$ in $N_2$ tip $\tycomp{B}{\o, \i}$.
-		Po $IP$ velja, da imata $N_1[V/x]$ in $N_2[V/x]$ isti tip. Ker je $M[V/x]$ enak $\tmwithrec{op}{x}{r}{N_1[V/x]}{p}{N_2[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-RecPromise}.
+		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $\tmwithrec{op}{r}{x}{N_1}{p}{N_2}$. Izračun $N_1$ ima tip $\tycomp{C}{\o', \i'}$ in $N_2$ tip $\tycomp{B}{\o, \i}$.
+		Po $IP$ velja, da imata $N_1[V/x]$ in $N_2[V/x]$ isti tip. Ker je $M[V/x]$ enak $\tmwithrec{op}{r}{x}{N_1[V/x]}{p}{N_2[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-RecPromise}.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Spawn}, potem je $M$ enak $\tmspawn{N_1}{N_2}$. Izračun $N_1$ ima tip $\tycomp{C}{\o', \i'}$ in $N_2$ tip $\tycomp{B}{\o, \i}$.
 		Po $IP$ velja, da imata $N_1[V/x]$ in $N_2[V/x]$ isti tip. Ker je $M[V/x]$ enak $\tmspawn{N_1[V/x]}{N_2[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Spawn}.	
@@ -491,24 +482,24 @@ Sedaj dokažemo izrek o varnosti za \lae{} razširjen z rekurzivnimi prestreznik
 	\begin{itemize}
 		\item Če je zadnje pravilo $$\tmunbox{[V]}{x}{N} \reduces N[V/x],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Unbox}. Posledično ima $\tmboxed{V}$ tip $\tyboxed{B}$, $V$ tip $B$ in $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni-2} ima $M' = N[V/x]$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmlet{x}{(\tmwithrec{op}{r}{y}{N_1}{p}{N_2})}{N_3} \reduces \tmwithrec{op}{r}{y}{N_1}{p}{(\tmlet{x}{N_2}{N_3})},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Let}.
+		\item Če je zadnje pravilo $$\tmlet{x}{(\tmwithrec{op}{y}{r}{N_1}{p}{N_2})}{N_3} \reduces \tmwithrec{op}{y}{r}{N_1}{p}{(\tmlet{x}{N_2}{N_3})},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Let}.
 		Posledično ima $N_1$ tip $\tycomp{B_1}{\o', \i'}$, $N_2$ tip $\tycomp{B_2}{\o, \i}$ in $N_3$ tip $\tycomp{A}{\o, \i}$.
 		Po pravilu \rulename{TyComp-Let} ima $\tmlet{x}{N_2}{N_3}$ tip $\tycomp{A}{\o, \i}$.
 		Po pravilu \rulename{TyComp-RecPromise} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmwithrec{op}{r}{x}{N_1}{p}{\tmopout{op'}{V}{N_2}} \reduces \tmopout{op'}{V}{\tmwithrec{op}{r}{x}{N_1}{p}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-RecPromise}.
+		\item Če je zadnje pravilo $$\tmwithrec{op}{x}{r}{N_1}{p}{\tmopout{op'}{V}{N_2}} \reduces \tmopout{op'}{V}{\tmwithrec{op}{x}{r}{N_1}{p}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-RecPromise}.
 		Posledično ima  $N_1$ tip $\tycomp{B}{\o', \i'}$, $V$ tip $C_{op'}$ in $N_2$ tip $\tycomp{A}{\o, \i}$.
-		Po pravilu \rulename{TyComp-RecPromise} ima $\tmwithrec{op}{r}{x}{N_1}{p}{N_2}$ tip $\tycomp{A}{\o, \i}$.
+		Po pravilu \rulename{TyComp-RecPromise} ima $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$ tip $\tycomp{A}{\o, \i}$.
 		Po lemi~\ref{lem:tovor-osnovni-tip-skrcitev} ima $V$ še zmeraj tip $C_{op}$ tudi v manjšem kontekstu.
 		Po pravilu \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmwithrec{op}{r}{x}{N_1}{p}{N_2}} \reduces \tmlet{p}{N_1[V/x, F/f]}{\tmopin{op}{V}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
+		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmwithrec{op}{x}{r}{N_1}{p}{N_2}} \reduces \tmlet{p}{N_1[V/x, F/f]}{\tmopin{op}{V}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
 		Posledično ima $V$ tip $B_{op}$, $N_1$ tip $\tycomp{\typromise{B}}{\o', \i'}$, $N_2$ tip $\tycomp{A}{\o, \i}$.
 		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N_2}$ tip $\tycomp{A}{\o, \i}$.
-		Po lemi~\ref{lem:substitucija-izračuni-2} ima $N_1[V/x, F/f]$ tip $\tycomp{B}{\o', \i'}$.
+		Po lemi~\ref{lem:substitucija-izračuni-2} ima $N_1[V/x, R/r]$ tip $\tycomp{B}{\o', \i'}$.
 		Po pravilu \rulename{TyComp-Let} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmopin{op'}{V}{\tmwithrec{op}{r}{x}{N_1}{p}{N_2}} \reduces \tmwithrec{op}{r}{x}{N_1}{p}{\tmopin{op'}{V}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
+		\item Če je zadnje pravilo $$\tmopin{op'}{V}{\tmwithrec{op}{x}{r}{N_1}{p}{N_2}} \reduces \tmwithrec{op}{x}{r}{N_1}{p}{\tmopin{op'}{V}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
 		Posledično ima $V$ tip $B_{op}$, $N_1$ tip $\tycomp{\typromise{B}}{\o', \i'}$, $N_2$ tip $\tycomp{A}{\o, \i}$.
 		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N_2}$ tip $\tycomp{A}{\o, \i}$.
 		Po pravilu \rulename{TyComp-RecPromise} ima $M'$ tip $\tycomp{A}{\o, \i}$.

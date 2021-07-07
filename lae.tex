@@ -13,7 +13,6 @@ Izraze v \lae{}-računu razdelimo na vrednosti, izračune in procese.
 
 Vrednosti so sledeče.
 Konstante vrednosti naravna števila in logični vrednosti resnica in neresnica.
-% TOLE DODAJ ČE BO MAGISTRSKA PREKRATKA DA BODO DALJŠI DOKAZI in nekatere aritmetične in logične funkcije kot so $+$, $-$, $*$, $/$, $=$, $<$...
 Spremenljivke, ki so simbolična imena povezana z vrednostmi v danem kontekstu.
 Enote in pare.
 leve in desne inkluzije vsote.
@@ -81,6 +80,8 @@ Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi} v Backus-Naurjevi obliki 
 
 
 \subsection{Operacijska semantika}
+
+\jR{Dodaj definicijo substitucije}
 
 Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z relacijo korak $M \reduces N$. Redukcijska pravila za izračune so podana na sliki~\ref{fig:small-step-semantics-of-computations}. Redukcijska pravila za procese so podana na sliki~\ref{fig:small-step-semantics-of-processes}.
 
@@ -234,9 +235,6 @@ Rezultati ostanejo enaki kot v originalnem članku~\cite{aeff}.
 Da se izognemo nekaterim napakam ob izvajanju uvedemo sistem tipov.
 Tipe ločimo na tipe za vrednosti, izračune in procese.
 Večina vrednosti dobi standardne tipe, kot so naravno število, boolean, enota, par, vsota in funkcijski tip. 
-
-
-%%Predolga/grda poved
 Ker funkcijski tip označuje funkcijo, ki vzame argument in mu priredi izračun, le tej pa imajo, kot bomo kasneje videli, poleg standardnih tipov, še tipe za učinke, ima tudi funkcijski tip dodane tipe za učinke.
 
 
@@ -303,6 +301,12 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 	\centering
 	\small
 	\begin{mathpar}
+		\quad
+		\coopinfer{Ty-Var}{
+		}{
+			\Gamma, x \of X, \Gamma' \types x : X
+		}
+		\quad
 		\coopinfer{Ty-Cons-N}{
 		}{
 			\Gamma \types n : int
@@ -317,12 +321,6 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 		}{
 			\Gamma \types false : bool
 		}
-		\quad
-		\coopinfer{Ty-Var}{
-		}{
-			\Gamma, x \of X, \Gamma' \types x : X
-		}
-		\quad
 		\coopinfer{Ty-Unit}{
 		}{
 			\Gamma \types \tmunit : \tyunit
@@ -589,7 +587,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 
 \begin{proof}
 	Ker ima izračun $M$ tip, obstaja drevo izpeljave za njegov tip.
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za izračune.
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za izračune. \jR{More precisely state which derivation}
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
@@ -722,6 +720,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 	Edino pravilo za določitev tipa spremenljivke je \rulename{Ty-Var}. Posledično velja $y \of B \in \Gamma_1$ ali $y \of B \in \Gamma_2$. V obeh primerih po pravilu \rulename{Ty-Var} sledi $\Gamma_1, \Gamma_2 \types y \of B$.
 \end{proof}
 
+Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 
 \begin{lema}[o substituciji za vrednosti]\label{lem:substitucija-vrednosti}
 	Naj za vrednost $V$ velja $\Gamma_1 \types V \of A$ in za vrednost $W$ velja $\Gamma_1, x \of A, \Gamma_2 \types W \of B$. Potem velja $\Gamma_1, \Gamma_2 \types W[V/x] \of B$.
@@ -830,68 +829,109 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 	...TODO
 \end{proof}
 
-\begin{lema}\label{lem:tovor-osnovni-tip-razsiritev}
-	Naj za vrednost $V$ velja $\Gamma \types V \of B$, kjer je $B$ osnovni tip. Potem velja $\Gamma, x \of \typromise{A} \types V \of B$.
+\begin{lema}\label{lem:weakening}
+	Naj za vrednost $V$ velja $\Gamma_1, \Gamma_2 \types V \of B$. Če $x \neq \Gamma_1$ in $x \neq \Gamma_2$, potem velja $\Gamma_1, x \of A, \Gamma_2 \types V \of B$.
 \end{lema}
 
 \begin{proof}
 	...TODO
 \end{proof}
 
+\begin{lema}\label{lem:inversion-lema}
+	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$.
+	\begin{itemize}
+		\item Če je $M$ oblike $\tmapp{V}{W}$, potem velja $\Gamma \types V \of \tyfun{B}{\tycomp{A}{\o', \i'}}$ in $\Gamma \types W \of B$.
+		
+		\item Če je $M$ oblike $\tmlet{x}{N_1}{N_2}$, potem velja $\Gamma \types N_1 \of \tycomp{B}{\o'', \i''}$, $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$ in $(\o'', \i'') \order (\o, \i)$.
+	
+		\item Če je $M$ oblike $\tmmatch{\tmpair{V_1}{W_2}}{N}$, potem velja $\Gamma \types V_1 \of B_1$, $\Gamma \types V_2 \of B_2$ in $\Gamma \types N \of \tycomp{A}{\o', \i'}$.
+		
+		\item Če je $M$ oblike $\tmmatch{(\tminl[Y]{V_1})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}$, potem velja $\Gamma \types \tminl[Y]{V_1} \of B_1$, $\Gamma \types N_1 \of \tycomp{A}{\o', \i'}$ in $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$.
+		
+		\item Če je $M$ oblike $\tmmatch{(\tminr[X]{V_2})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}$, potem velja $\Gamma \types \tminl[X]{V_2} \of B_1$, $\Gamma \types N_1 \of \tycomp{A}{\o', \i'}$ in $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$.
+		
+		\item Če je $M$ oblike $\tmopout{op}{V}{N}$, potem velja $\Gamma \types V \of B$ in $\Gamma \types N \of \tycomp{A}{\o', \i'}$.
+		
+		\item Če je $M$ oblike $\tmopin{op}{V}{N}$, potem velja $\Gamma \types V \of B$, $\Gamma \types N \of \tycomp{A}{\o'', \i''}$ in $\opincomp{op}{(\o'', \i'')} \order (\o, \i)$.
+		
+		\item Če je $M$ oblike $\tmwith{op}{x}{N_1}{p}{N_2}$, potem velja $\Gamma, x \of B_{op} \types N_1 \of \tycomp{\typromise{B}}{\o'', \i''}$ in $\Gamma, p \of \typromise{B} \types N_1 \of \tycomp{A}{\o', \i'}$.
+		
+	\end{itemize}
+	Kjer je $(\o', \i') \order{O, I} (\o, \i)$.
+\end{lema}
+
 \begin{trditev}[o ohranitvi]\label{trd:ohranitev-izracuni}
 	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Če izračun $M$ naredi korak $M \reduces M'$, potem velja $\Gamma \types M' \of \tycomp{A}{\o, \i}$.
 \end{trditev}
+
+\jR{In promise(let) be careful that context change and you need to use weakening lemma. You dont have p anymore.}
+
+\jR{inversion lemma. zavedaj se da imamo subsuption rule. Morda nimap A imaš pa A' < A.
+v naslednjem dokazu dokazuješ na koraj. Ne na tip. kar pomeni da se lahko umes prikradejo subsumpiton.}
 
 \begin{proof}
 	Dokazujemo z strukturno indukcijo na drevo izpeljave koraka $M \reduces M'$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
-		\item Če je zadnje pravilo $$\tmapp{(\tmfun{x : A'}{N})}{V} \reduces N[V/x],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Apply}. Posledično ima $\tmfun{x : A'}{N}$ tip $\tyfun{A'}{\tycomp{A}{\o, \i}}$ in $V$ tip $A'$. Posledično ima $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N[V/x]$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmapp{(\tmfun{x : B}{N})}{V} \reduces N[V/x],$$ potem ima po lemi~\ref{lem:inversion-lema} funkcija $\tmfun{x : B}{N}$ tip $\tyfun{B}{\tycomp{A}{\o', \i'}}$ in $V$ tip $B$. Posledično ima $N$ tip $\tycomp{A}{\o', \i'}$. Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N[V/x]$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmapp{(\tmfunrec{f}{x \of A'}{N})}{V} \reduces N[V/x, (\tmfunrec{f}{x \of A'}{N})/f],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Apply}. Posledično ima $\tmfunrec{f}{x \of A'}{N}$ tip $\tyfun{A'}{\tycomp{A}{\o, \i}}$ in $V$ tip $A'$. Posledično ima $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $\widetilde{M} = N[V/x]$ tip $\tycomp{A}{\o, \i}$ in po isti lemi ima $M' = \widetilde{M}[(\tmfunrec{f}{x \of A'}{N})/f]$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmapp{(\tmfunrec{f}{x \of A'}{N})}{V} \reduces N[V/x, (\tmfunrec{f}{x \of A'}{N})/f],$$ potem ima po lemi~\ref{lem:inversion-lema} funkcija $\tmfunrec{f}{x \of B}{N}$ tip $\tyfun{B}{\tycomp{A}{\o', \i'}}$ in $V$ tip $B$. Posledično ima $N$ tip $\tycomp{A}{\o', \i'}$. Po lemi~\ref{lem:substitucija-izračuni} ima $\widetilde{M} = N[V/x]$ tip $\tycomp{A}{\o', \i'}$ in po isti lemi ima $M' = \widetilde{M}[(\tmfunrec{f}{x \of B}{N})/f]$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmlet{x}{(\tmreturn V)}{N} \reduces N[V/x],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Let}. Posledično ima $V$ tip $B$ in $N$ tip $\tycomp{A}{\o, \i}$.
-		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N[V/x]$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmlet{x}{(\tmreturn V)}{N} \reduces N[V/x],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $B$ in $N$ tip $\tycomp{A}{\o', \i'}$.
+		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N[V/x]$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmmatch{\tmpair{V}{W}}{\tmpair{x}{y} \mapsto N} \reduces N[V/x, W/y],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-MatchPair}. Posledično ima $\tmpair{V}{W}$ tip $B_1 \times B_2$, $V$ tip $B_1$, $W$ tip $B_2$ in $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $\widetilde{M} = N[V/x]$ tip $\tycomp{A}{\o, \i}$ in po isti lemi ima $M' = \widetilde{M}[W/y]$ tip $\tycomp{A}{\o, \i}$
+		\item Če je zadnje pravilo $$\tmmatch{\tmpair{V}{W}}{\tmpair{x}{y} \mapsto N} \reduces N[V/x, W/y],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tmpair{V}{W}$ tip $B_1 \times B_2$, $V$ tip $B_1$, $W$ tip $B_2$ in $N$ tip $\tycomp{A}{\o', \i'}$. Po lemi~\ref{lem:substitucija-izračuni} ima $\widetilde{M} = N[V/x]$ tip $\tycomp{A}{\o', \i'}$ in po isti lemi ima $M' = \widetilde{M}[W/y]$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmmatch{(\tminl[Y]{V})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces	N_1[V/x],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-MatchSum}. Posledično ima $\tminl{V}$ tip $B_1 + B_2$, $V$ tip $B_1$ in $N_1$ tip $\tycomp{A}{\o, \i}$.
-		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N_1[V/x]$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmmatch{(\tminl[Y]{V})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces N_1[V/x],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tminl{V}$ tip $B_1 + B_2$, $V$ tip $B_1$ in $N_1$ tip $\tycomp{A}{\o', \i'}$.
+		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N_1[V/x]$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmmatch{(\tminr[X]{W})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces	N_2[W/y],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-MatchSum}. Posledično ima $\tminr{W}$ tip $B_1 + B_2$, $W$ tip $B_2$ in $N_2$ tip $\tycomp{A}{\o, \i}$.
-		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N_2[W/y]$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmmatch{(\tminr[X]{W})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces N_2[W/y],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tminr{W}$ tip $B_1 + B_2$, $W$ tip $B_2$ in $N_2$ tip $\tycomp{A}{\o', \i'}$.
+		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N_2[W/y]$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmlet{x}{(\tmopout{op}{V}{N_1})}{N_2} \reduces \tmopout{op}{V}{\tmlet{x}{M}{N}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Let}. Posledično ima $V$ tip $B_{op}$, $\tmopout{op}{V}{N_1}$ tip $\tycomp{B}{\o, \i}$, $N_1$ tip $\tycomp{B}{\o, \i}$ in $N_2$ tip $\tycomp{A}{\o, \i}$. Po pravilih \rulename{TyComp-Let} in \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmlet{x}{(\tmopout{op}{V}{N_1})}{N_2} \reduces \tmopout{op}{V}{\tmlet{x}{M}{N}},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $B_{op}$, $\tmopout{op}{V}{N_1}$ tip $\tycomp{B}{\o, \i}$, $N_1$ tip $\tycomp{B}{\o'', \i''}$ in $N_2$ tip $\tycomp{A}{\o', \i'}$, kjer je $(\o'', \i'') \order{O, I} (\o', \i')$.
+		Po pravilih \rulename{TyComp-Let} in \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmlet{x}{(\tmwith{op}{y}{N_1}{p}{N_2})}{N_3} \reduces \tmwith{op}{y}{N_1}{p}{(\tmlet{x}{N_2}{N_3})},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Let}. Posledično ima $y$ tip $B_{op}$, $N_1$ tip $\tycomp{B}{\o, \i}$, $N_1$ tip $\tycomp{\typromise{A_1}}{\o, \i}$, $N_2$ tip $A_2$ in $N_3$ tip $\tycomp{A}{\o, \i}$. Po pravilih \rulename{TyComp-Let} in \rulename{TyComp-Promise} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmlet{x}{(\tmwith{op}{y}{N_1}{p}{N_2})}{N_3} \reduces \tmwith{op}{y}{N_1}{p}{(\tmlet{x}{N_2}{N_3})},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N_1$ tip $\tycomp{\typromise{A_1}}{\o''', \i'''}$, $N_2$ tip $\tycomp{A_2}{\o'', \i''}$ in $N_3$ tip $\tycomp{A}{\o', \i'}$.
+		Po lemi~\ref{lem:weakening} ima $N_3$ isti tip tudi v večjem kontekstu.
+		Po pravilih \rulename{TyComp-Let} in \rulename{TyComp-Promise} ima $M'$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmwith{op}{x}{N_1}{p}{\tmopout{op'}{V}{N_2}} \reduces \tmopout{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Promise}.
-		Posledično ima $N_1$ tip $\tycomp{B}{\o', \i'}$, $\tmopout{op'}{V}{N_2}$ tip $\tycomp{A}{\o, \i}$, $N_2$ tip $\tycomp{A}{\o, \i}$ in $V$ tip $A_{op}$. Po pravilih \rulename{TyComp-promise} ima $\tmwith{op}{x}{N_1}{p}{N_2}$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:tovor-osnovni-tip-skrcitev} ima $V$ še zmeraj tip $A_{op}$ tudi v manjšem kontekstu. Po pravilu \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmwith{op}{x}{N_1}{p}{\tmopout{op'}{V}{N_2}} \reduces \tmopout{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N_1$ tip $\tycomp{B}{\o''', \i'''}$, $\tmopout{op'}{V}{N_2}$ tip $\tycomp{A}{\o'', \i''}$, $N_2$ tip $\tycomp{A}{\o', \i'}$ in $V$ tip $A_{op}$.
+		Po pravilih \rulename{TyComp-promise} ima $\tmwith{op}{x}{N_1}{p}{N_2}$ tip $\tycomp{A}{\o', \i'}$.
+		Po lemi~\ref{lem:tovor-osnovni-tip-skrcitev} ima $V$ še zmeraj tip $A_{op}$ tudi v manjšem kontekstu. Po pravilu \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmopout{op'}{W}{N}} \reduces \tmopout{op'}{W}{\tmopin{op}{V}{N}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
-		Posledično ima $V$ tip $A_{op}$, $W$ tip $A_{op'}$ in $N$ tip $\tycomp{A}{\o, \i}$. Po pravilu \rulename{TyComp-Signal} in \rulename{TyComp-Interrupt} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmopout{op'}{W}{N}} \reduces \tmopout{op'}{W}{\tmopin{op}{V}{N}},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $A_{op}$, $W$ tip $A_{op'}$ in $N$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Signal} in \rulename{TyComp-Interrupt} ima $M'$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmreturn W} \reduces \tmreturn W,$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
-		Posledično ima $\tmreturn W$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmreturn W} \reduces \tmreturn W,$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $\tmreturn{W}$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces \tmlet{p}{N_1[V/x]}{\tmopin{op}{V}{N_2}},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
-		Posledično ima $V$ tip $A_{op}$ in $N_1$ tip $\tycomp{\typromise{B}}{\o', \i'}$.
-		Ker je tip $\tycomp{A}{\o, \i}$ enak $\tycomp{A}{\opincomp{op}{(\o'', \i'')}}$, ima $N_2$ tip $\tycomp{A}{\o'', \i''}$. 
-		Po lemi~\ref{lem:substitucija-izračuni} ima $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\o', \i'}$.
-		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N_2}$ tip $\tycomp{A}{\opincomp{op}{(\o'', \i'')}}$
-		Ker velja $\i(op) = (\o', \i')$, velja $(\o', \i') \order{O \times I} \opincomp{op}{(\o'', \i'')}$.
-		Po pravilu \rulename{TyComp-Subsume} ima $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\opincomp{op}{(\o'', \i'')}}$
-		Po pravilu \rulename{TyComp-Let} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o'', \i'')}} = \tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces \tmlet{p}{N_1[V/x]}{\tmopin{op}{V}{N_2}},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $A_{op}$, $N_1$ tip $\tycomp{\typromise{B}}{\o'', \i''}$ in $N_2$ tip $\tycomp{A}{\o', \i'}$.
+		Po lemi~\ref{lem:substitucija-izračuni} ima $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\o'', \i''}$.
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N_2}$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$
+		Ker velja $\i(op) = (\o'', \i'')$, velja $(\o'', \i'') \order{O \times I} \opincomp{op}{(\o', \i')}$ in posledično ima po pravilu \rulename{TyComp-Subsume} izračun $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\opincomp{op}{(\o', \i')}}$
+		Po pravilu \rulename{TyComp-Let} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmopin{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces \tmwith{op}{x}{N_1}{p}{\tmopin{op'}{V}{N}_2},$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Interrupt}.
-		Posledično ima $V$ tip $A_{op}$ in $N_1$ tip $\tycomp{\typromise{B}}{\o', \i'}$.
-		Ker je tip $\tycomp{A}{\o, \i}$ enak $\tycomp{A}{\opincomp{op}{(\o'', \i'')}}$, ima $N_2$ tip $\tycomp{A}{\o'', \i''}$.
-		Po lemi~\ref{lem:tovor-osnovni-tip-razsiritev}, ima $V$ tudi v razširjenem kontekstu isti tip.
-		Po pravilih \rulename{TyComp-Promise} in \rulename{TyComp-Interrupt} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmopin{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces \tmwith{op}{x}{N_1}{p}{\tmopin{op'}{V}{N}_2},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $A_{op}$, $N_1$ tip $\tycomp{\typromise{B}}{\o'', \i''}$ in $N_2$ tip $\tycomp{A}{\o', \i'}$.
+		Po lemi~\ref{lem:weakening}, ima $V$ tudi v razširjenem kontekstu isti tip.
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op'}{V}{N}_2$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
+		Po pravilu \rulename{TyComp-Promise} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmawait{\tmpromise V}{x}{N} \reduces N[V/x],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Await}.
-		Posledično ima $\tmpromise{V}$ tip $\typromise{B}$, $V$ tip $B$ in $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmawait{\tmpromise V}{x}{N} \reduces N[V/x],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tmpromise{V}$ tip $\typromise{B}$, $V$ tip $B$ in $N$ tip $\tycomp{A}{\o', \i'}$.
+		Po lemi~\ref{lem:substitucija-izračuni} ima $M'$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
 		
 		
@@ -903,25 +943,26 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 		},$$
 		ločimo primere glede na obliko $M[N]$.
 		\begin{itemize}
-			\item Če je oblike $$\tmlet{x}{N}{N''},$$ potem je bilo zadnje pravilo za določitev tipa $M[N]$ \rulename{TyComp-Let}.
-			Posledično ima $N$ tip $\tycomp{B}{\o, \i}$ in $N''$ tip $\tycomp{A}{\o, \i}$.
-			Po $IP$ ima $N'$ tip $\tycomp{B}{\o, \i}$.
+			\item Če je oblike $$\tmlet{x}{N}{N''},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{B}{\o', \i'}$ in $N''$ tip $\tycomp{A}{\o'', \i''}$.
+			Po $IP$ ima $N'$ tip $\tycomp{B}{\o', \i'}$.
+			Po pravilu \rulename{TyComp-Subsume} ima $N'$ tip $\tycomp{A}{\o, \i}$.
+			Po pravilu \rulename{TyComp-Subsume} ima $N''$ tip $\tycomp{A}{\o, \i}$.
 			Po pravilu \rulename{TyComp-Let} ima $\tmlet{x}{N'}{N''}$ tip $\tycomp{A}{\o, \i}$.
 			
-			\item Če je oblike $$\tmopout{op}{V}{N},$$ potem je bilo zadnje pravilo za določitev tipa $M[N]$ \rulename{TyComp-Signal}.
-			Posledično ima $N$ tip $\tycomp{A}{\o, \i}$.
-			Po $IP$ ima $N'$ tip $\tycomp{A}{\o, \i}$.
-			Po pravilu \rulename{TyComp-Signal} ima $\tmopout{op}{V}{N'}$ tip $\tycomp{A}{\o, \i}$.
+			\item Če je oblike $$\tmopout{op}{V}{N},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{A}{\o', \i'}$.
+			Po $IP$ ima $N'$ tip $\tycomp{A}{\o', \i'}$.
+			Po pravilu \rulename{TyComp-Signal} ima $\tmopout{op}{V}{N'}$ tip $\tycomp{A}{\o', \i'}$.
+			Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 			
-			\item Če je oblike $$\tmopin{op}{V}{N},$$ potem je bilo zadnje pravilo za določitev tipa $M[N]$ \rulename{TyComp-Interrupt}.
-			Posledično ima $N$ tip $\tycomp{A}{\o, \i}$.
-			Po $IP$ ima $N'$ tip $\tycomp{A}{\o, \i}$.
-			Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N'}$ tip $\tycomp{A}{\o, \i}$.
+			\item Če je oblike $$\tmopin{op}{V}{N},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{A}{\o', \i'}$.
+			Po $IP$ ima $N'$ tip $\tycomp{A}{\o', \i'}$.
+			Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N'}$ tip $\tycomp{A}{\o', \i'}$.
+			Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 			
-			\item Če je oblike $$\tmwith{op}{x}{N''}{N},$$ potem je bilo zadnje pravilo za določitev tipa $M[N]$ \rulename{TyComp-Promise}.
-			Posledično ima $N$ tip $\tycomp{A}{\o, \i}$ in $N''$ tip $\tycomp{\typromise{B}}{\o, \i}$.
-			Po $IP$ ima $N'$ tip $\tycomp{A}{\o, \i}$.
-			Po pravilu \rulename{TyComp-promise} ima $\tmwith{op}{x}{N''}{N'}$ tip $\tycomp{A}{\o, \i}$.
+			\item Če je oblike $$\tmwith{op}{x}{N''}{N},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{A}{\o', \i'}$ in $N''$ tip $\tycomp{\typromise{B}}{\o'', \i''}$.
+			Po $IP$ ima $N'$ tip $\tycomp{A}{\o', \i'}$.
+			Po pravilu \rulename{TyComp-promise} ima $\tmwith{op}{x}{N''}{N'}$ tip $\tycomp{A}{\o', \i'}$.
+			Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		\end{itemize}
 
 	\end{itemize}
