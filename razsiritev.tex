@@ -416,7 +416,12 @@ Lemi~\ref{lem:weakening-values-2} in~\ref{lem:weakening-comp-2} se navezujeta en
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
-		\item Če je zadnje pravilo \rulename{Ty-Cons-N}, potem je $W=n$ in $B=int$. Ker je $W[V/x] = n[V/x] = n$, ima $W[V/x]$ tip $int = B$, po pravilu \rulename{Ty-Cons-N}.
+		\item Če je zadnje pravilo \rulename{Ty-Var'}, potem je $V = x$ in velja $x \in \Gamma_1$ ali $x \in \Gamma_2$.
+		Ker $\Gamma_3$ ne vsebuje $\bb$, velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$ po pravilu \rulename{Ty-Var'}
+		
+		\item Če je zadnje pravilo \rulename{Ty-Boxed}, je $V = \tmboxed{V'}$. Po $IP$ ima $V'$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{Ty-Boxed} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		
 	\end{itemize}
 \end{proof}
 
@@ -425,19 +430,173 @@ Lemi~\ref{lem:weakening-values-2} in~\ref{lem:weakening-comp-2} se navezujeta en
 \end{lema}
 
 \begin{proof}
-	...TODO
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$.
+		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-RecPromise} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Unbox}, potem je $M$ enak $\tmunbox{V}{x}{N}$.
+		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
+		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-Unbox} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Spawn}, potem je $M$ enak $\tmspawn{N_1}{N_2}$.
+		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-Spawn} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
+		
+	\end{itemize}
 \end{proof}
 
-\begin{lema}\label{lem:razsiritev-konteksta-2}
-	Naj za vrednost $V$ velja $\Gamma_1 \types V \of A$.
-	\begin{itemize}
-		\item Če je $A$ prenosljiv tip velja $\Gamma_1, \Gamma_2 \types V \of A$ za "vsak smiseln" $\Gamma_2$.
-		\item Če $A$ ni prenosljiv tip velja $\Gamma_1, \Gamma_2 \types V \of A$ za "vsak smiseln" $\Gamma_2$, ki ne vsebuje $\bb$.
-	\end{itemize}
+
+\begin{lema}\label{lem:weakening-values-bb}
+	Naj za vrednost $V$ velja $\Gamma_1, \Gamma_2, \bb \types V \of A$.
+	Za vsak kontekst $\Gamma_3$, ki vsebuje le $\bb$ in sveže spremenljivke glede na $\Gamma_1$ in $\Gamma_2$, velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
 \end{lema}
 
 \begin{proof}
-	...TODO
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, \Gamma_2, \bb \types V \of A$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{Ty-Var'}, potem je $V = x$ in velja $x \in \Gamma_1$ ali $x \in \Gamma_2$.
+		Tip $A$ je prenosljiv.
+		Ker je $A$ prenosljiv tip velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$ po pravilu \rulename{Ty-Var'}
+		
+		\item Če je zadnje pravilo \rulename{Ty-Boxed}, potem je $V = \tmboxed{V'}$.
+		Po $IP$ ima $V'$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{Ty-Boxed} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Cons-N}, potem je $V = n$. Po pravilu \rulename{Ty-Cons-N} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $V = true$. Po pravilu \rulename{Ty-Cons-T} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		\item Če je zadnje pravilo \rulename{Ty-Cons-F}, potem je $V = false$. Po pravilu \rulename{Ty-Cons-F} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Pair}, potem je $V =\tmpair{V_1}{V_2}$.
+		Po $IP$ imata $V_1$ in $V_2$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{Ty-Pair} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Promise}, potem je $V =\tmpromise{V'}$.
+		Po $IP$ ima $V'$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{Ty-Promise} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Inl}, potem je $V = \tminl{V_1}$.
+		Po $IP$ ima $V_1$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{Ty-Inl} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Inr}, potem je $V = \tminl{V_2}$.
+		Po $IP$ ima $V_2$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{Ty-Inr} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Fun}, potem je $V = \tmfun{x}{M}$.
+		Po lemi~\ref{lem:weakening-comp-bb} ima $M$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{Ty-Fun} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Fun-Rec}, potem je $V = \tmfun{x}{M}$.
+		Po lemi~\ref{lem:weakening-comp-bb} ima $M$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{Ty-Fun-Rec} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		
+	\end{itemize}
+\end{proof}
+
+\begin{lema}\label{lem:weakening-comp-bb}
+	Naj za izračun $M$ velja $\Gamma_1, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+	Za vsak kontekst $\Gamma_3$, ki vsebuje le $\bb$ in sveže spremenljivke glede na $\Gamma_1$ in $\Gamma_2$, velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+\end{lema}
+
+\begin{proof}
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{TyComp-Return}, potem je $M$ enak $\tmreturn{V}$.
+		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-Return} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
+		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-Let} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V_1 V_2$.
+		Po lemi~\ref{lem:weakening-values-bb} imata $V_1$ in $V_2$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-Apply} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{V}{(x_1,x_2) \mapsto N}$. 
+		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
+		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-MatchPair} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $\tmmatch{V}{}$.
+		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-MatchEmpty} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}$.
+		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
+		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-MatchSum} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$.
+		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
+		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-Signal} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$.
+		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
+		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-Interrupt} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Promise}, potem je $M$ enak $\tmwith{op}{x}{N_1}{p}{N_2}$.
+		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-Promise} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Await}, potem je $M$ enak $\tmawait{V}{y}{N}$.
+		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
+		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-Await} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Subsume}, ima po $IP$ $M$ isti tip v razširjenem kontekstu.
+		
+	\end{itemize}
+\end{proof}
+
+
+\begin{lema}\label{lem:weakening-values-prenosljiv}
+	Naj za vrednost $V$ velja $\Gamma_1, \Gamma_2 \types V \of A$. Če je $A$ prenosljiv tip, velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$ za vsak kontekst $\Gamma_3$, ki vsebuje le $\bb$ in sveže spremenljivke glede na $\Gamma_1$ in $\Gamma_2$.
+\end{lema}
+
+\begin{proof}
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, \Gamma_2 \types V \of A$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{Ty-Var'}, potem je $V = x$ in velja $x \in \Gamma_1$ ali $x \in \Gamma_2$.
+		Ker je $A$ prenosljiv tip velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$ po pravilu \rulename{Ty-Var'}
+		
+		\item Če je zadnje pravilo \rulename{Ty-Boxed}, potem je $V = \tmboxed{V'}$.
+		Po lemi~\ref{lem:weakening-values-bb} ima $V'$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{Ty-Boxed} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Cons-N}, potem je $V = n$. Po pravilu \rulename{Ty-Cons-N} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $V = true$. Po pravilu \rulename{Ty-Cons-T} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		\item Če je zadnje pravilo \rulename{Ty-Cons-F}, potem je $V = false$. Po pravilu \rulename{Ty-Cons-F} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Pair}, potem je $V =\tmpair{V_1}{V_2}$. Po $IP$ imata $V_1$ in $V_2$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{Ty-Pair} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		
+		\item Zadnje pravilo ne more biti \rulename{Ty-Promise}, saj v tem primeru $A$ ni prenosljiv.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Inl}, potem je $V = \tminl{V_1}$. Po $IP$ ima $V_1$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{Ty-Inl} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Inr}, potem je $V = \tminl{V_2}$. Po $IP$ ima $V_2$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{Ty-Inr} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		
+		\item Zadnje pravilo ne more biti \rulename{Ty-Fun}, saj v tem primeru $A$ ni prenosljiv.
+		
+		\item Zadnje pravilo ne more biti \rulename{Ty-Fun-Rec}, saj v tem primeru $A$ ni prenosljiv.
+		
+	\end{itemize}
 \end{proof}
 
 \begin{lema}[o substituciji za vrednosti]\label{lem:substitucija-vrednosti-2}
@@ -445,15 +604,14 @@ Lemi~\ref{lem:weakening-values-2} in~\ref{lem:weakening-comp-2} se navezujeta en
 \end{lema}
 
 \begin{proof}
-	Ker ima vrednost $W$ tip, obstaja drevo izpeljave za njegov tip.
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za vrednosti.
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, x \of A, \Gamma_2 \types W \of B$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{Ty-Var'}, potem je $W = y$.
 		Ločimo dva primera.
 		\begin{itemize}
-			\item Če je $y = x$, potem je $A = B$ in $W[V/x] = x[V/x] = V$. Če je $A$ prenosljiv tip ima $W[V/x]$ tip $A$ po lemi~\ref{lem:razsiritev-konteksta-2}. Če $A$ ni prenosljiv tip, potem $\Gamma_2$ ne vsebuje $\bb$ in ima $W[V/x]$ tip $A$ po lemi~\ref{lem:razsiritev-konteksta-2}.
+			\item Če je $y = x$, potem je $A = B$ in $W[V/x] = x[V/x] = V$. Če je $A$ prenosljiv tip ima $W[V/x]$ tip $A$ po lemi~\ref{lem:weakening-values-prenosljiv}. Če $A$ ni prenosljiv tip, potem $\Gamma_2$ ne vsebuje $\bb$ in ima $W[V/x]$ tip $A$ po lemi~\ref{lem:weakening-values-2}.
 			
 			\item Če $Y \neq x$, potem je $W[V/x] = y[V/x] = y = W$. Posledično ima $W[V/x]$ tip $B$.
 		\end{itemize}
@@ -468,8 +626,7 @@ Lemi~\ref{lem:weakening-values-2} in~\ref{lem:weakening-comp-2} se navezujeta en
 \end{lema}
 
 \begin{proof}
-	Ker ima izračun $M$ tip, obstaja drevo izpeljave za njegov tip.
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za izračune.
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, x \of A, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}

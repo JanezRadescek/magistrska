@@ -877,51 +877,50 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{TyComp-Return}, potem je $M$ enak $\tmreturn{V}$.
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-Return} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		Po pravilu \rulename{TyComp-Return} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
 		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-Let} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		Po pravilu \rulename{TyComp-Let} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V_1 V_2$.
 		Po lemi~\ref{lem:weakening-values} imata $V_1$ in $V_2$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-Apply} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		Po pravilu \rulename{TyComp-Apply} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{V}{(x_1,x_2) \mapsto N}$. 
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
 		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-MatchPair} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		Po pravilu \rulename{TyComp-MatchPair} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $\tmmatch{V}{}$.
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-MatchEmpty} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		Po pravilu \rulename{TyComp-MatchEmpty} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}$.
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
 		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-MatchSum} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		Po pravilu \rulename{TyComp-MatchSum} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$.
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
 		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-Signal} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		Po pravilu \rulename{TyComp-Signal} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$.
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
 		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-Interrupt} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		Po pravilu \rulename{TyComp-Interrupt} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Promise}, potem je $M$ enak $\tmwith{op}{x}{N_1}{p}{N_2}$.
 		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-Promise} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		Po pravilu \rulename{TyComp-Promise} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Await}, potem je $M$ enak $\tmawait{V}{y}{N}$.
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
 		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-Await} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		Po pravilu \rulename{TyComp-Await} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Subsume}, ima po $IP$ $M$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-Subsume} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
 	\end{itemize}
 \end{proof}
