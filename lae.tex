@@ -826,7 +826,36 @@ Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 \end{lema}
 
 \begin{proof}
-	...TODO
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, p \of \typromise{A}, \Gamma_2 \types V \of B$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{Ty-Var'}, potem je $V = y$. Ker $\typromise{A}$ ni osnoven tip, velja $y \in \Gamma_1$ ali $y \in \Gamma_2$.
+		Po pravilu \rulename{Ty-Var'} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Cons-N}, potem je $V = n$.Po pravilu \rulename{Ty-Cons-N} velja $\Gamma_1, \Gamma_2 \types V \of B$.
+		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $V = true$. Po pravilu \rulename{Ty-Cons-T} velja $\Gamma_1, \Gamma_2 \types V \of B$.
+		\item Če je zadnje pravilo \rulename{Ty-Cons-F}, potem je $V = false$. Po pravilu \rulename{Ty-Cons-F} velja $\Gamma_1, \Gamma_2 \types V \of B$.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Pair}, potem je $V =\tmpair{V_1}{V_2}$.
+		Po $IP$ imata $V_1$ in $V_2$ isti tip v skrčenem kontekstu.
+		Po pravilu \rulename{Ty-Pair} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+		
+		\item Zadnje pravilo ne more biti \rulename{Ty-Promise}, saj v tem primeru $B$ ni osnovni tip.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Inl}, potem je $V = \tminl{V_1}$.
+		Po $IP$ ima $V_1$ isti tip v skrčenem kontekstu.
+		Po pravilu \rulename{Ty-Inl} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+		
+		\item Če je zadnje pravilo \rulename{Ty-Inr}, potem je $V = \tminl{V_2}$.
+		Po $IP$ ima $V_2$ isti tip v skrčenem kontekstu.
+		Po pravilu \rulename{Ty-Inr} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+		
+		\item Zadnje pravilo ne more biti \rulename{Ty-Fun}, saj v tem primeru $B$ ni osnovni tip.
+		
+		\item Zadnje pravilo ne more biti \rulename{Ty-Fun-Rec}, saj v tem primeru $B$ ni osnovni tip.
+		
+	\end{itemize}
 \end{proof}
 
 Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na drugo.
