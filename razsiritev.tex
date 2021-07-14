@@ -385,8 +385,6 @@ Sedaj dokažemo izrek o varnosti za \lae{} razširjen z rekurzivnimi prestreznik
 
 \begin{figure}[H]
 	\centering
-	
-	\textbf{Delni rezultati}
 	\begin{mathpar}
 		\coopinfer{R-Spawn}{
 			\RunResult {\Psi} {N}
@@ -396,14 +394,93 @@ Sedaj dokažemo izrek o varnosti za \lae{} razširjen z rekurzivnimi prestreznik
 	\end{mathpar}
 	
 
-	\caption{Rezultati in delni rezultati.}
-	\label{fig:results-rules}
+	\caption{Nov delni rezultat.}
+	\label{fig:results-rules-2}
 \end{figure}
+
+
+
+\begin{trditev}[o napredku]\label{trd:gamma-napredek-2}
+	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$, kjer je $\Gamma = x_1 \of \typromise{A_1}, x_2 \of \typromise{A_2},..., x_i \of \typromise{A_i}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\RunResult{\Gamma}{M}$.
+\end{trditev}
+
+\begin{proof}
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma \types M \of \tycomp{A}{\o, \i}$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
+		Izračun $N_1$ ima tip in po $IP$ lahko naredi korak ali pa je delni rezultat. Če $N_1$ lahko naredi korak v $N_1'$, potem lahko po pravilu za evalvacijo v okolju tudi $M$ naredi korak v $\tmlet{x}{N_1'}{N_2}$.
+		Če pa je $N_1$ delni rezultat, ločimo pet možnosti. 
+		\begin{itemize}
+			\item Če je $N_1$ enak $\tmreturn{V}$, potem lahko $M$ naredi korak v izračun $N_2[V/x]$.
+			\item Če je $N_1$ enak $\tmopout{op}{V}{N_3}$, potem lahko $M$ naredi korak v $\tmopout{op}{V}{(\tmlet{x}{N_3}{N_2})}$.
+			\item Če je $N_1$ enak $\tmwith{op}{x}{N_3}{p}{N_4}$, lahko $M$ naredi korak v $\tmwith{op}{x}{N_3}{p}{(\tmlet{x}{N_4}{N_2})}$.
+			\item Če je $N_1$ enak $\tmawait{p}{y}{N_3}$, potem lahko $M$ naredi korak v $\tmawait{p}{y}{(\tmlet{x}{N_3}{N_2})}$.
+			\item Če je $N_1$ enak $\tmspawn{N_3}{N_4}$, potem lahko $M$ naredi korak v $\tmspawn{N_3}{(\tmlet{x}{N_4}{N_2})}$.
+		\end{itemize}
+		
+		
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$.
+		Izračun $N$ ima tip in po $IP$ lahko naredi korak ali pa je že delna vrednost.
+		Če $N$ lahko naredi korak v $N'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmopin{op}{V}{N'}$. 
+		Če pa je $N$ delni rezultat ločimo pet možnosti.
+		\begin{itemize}
+			\item Če je $N$ enak $\tmreturn{V}$, potem lahko $M$ naredi korak v $\tmreturn{V}$.
+			\item Če je $N$ enak $\tmopout{op'}{W}{O}$, potem lahko $M$ naredi korak v $\tmopout{op'}{W}{(\tmopin{op}{V}{O})}$.
+			\item Če je $N$ enak $\tmwith{op'}{x}{O}{p}{O'}$, potem lahko $M$ naredi ali korak v $\tmlet{p}{O[V/x]}{O'}$, če velja $op = op'$, ali v $\tmwith{op'}{x}{O}{p}{\tmopin{op}{V}{O'}}$ sicer.
+			\item Če je $N$ enak $\tmawait{p}{x}{O}$, potem lahko $M$ naredi korak v $\tmawait{p}{x}{(\tmopin{op}{V}{O})}$.
+			\item Če je $N$ enak $\tmspawn{N_1}{N_2}$, potem lahko $M$ naredi korak v $\tmspawn{N_1}{(\tmopin{op}{V}{N_2})}$.
+		\end{itemize}
+		
+		
+		\item Če je zadnje pravilo \rulename{TyComp-promise}, potem je $M$ enak $\tmwith{op}{x}{N_1}{p}{N_2}$.
+		Izračun $N_2$ ima tip in po $IP$ lahko $N_2$ naredi korak ali pa je že delna vrednost.
+		Če $N_2$ lahko naredi korak v $N_2'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmwith{op}{x}{N_1}{p}{N_2'}$.
+		Če pa je $N_2$ delni rezultat, ločimo tri primere.
+		\begin{itemize}
+			\item Če je zadnje pravilo za določitev delnega rezultata $N_2$ pravilo \rulename{R-Comp}, potem je tudi $M$ delni rezultat po pravilih \rulename{R-Comp} in \rulename{R-Promise}.
+			\item Če je zadnje pravilo za določitev delnega rezultata $N_2$ pravilo \rulename{R-Signal}, potem je $N_2$ oblike $\tmopout{op'}{V}{N_3}$ in posledično lahko $M$ naredi korak v $\tmopout{op}{V}{\tmwith{op}{x}{N_1}{p}{N_3}}$.
+			\item Če je zadnje pravilo za določitev delnega rezultata $N_2$ pravilo \rulename{R-Spawn}, potem je $N_2$ oblike $\tmspawn{N_3}{N_4}$ in posledično lahko $M$ naredi korak v $\tmspawn{N_3}{\tmwith{op}{x}{N_1}{p}{N_4}}$.
+		\end{itemize}
+		
+	\end{itemize}
+	
+\end{proof}
+
+
+\begin{posledica}[o napredku]\label{pos:prazen-napredek-2}
+	Naj za izračun $M$ velja $\emptyset \types M \of \tycomp{A}{\o, \i}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\RunResult{\emptyset}{M}$.
+\end{posledica}
+
+\begin{proof}
+	Trditev \ref{trd:gamma-napredek-2} velja za vsak kontekst $\Gamma$, torej tudi za $\Gamma = \emptyset$.
+\end{proof}
 
 
 \begin{izrek}[o napredku]
 	Naj za proces $P$ velja $\emptyset \types P \of C$. Potem ali (i) obstaja proces $P'$, tak da $P \reduces P'$, ali pa (ii) velja $\ProcResult{P}$.
 \end{izrek}
+
+\begin{proof}
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\emptyset \types P \of C$.
+	Ločimo primere glede na zadnje uporabljeno pravilo.
+	
+	\begin{itemize}
+		\item Če je zadnje pravilo \rulename{TyProc-Run}, potem je $P$ enak $\tmrun{M}$. Ker ima $M$ tip, po posledici~\ref{pos:prazen-napredek-2} velja da, ali lahko $M$ naredi korak v $M'$ ali pa je $M$ delni rezultat.
+		\begin{itemize}
+			\item Če $M$ lahko naredi korak v $M'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmrun{M'}$.
+			\item Sicer je $M$ delna vrednost in ločimo dva primera.
+			\begin{itemize}
+				\item Če je $M$ enak $\tmopout{op}{V}{N}$, potem lahko $P$ naredi korak v $\tmopout{op}{V}{\tmrun{N}}$.
+				\item Če je $M$ enak $\tmspawn{N_1}{N_2}$, potem lahko $P$ naredi korak v $\tmpar{N_1}{N_2}$ ali v $\tmpar{N_2}{N_1}$.
+				\item Sicer je tudi $P$ rezultat.
+			\end{itemize}
+		\end{itemize}
+		
+	\end{itemize}
+\end{proof}
 
 Lemi~\ref{lem:weakening-values-2} in~\ref{lem:weakening-comp-2} se navezujeta ena na drugo.
 
@@ -887,10 +964,6 @@ Redukcijskim pravilom na sliki~\ref{fig:process-type-reductions}, dodamo pravili
 		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Run}. Tip $C$ je oblike $\tyrun{A}{\o, \i}$.
 		Izračun $M$ ima tip $\tycomp{B}{\o', \i'}$ in $N$ tip $\tycomp{A}{\o, \i}$.
 		Po pravilu \rulename{TyProc.Par} ima $P'$ tip $\typar{\tycomp{A}{\o, \i}}{\tycomp{B}{\o', \i'}}$, kjer je $C$ naredil korak \rulename{TyRedu-Spawn-R}.
-		
-
-		
-		\item Preostali primeri so identični kot v dokazu ???
 	\end{itemize}
 
 \end{proof}

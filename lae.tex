@@ -570,13 +570,20 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{lema}
 
 \begin{proof}
-	Predpostavimo, da je $V$ spremenljivka. Edino pravilo za določitev tipa spremenljivke je \rulename{TIP-VAR}. Od tod sledi, da je tip $A$ v kontekstu $\Gamma$. Kar je v protislovju z predpostavko leme, da se tip $A$ ne pojavi v kontekstu $\Gamma$.
+	Predpostavimo, da je $V$ spremenljivka. Edino pravilo za določitev tipa spremenljivke je \rulename{TIP-VAR}.
+	Od tod sledi, da je tip $A$ v kontekstu $\Gamma$. Kar je v protislovju z predpostavko leme, da se tip $A$ ne pojavi v kontekstu $\Gamma$.
 	\begin{itemize}
-		\item Edini pravili za tip $B_1 \times B_2$ sta \rulename{Ty-Var} in \rulename{Ty-Pair}. Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Pair}. Posledično je $V$ oblike $\tmpair{W_1}{W_2}$.
+		\item Edini pravili za tip $B_1 \times B_2$ sta \rulename{Ty-Var} in \rulename{Ty-Pair}.
+		Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Pair}.
+		Posledično je $V$ oblike $\tmpair{W_1}{W_2}$.
 		
-		\item Edina pravila za tip $B_1 + B_2$ so \rulename{Ty-Var}, \rulename{Ty-Inl} in \rulename{Ty-Inr}. Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Inl} ali \rulename{Ty-Inr}. Posledično je $V$ oblike $\tminl{W_1}$ ali $\tminr{W_2}$.
+		\item Edina pravila za tip $B_1 + B_2$ so \rulename{Ty-Var}, \rulename{Ty-Inl} in \rulename{Ty-Inr}.
+		Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Inl} ali \rulename{Ty-Inr}.
+		Posledično je $V$ oblike $\tminl{W_1}$ ali $\tminr{W_2}$.
 		
-		\item Edina pravila za tip $\tyfun{B_1}{\tycomp{B_2}{\o, \i}}$ so \rulename{Ty-Var}, \rulename{Ty-Fun} in \rulename{Ty-Fun-Rec}. Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Fun} ali \rulename{Ty-Fun-Rec}. Posledično je $V$ oblike $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$.
+		\item Edina pravila za tip $\tyfun{B_1}{\tycomp{B_2}{\o, \i}}$ so \rulename{Ty-Var}, \rulename{Ty-Fun} in \rulename{Ty-Fun-Rec}.
+		Ker $V$ ni spremenljivka, je bilo uporabljeno pravilo \rulename{Ty-Fun} ali \rulename{Ty-Fun-Rec}.
+		Posledično je $V$ oblike $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$.
 	\end{itemize}
 \end{proof}
 
@@ -586,8 +593,7 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{trditev}
 
 \begin{proof}
-	Ker ima izračun $M$ tip, obstaja drevo izpeljave za njegov tip.
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za izračune. \jR{More precisely state which derivation}
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma \types M \of \tycomp{A}{\o, \i}$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
@@ -604,11 +610,16 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 			\item Če pa je $N_1$ enak $\tmawait{p}{y}{N_3}$, lahko $M$ naredi korak v $\tmawait{p}{y}{(\tmlet{x}{N_3}{N_2})}$.
 		\end{itemize}
 	
-		\item Če je uporabljeno pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V W$. Ker ima vrednost $V$ tip $\tyfun{B_1}{B_2}$ in v kontekstu nobena spremenljivka nima tipa $X \times Y$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$. Posledično lahko naredimo korak v $M[W/x]$ ali $M[V/x, (\tmfunrec{f}{x \of X}{M})/f]$.
+		\item Če je uporabljeno pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V W$.
+		Ker ima vrednost $V$ tip $\tyfun{B_1}{B_2}$ in v kontekstu nobena spremenljivka nima tipa $X \times Y$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$.
+		Posledično lahko naredimo korak v $M[W/x]$ ali $M[V/x, (\tmfunrec{f}{x \of X}{M})/f]$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{V}{(x,y) \mapsto N}$. Ker ima vrednost $V$ tip $X \times Y$ in v kontekstu nobena spremenljivka nima tipa $X \times Y$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $(W_1,W_2)$. Posledično lahko $M$ naredi korak v izračun $N[W_1/x,W_2/y]$.
+		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{V}{(x,y) \mapsto N}$.
+		Ker ima vrednost $V$ tip $X \times Y$ in v kontekstu nobena spremenljivka nima tipa $X \times Y$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $(W_1,W_2)$.
+		Posledično lahko $M$ naredi korak v izračun $N[W_1/x,W_2/y]$.
 		
-		\item Zadnje pravilo ne more biti \rulename{TyComp-MatchEmpty}. Če bi bilo zadnje pravilo \rulename{TyComp-MatchEmpty}, bi vrednost $V$ imela tip $0$. 
+		\item Zadnje pravilo ne more biti \rulename{TyComp-MatchEmpty}.
+		Če bi bilo zadnje pravilo \rulename{TyComp-MatchEmpty}, bi vrednost $V$ imela tip $0$. 
 		Ker v kontekstu nobena spremenljivka nima tipa $0$, $V$ ne more biti spremenljivka po lemi~\ref{lem:ni-spremenljivka}.
 		Ker ne obstaja nobeno drugo pravilo za tip $0$, take vrednosti ne moremo imeti, in posledično zadnje uporabljeno pravilo ne more biti \rulename{TyComp-MatchEmpty}.
 
@@ -624,7 +635,9 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 		Po $IP$ lahko ali $N$ naredi korak v $N'$ posledično lahko $M$ naredi korak v $\tmopout{op}{V}{N'}$.
 		Ali pa je $N$ delni rezultat in je posledično po pravilu \rulename{R-Signal} tudi $M$ delni rezultat.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$. Izračun $N$ ima tip in po $IP$ lahko naredi korak ali pa je že delna vrednost. Če $N$ lahko naredi korak v $N'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmopin{op}{V}{N'}$. 
+		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$.
+		Izračun $N$ ima tip in po $IP$ lahko naredi korak ali pa je že delna vrednost.
+		Če $N$ lahko naredi korak v $N'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmopin{op}{V}{N'}$. 
 		Če pa je $N$ delni rezultat ločimo štiri možnosti.
 		\begin{itemize}
 			\item Če je $N$ enak $\tmreturn{V}$, potem lahko $M$ naredi korak v $\tmreturn{V}$.
@@ -634,7 +647,9 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 		\end{itemize}
 		
 		
-		\item Če je zadnje pravilo \rulename{TyComp-promise}, potem je $M$ enak $\tmwith{op}{x}{N_1}{p}{N_2}$. Izračun $N_2$ ima tip in po $IP$ lahko $N_2$ naredi korak ali pa je že delna vrednost. Če $N_2$ lahko naredi korak v $N_2'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmwith{op}{x}{N_1}{p}{N_2'}$.
+		\item Če je zadnje pravilo \rulename{TyComp-promise}, potem je $M$ enak $\tmwith{op}{x}{N_1}{p}{N_2}$.
+		Izračun $N_2$ ima tip in po $IP$ lahko $N_2$ naredi korak ali pa je že delna vrednost.
+		Če $N_2$ lahko naredi korak v $N_2'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmwith{op}{x}{N_1}{p}{N_2'}$.
 		Če pa je $N_2$ delni rezultat, ločimo dva primera.
 		\begin{itemize}
 			\item Če je zadnje pravilo za določitev delnega rezultata $N_2$ pravilo \rulename{R-Comp}, potem je tudi $M$ delni rezultat po pravilih \rulename{R-Comp} in \rulename{R-Promise}.
@@ -665,13 +680,12 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 \end{proof}
 
 
-\begin{izrek}[o napredku]
+\begin{izrek}[o napredku]\label{izr:napredek}
 	Naj za proces $P$ velja $\emptyset \types P \of C$. Potem ali (i) obstaja proces $P'$, tak da $P \reduces P'$, ali pa (ii) velja $\ProcResult{P}$.
 \end{izrek}
 
 \begin{proof}
-	Ker ima proces $P$ tip, obstaja drevo izpeljave za njegov tip.
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za procese.
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\emptyset \types P \of C$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
@@ -684,7 +698,6 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 				\item Sicer je tudi $P$ rezultat.
 			\end{itemize}
 		\end{itemize}
-		\jR{Should i make itemize when ever we separate cases???}
 		
 		\item Če je zadnje pravilo \rulename{TyProc-Par}, potem je $P$ enak $\tmpar{Q_1}{Q_2}$. Ker imata $Q_1$ in $Q_2$ tip, lahko po $IP$ naredita korak ali pa sta že rezultata.
 		Če lahko eden izmed njiju naredi korak, recimo $Q_1$ lahko naredi korak v $Q_1'$, lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmpar{Q_1'}{Q_2}$. Podobno dokažemo, če lahko $Q_2$ naredi korak.
@@ -699,12 +712,14 @@ Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku na
 		Sicer je tudi $P$ rezultat.
 		
 		\item Če je zadnje pravilo \rulename{TyProc-Interrupt}, potem je $P$ enak $\tmopin{op}{V}{Q}$. Proces $Q$ ima tip in po $IP$ lahko naredi korak ali pa je rezultat.
-		Če $Q$ lahko naredi korak v $Q'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmopin{op}{V}{Q'}$.
-		Če pa je $Q$ rezultat ločimo tri primere.
 		\begin{itemize}
-			\item Če je $Q$ enak $\tmrun{M}$, potem lahko $P$ naredi korak v $\tmrun{\tmopin{op}{V}{M}}$.
-			\item Če je $Q$ enak $\tmopout{op'}{V'}{Q'}$, potem lahko $P$ naredi korak v $\tmopout{op'}{V'}{(\tmopin{op}{V}{Q'})}$.
-			\item Če je $Q$ enak $\tmpar{Q_1}{Q_2}$, potem lahko $P$ naredi korak v $\tmpar{\tmopin{op}{V}{Q_1}}{\tmopin{op}{V}{Q_2}}$.
+			\item Če $Q$ lahko naredi korak v $Q'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmopin{op}{V}{Q'}$.
+			\item Če pa je $Q$ rezultat ločimo tri primere.
+			\begin{itemize}
+				\item Če je $Q$ enak $\tmrun{M}$, potem lahko $P$ naredi korak v $\tmrun{\tmopin{op}{V}{M}}$.
+				\item Če je $Q$ enak $\tmopout{op'}{V'}{Q'}$, potem lahko $P$ naredi korak v $\tmopout{op'}{V'}{(\tmopin{op}{V}{Q'})}$.
+				\item Če je $Q$ enak $\tmpar{Q_1}{Q_2}$, potem lahko $P$ naredi korak v $\tmpar{\tmopin{op}{V}{Q_1}}{\tmopin{op}{V}{Q_2}}$.
+			\end{itemize}
 		\end{itemize}
 		
 	\end{itemize}
