@@ -69,6 +69,15 @@ Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z reku
 
 Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. S to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira z lambda funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik.   
 
+\begin{figure}[H]
+	\centering
+	\small
+	\begin{align*}
+		(\tmwithrec{op}{y}{r}{M}{p}{N})[V/x] &= \tmwith{op}{y}{r}{M[V/x]}{p}{N[V/x]}
+	\end{align*}
+	\caption{Substitucija za rekurzivni prestreznik.}
+	\label{fig:substitucija-prestreznik}
+\end{figure}
 
 \begin{figure}[H]
 	\centering
@@ -84,7 +93,7 @@ Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verzij
 		&\qquad {\color{rulenameColor}(\op \neq \op')}
 	\end{align*}
 	
-	\caption{Operacijska semantika rekurzivnega prestreznika}
+	\caption{Operacijska semantika rekurzivnega prestreznika.}
 	\label{fig:semantika-prestreznik}
 \end{figure}
 
@@ -202,6 +211,18 @@ Sedaj vsaki operaciji namesto osnovnega tipa pripada prenosljiv tip.
 
 Izračun odvijanje veže vrednost znotraj zavite vrednosti $\tmboxed{V}$ na spremenljivko $x$, ki jo lahko uporabimo v kontinuaciji $M$.
 
+\begin{figure}[H]
+	\centering
+	\small
+	\jR{Box is not loking good}
+	\begin{align*}
+		\tmboxed{W}[V/x] &= \tmboxed{W[V/x]} \\
+		(\tmunbox{W}{x}{M})[V/x] &= \tmunbox{W[V/x]}{x}{M[V/x]}
+	\end{align*}
+	\caption{Substitucija za rekurzivni prestreznik.}
+	\label{fig:substitucija-box}
+\end{figure}
+
 \begin{figure}[h]
 	\centering
 	\small
@@ -287,8 +308,7 @@ Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti
 Posledično bi morali vnaprej vedeti, koliko klicov bo remote hkrati dobil, da bi imeli temu primerno pripravljenih procesov.
 
 Da rešimo ta problem, dodamo dinamično ustvarjanje novih procesov s pomočjo izračuna $\tmspawn{M}{N}$. 
-Le ta se bo pomikal navzven. Ko bo postal zgornji izračun v procesu, se bo ta proces razcepil v dva procesa. 
-Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
+
 
 
 \begin{figure}[H]	
@@ -303,6 +323,20 @@ Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
 	\caption{Izračun $\tmkw{Spawn}$.}
 	\label{fig:izračun-spawn}
 \end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\small
+	\begin{align*}
+		(\tmspawn{M}{N})[V/x] &= \tmspawn{M[V/x]}{N[V/x]}
+	\end{align*}
+	\caption{Substitucija za dinamične procese.}
+	\label{fig:substitucija-spawn}
+\end{figure}
+
+Izračun $\tmkw{spawn}$ se bo pomikal navzven. Ko bo postal zgornji izračun v procesu, se bo ta proces razcepil v dva procesa. 
+Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
 
 \begin{figure}[H]
 	\centering
