@@ -248,7 +248,7 @@ Sedaj bo vrstni red v okolju pomemben, zato je okolje od sedaj naprej urejen sez
 			\Gamma, x \of A, \Gamma' \types x \of A
 		}
 		\quad
-		\coopinfer{Ty-Boxed}{
+		\coopinfer{TyVal-Boxed}{
 			\Gamma, \bb \types V \of A
 		}{
 			\Gamma \types \tmboxed{V} \of \tyboxed{A}
@@ -423,71 +423,48 @@ Sedaj dokažemo izrek o varnosti za \lae{} razširjen z rekurzivnimi prestreznik
 	\centering
 	\begin{mathpar}
 		\coopinfer{R-Spawn}{
-			\RunResult {\Psi} {N}
+			\CompResult {\Psi} {N}
 		}{
-			\RunResult {\Psi} {\tmspawn{M}{N}}
+			\CompResult {\Psi} {\tmspawn{M}{N}}
 		}
 	\end{mathpar}
 	
 
-	\caption{Nov delni rezultat.}
+	\caption{Dodaten rezultat za izračune.}
 	\label{fig:results-rules-2}
 \end{figure}
 
 
 
 \begin{trditev}[o napredku]\label{trd:gamma-napredek-2}
-	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$, kjer je $\Gamma = x_1 \of \typromise{A_1}, x_2 \of \typromise{A_2},..., x_i \of \typromise{A_i}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\RunResult{\Gamma}{M}$.
+	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$, kjer je $\Gamma = x_1 \of \typromise{A_1}, x_2 \of \typromise{A_2},..., x_i \of \typromise{A_i}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\CompResult{\Gamma}{M}$.
 \end{trditev}
-
-\jR{Add a sentence before proof which case is the most important.
-dont reapet subcases that are the same. just mantion that we have this new one. 
-}
 
 \begin{proof}
 	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma \types M \of \tycomp{A}{\o, \i}$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
+	Primeri, ki so enaki kot v dokazu~\ref{trd:gamma-napredek} so izpuščeni. V primerih, ki so drugačni, omenimo le spremenjen ali dodan del.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
-		Izračun $N_1$ ima tip in po $IP$ lahko naredi korak ali pa je delni rezultat. Če $N_1$ lahko naredi korak v $N_1'$, potem lahko po pravilu za evalvacijo v okolju tudi $M$ naredi korak v $\tmlet{x}{N_1'}{N_2}$.
-		Če pa je $N_1$ delni rezultat, ločimo pet možnosti. 
-		\mP{Here, I'd say - the only thing that changes is the addition of a new result form, and then have a bullet point just for that one. Do not copy-paste the rest of the proof.}
+		Če je $N_1$ rezultat, dobimo dodatno možnost.
 		\begin{itemize}
-			\item Če je $N_1$ enak $\tmreturn{V}$, potem lahko $M$ naredi korak v izračun $N_2[V/x]$.
-			\item Če je $N_1$ enak $\tmopout{op}{V}{N_3}$, potem lahko $M$ naredi korak v $\tmopout{op}{V}{(\tmlet{x}{N_3}{N_2})}$.
-			\item Če je $N_1$ enak $\tmwith{op}{x}{N_3}{p}{N_4}$, lahko $M$ naredi korak v $\tmwith{op}{x}{N_3}{p}{(\tmlet{x}{N_4}{N_2})}$.
-			\item Če je $N_1$ enak $\tmawait{p}{y}{N_3}$, potem lahko $M$ naredi korak v $\tmawait{p}{y}{(\tmlet{x}{N_3}{N_2})}$.
-			\item Če je $N_1$ enak $\tmspawn{N_3}{N_4}$, potem lahko $M$ naredi korak v $\tmspawn{N_3}{(\tmlet{x}{N_4}{N_2})}$.
+			\item Če je zadnje pravilo \rulename{R-Spawn}, potem je $N_1$ enak $\tmspawn{N_3}{N_4}$ in lahko $M$ naredi korak v $\tmspawn{N_3}{(\tmlet{x}{N_4}{N_2})}$.
 		\end{itemize}
 		
-		
-		
 		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$.
-		Izračun $N$ ima tip in po $IP$ lahko naredi korak ali pa je že delna vrednost.
-		Če $N$ lahko naredi korak v $N'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmopin{op}{V}{N'}$. 
-		Če pa je $N$ delni rezultat ločimo pet možnosti.
+		Če je $N$ rezultat, dobimo dodatno možnost.
 		\begin{itemize}
-			\item Če je $N$ enak $\tmreturn{V}$, potem lahko $M$ naredi korak v $\tmreturn{V}$.
-			\item Če je $N$ enak $\tmopout{op'}{W}{O}$, potem lahko $M$ naredi korak v $\tmopout{op'}{W}{(\tmopin{op}{V}{O})}$.
-			\item Če je $N$ enak $\tmwith{op'}{x}{O}{p}{O'}$, potem lahko $M$ naredi ali korak v $\tmlet{p}{O[V/x]}{O'}$, če velja $op = op'$, ali v $\tmwith{op'}{x}{O}{p}{\tmopin{op}{V}{O'}}$ sicer.
-			\item Če je $N$ enak $\tmawait{p}{x}{O}$, potem lahko $M$ naredi korak v $\tmawait{p}{x}{(\tmopin{op}{V}{O})}$.
-			\item Če je $N$ enak $\tmspawn{N_1}{N_2}$, potem lahko $M$ naredi korak v $\tmspawn{N_1}{(\tmopin{op}{V}{N_2})}$.
+			\item Če je zadnje pravilo \rulename{R-Spawn}, potem je $N$ enak $\tmspawn{N_1}{N_2}$ in lahko $M$ naredi korak v $\tmspawn{N_1}{(\tmopin{op}{V}{N_2})}$.
 		\end{itemize}
 		
 		
 		\item Če je zadnje pravilo \rulename{TyComp-promise}, potem je $M$ enak $\tmwith{op}{x}{N_1}{p}{N_2}$.
-		Izračun $N_2$ ima tip in po $IP$ lahko $N_2$ naredi korak ali pa je že delna vrednost.
-		Če $N_2$ lahko naredi korak v $N_2'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmwith{op}{x}{N_1}{p}{N_2'}$.
-		Če pa je $N_2$ delni rezultat, ločimo tri primere.
+		Če je $N_2$ rezultat, dobimo dodatno možnost.
 		\begin{itemize}
-			\item Če je zadnje pravilo za določitev delnega rezultata $N_2$ pravilo \rulename{R-Comp}, potem je tudi $M$ delni rezultat po pravilih \rulename{R-Comp} in \rulename{R-Promise}.
-			\item Če je zadnje pravilo za določitev delnega rezultata $N_2$ pravilo \rulename{R-Signal}, potem je $N_2$ oblike $\tmopout{op'}{V}{N_3}$ in posledično lahko $M$ naredi korak v $\tmopout{op}{V}{\tmwith{op}{x}{N_1}{p}{N_3}}$.
-			\item Če je zadnje pravilo za določitev delnega rezultata $N_2$ pravilo \rulename{R-Spawn}, potem je $N_2$ oblike $\tmspawn{N_3}{N_4}$ in posledično lahko $M$ naredi korak v $\tmspawn{N_3}{\tmwith{op}{x}{N_1}{p}{N_4}}$.
-		\end{itemize}
-		
-	\end{itemize}
-	
+			\item Če je zadnje pravilo \rulename{R-Spawn}, potem je $N_2$ oblike $\tmspawn{N_3}{N_4}$ in lahko $M$ naredi korak v $\tmspawn{N_3}{\tmwith{op}{x}{N_1}{p}{N_4}}$.
+		\end{itemize}		
+	\end{itemize}	
 \end{proof}
 
 
@@ -507,19 +484,14 @@ dont reapet subcases that are the same. just mantion that we have this new one.
 \begin{proof}
 	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\emptyset \types P \of C$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
+	Primeri, ki so enaki kot v dokazu~\ref{izr:napredek} so izpuščeni. V primerih, ki so drugačni, omenimo le spremenjen ali dodan del.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{TyProc-Run}, potem je $P$ enak $\tmrun{M}$. Ker ima $M$ tip, po posledici~\ref{pos:prazen-napredek-2} velja da, ali lahko $M$ naredi korak v $M'$ ali pa je $M$ delni rezultat.
+		Če je $M$ rezultat, dobimo dodatno možnost.
 		\begin{itemize}
-			\item Če $M$ lahko naredi korak v $M'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmrun{M'}$.
-			\item Sicer je $M$ delna vrednost in ločimo dva primera.
-			\begin{itemize}
-				\item Če je $M$ enak $\tmopout{op}{V}{N}$, potem lahko $P$ naredi korak v $\tmopout{op}{V}{\tmrun{N}}$.
-				\item Če je $M$ enak $\tmspawn{N_1}{N_2}$, potem lahko $P$ naredi korak v $\tmpar{N_1}{N_2}$ ali v $\tmpar{N_2}{N_1}$.
-				\item Sicer je tudi $P$ rezultat.
-			\end{itemize}
-		\end{itemize}
-		
+			\item Če je zadnje pravilo \rulename{R-Spawn}, potem je $M$ enak $\tmspawn{N_1}{N_2}$ in lahko $P$ naredi korak v $\tmpar{N_1}{N_2}$ ali v $\tmpar{N_2}{N_1}$.
+		\end{itemize}		
 	\end{itemize}
 \end{proof}
 
@@ -532,13 +504,14 @@ Lemi~\ref{lem:weakening-values-2} in~\ref{lem:weakening-comp-2} se navezujeta en
 \begin{proof}
 	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, \Gamma_2 \types V \of A$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
+	Primeri, ki so enaki kot v dokazu~\ref{lem:weakening-values} so izpuščeni.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{TyVal-Var'}, potem je $V = x$ in velja $x \in \Gamma_1$ ali $x \in \Gamma_2$.
 		Ker $\Gamma_3$ ne vsebuje $\bb$, velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$ po pravilu \rulename{TyVal-Var'}
 		
-		\item Če je zadnje pravilo \rulename{Ty-Boxed}, je $V = \tmboxed{V'}$. Po $IP$ ima $V'$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{Ty-Boxed} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		\item Če je zadnje pravilo \rulename{TyVal-Boxed}, je $V = \tmboxed{V'}$. Po $IP$ ima $V'$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyVal-Boxed} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
 	\end{itemize}
 \end{proof}
@@ -550,6 +523,7 @@ Lemi~\ref{lem:weakening-values-2} in~\ref{lem:weakening-comp-2} se navezujeta en
 \begin{proof}
 	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
+	Primeri, ki so enaki kot v dokazu~\ref{lem:weakening-comp} so izpuščeni.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$.
@@ -568,53 +542,56 @@ Lemi~\ref{lem:weakening-values-2} in~\ref{lem:weakening-comp-2} se navezujeta en
 	\end{itemize}
 \end{proof}
 
-\jR{Say that gamma2 contains bb}
 \begin{lema}\label{lem:weakening-values-bb}
-	Naj za vrednost $V$ velja $\Gamma_1, \Gamma_2, \bb \types V \of A$.
-	Za vsak kontekst $\Gamma_3$, ki vsebuje le $\bb$ in sveže spremenljivke glede na $\Gamma_1$ in $\Gamma_2$, velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+	Naj za vrednost $V$ velja $\Gamma_1, \Gamma_2 \types V \of A$, kjer $\Gamma_2$ vsebuje $\bb$.
+	Za vsak kontekst $\Gamma_3$, ki vsebuje le $\bb$ in sveže spremenljivke glede na $\Gamma_1$ in $\Gamma_2$, velja $\Gamma_1, \Gamma_3, \Gamma_2, \types V \of A$.
 \end{lema}
 
 \begin{proof}
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, \Gamma_2, \bb \types V \of A$.
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, \Gamma_2 \types V \of A$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{TyVal-Var'}, potem je $V = x$ in velja $x \in \Gamma_1$ ali $x \in \Gamma_2$.
-		Tip $A$ je prenosljiv.
-		Ker je $A$ prenosljiv tip velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$ po pravilu \rulename{TyVal-Var'}
+		\begin{itemize}
+			\item Če je $x \in \Gamma_1$ potem je $A$ prenosljiv tip. Če je $x \in \Gamma_2$ in je za njim $\bb$ je $A$ spet prenosljiv tip.
+			Ker je $A$ prenosljiv tip velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$ po pravilu \rulename{TyVal-Var'}.
+			\item Če je $x \in \Gamma_2$ in za njim ni $\bb$ potem velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$ po pravilu \rulename{TyVal-Var'}.
+		\end{itemize}
 		
-		\item Če je zadnje pravilo \rulename{Ty-Boxed}, potem je $V = \tmboxed{V'}$.
+		\item Če je zadnje pravilo \rulename{TyVal-Boxed}, potem je $V = \tmboxed{V'}$.
 		Po $IP$ ima $V'$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{Ty-Boxed} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		Po pravilu \rulename{TyVal-Boxed} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
-		\item Če je zadnje pravilo \rulename{TyVal-Cons}, potem je $V = n$. Po pravilu \rulename{TyVal-Cons} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
-		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $V = true$. Po pravilu \rulename{Ty-Cons-T} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
-		\item Če je zadnje pravilo \rulename{Ty-Cons-F}, potem je $V = false$. Po pravilu \rulename{Ty-Cons-F} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		\item Če je zadnje pravilo \rulename{TyVal-Cons}, potem je $V = n$. Po pravilu \rulename{TyVal-Cons} velja $\Gamma_1, \Gamma_3, \Gamma_2, \types V \of A$.
+%		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $V = true$. Po pravilu \rulename{Ty-Cons-T} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+%		\item Če je zadnje pravilo \rulename{Ty-Cons-F}, potem je $V = false$. Po pravilu \rulename{Ty-Cons-F} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		
+		\item Če je zadnje pravilo \rulename{TyVal-Unit}, potem je $V = ()$. Po pravilu \rulename{TyVal-Unit} velja $\Gamma_1, \Gamma_3, \Gamma_2, \types V \of A$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Pair}, potem je $V =\tmpair{V_1}{V_2}$.
 		Po $IP$ imata $V_1$ in $V_2$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyVal-Pair} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
-		
-		\item Če je zadnje pravilo \rulename{TyVal-Promise}, potem je $V =\tmpromise{V'}$.
-		Po $IP$ ima $V'$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyVal-Promise} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		Po pravilu \rulename{TyVal-Pair} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Inl}, potem je $V = \tminl{V_1}$.
 		Po $IP$ ima $V_1$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyVal-Inl} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		Po pravilu \rulename{TyVal-Inl} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Inr}, potem je $V = \tminl{V_2}$.
 		Po $IP$ ima $V_2$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyVal-Inr} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		Po pravilu \rulename{TyVal-Inr} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Fun}, potem je $V = \tmfun{x}{M}$.
 		Po lemi~\ref{lem:weakening-comp-bb} ima $M$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyVal-Fun} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		Po pravilu \rulename{TyVal-Fun} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Fun-Rec}, potem je $V = \tmfun{x}{M}$.
 		Po lemi~\ref{lem:weakening-comp-bb} ima $M$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyVal-Fun-Rec} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types V \of A$.
+		Po pravilu \rulename{TyVal-Fun-Rec} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
+		\item Če je zadnje pravilo \rulename{TyVal-Promise}, potem je $V =\tmpromise{V'}$.
+		Po $IP$ ima $V'$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyVal-Promise} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 	\end{itemize}
 \end{proof}
 
@@ -658,23 +635,23 @@ reorder proofs in that new order.
 		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Let} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V_1 V_2$.
-		Po lemi~\ref{lem:weakening-values-bb} imata $V_1$ in $V_2$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-Apply} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $\tmmatch{V}{}$.
+		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-MatchEmpty} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{V}{(x_1,x_2) \mapsto N}$. 
 		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
 		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchPair} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $\tmmatch{V}{}$.
-		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-MatchEmpty} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
-		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}$.
 		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
 		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchSum} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V_1 V_2$.
+		Po lemi~\ref{lem:weakening-values-bb} imata $V_1$ in $V_2$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-Apply} velja $\Gamma_1, \Gamma_3, \Gamma_2, \bb \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$.
 		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
@@ -713,18 +690,14 @@ reorder proofs in that new order.
 		\item Če je zadnje pravilo \rulename{TyVal-Var'}, potem je $V = x$ in velja $x \in \Gamma_1$ ali $x \in \Gamma_2$.
 		Ker je $A$ prenosljiv tip velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$ po pravilu \rulename{TyVal-Var'}
 		
-		\item Če je zadnje pravilo \rulename{Ty-Boxed}, potem je $V = \tmboxed{V'}$.
-		Po lemi~\ref{lem:weakening-values-bb} ima $V'$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{Ty-Boxed} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
-		
 		\item Če je zadnje pravilo \rulename{TyVal-Cons}, potem je $V = n$. Po pravilu \rulename{TyVal-Cons} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
-		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $V = true$. Po pravilu \rulename{Ty-Cons-T} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
-		\item Če je zadnje pravilo \rulename{Ty-Cons-F}, potem je $V = false$. Po pravilu \rulename{Ty-Cons-F} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+%		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $V = true$. Po pravilu \rulename{Ty-Cons-T} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+%		\item Če je zadnje pravilo \rulename{Ty-Cons-F}, potem je $V = false$. Po pravilu \rulename{Ty-Cons-F} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		
+		\item Če je zadnje pravilo \rulename{TyVal-Unit}, potem je $V = ()$. Po pravilu \rulename{TyVal-Unit} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Pair}, potem je $V =\tmpair{V_1}{V_2}$. Po $IP$ imata $V_1$ in $V_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyVal-Pair} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
-		
-		\item Zadnje pravilo ne more biti \rulename{TyVal-Promise}, saj v tem primeru $A$ ni prenosljiv.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Inl}, potem je $V = \tminl{V_1}$. Po $IP$ ima $V_1$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyVal-Inl} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
@@ -736,6 +709,12 @@ reorder proofs in that new order.
 		
 		\item Zadnje pravilo ne more biti \rulename{TyVal-Fun-Rec}, saj v tem primeru $A$ ni prenosljiv.
 		
+		\item Zadnje pravilo ne more biti \rulename{TyVal-Promise}, saj v tem primeru $A$ ni prenosljiv.
+		
+		\item Če je zadnje pravilo \rulename{TyVal-Boxed}, potem je $V = \tmboxed{V'}$.
+		Po lemi~\ref{lem:weakening-values-bb} ima $V'$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyVal-Boxed} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
+		
 	\end{itemize}
 \end{proof}
 
@@ -746,6 +725,7 @@ reorder proofs in that new order.
 \begin{proof}
 	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, x \of A, \Gamma_2 \types W \of B$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
+	Primeri, ki so enaki kot v dokazu~\ref{lem:substitucija-vrednosti} so izpuščeni.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{TyVal-Var'}, potem je $W = y$.
@@ -756,7 +736,7 @@ reorder proofs in that new order.
 			\item Če $Y \neq x$, potem je $W[V/x] = y[V/x] = y = W$. Posledično ima $W[V/x]$ tip $B$.
 		\end{itemize}
 		
-		\item Če je zadnje pravilo \rulename{Ty-Boxed}, potem je $W=\tmboxed{W'}$ in $B=\tyboxed{B'}$. Po $IP$ ima $W'[V/x]$ tip $B'$. Ker je $W[V/x] = \tmboxed{W'[V/x]}$, ima $W[V/x]$ tip $B$, po pravilu \rulename{Ty-Boxed}.
+		\item Če je zadnje pravilo \rulename{TyVal-Boxed}, potem je $W=\tmboxed{W'}$ in $B=\tyboxed{B'}$. Po $IP$ ima $W'[V/x]$ tip $B'$. Ker je $W[V/x] = \tmboxed{W'[V/x]}$, ima $W[V/x]$ tip $B$, po pravilu \rulename{TyVal-Boxed}.
 		
 	\end{itemize}
 \end{proof}
@@ -768,6 +748,7 @@ reorder proofs in that new order.
 \begin{proof}
 	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, x \of A, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
+	Primeri, ki so enaki kot v dokazu~\ref{lem:substitucija-izračuni} so izpuščeni.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{TyComp-Unbox}, potem je $M$ enak $\tmunbox{W}{x}{N}$. Vrednost $W$ ima tip $B$ in izračun $N$ tip $\tycomp{B}{\o, \i}$.
@@ -783,109 +764,115 @@ reorder proofs in that new order.
 \end{proof}
 
 
-\jR{gamma2 contains bb}
 \begin{lema}\label{lem:strengthening-values-bb}
-	Naj za vrednost $V$ velja $\Gamma_1, p \of \typromise{A}, \Gamma_2, \bb \types V \of B$. Potem velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+	Naj za vrednost $V$ velja $\Gamma_1, p \of \typromise{A}, \Gamma_2 \types V \of B$, kjer $\Gamma_2$ vsebuje $\bb$. Potem velja $\Gamma_1, \Gamma_2 \types V \of B$.
 \end{lema}
 
 \begin{proof}
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, p \of \typromise{A}, \Gamma_2, \bb \types V \of B$.
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, p \of \typromise{A}, \Gamma_2 \types V \of B$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
-		\item Če je zadnje pravilo \rulename{TyVal-Var'}, potem je $V = x$. Ker je na koncu konteksta $\bb$ mora biti $B$ prenosljiv tip. Ker $\typromise{A}$ ni prenosljiv tip, velja $x \in \Gamma_1$ ali $x \in \Gamma_2$.
-		Po pravilu \rulename{TyVal-Var'} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+		\item Če je zadnje pravilo \rulename{TyVal-Var'}, potem je $V = x$.
+		\begin{itemize}
+			\item Če $x \in \Gamma_1$ ali $x \in \Gamma_2$, potem po pravilu \rulename{TyVal-Var'} velja $\Gamma_1, \Gamma_2 \types V \of B$.
+			
+			\item Primera ko je $x = p$ ne moremo imeti saj tip $\typromise{A}$ ni prenosljiv, v $\Gamma_2$ pa imamo $\bb$.
+		\end{itemize}
+		 
 		
-		\item Če je zadnje pravilo \rulename{Ty-Boxed}, potem je $V = \tmboxed{V'}$.
+		\item Če je zadnje pravilo \rulename{TyVal-Boxed}, potem je $V = \tmboxed{V'}$.
 		Po $IP$ ima $V'$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{Ty-Boxed} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+		Po pravilu \rulename{TyVal-Boxed} velja $\Gamma_1, \Gamma_2 \types V \of B$.
 		
-		\item Če je zadnje pravilo \rulename{TyVal-Cons}, potem je $V = n$.Po pravilu \rulename{TyVal-Cons} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
-		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $V = true$. Po pravilu \rulename{Ty-Cons-T} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
-		\item Če je zadnje pravilo \rulename{Ty-Cons-F}, potem je $V = false$. Po pravilu \rulename{Ty-Cons-F} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+		\item Če je zadnje pravilo \rulename{TyVal-Cons}, potem je $V = n$.Po pravilu \rulename{TyVal-Cons} velja $\Gamma_1, \Gamma_2 \types V \of B$.
+%		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $V = true$. Po pravilu \rulename{Ty-Cons-T} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+%		\item Če je zadnje pravilo \rulename{Ty-Cons-F}, potem je $V = false$. Po pravilu \rulename{Ty-Cons-F} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+
+		\item Če je zadnje pravilo \rulename{TyVal-Unit}, potem je $V = ()$.Po pravilu \rulename{TyVal-Unit} velja $\Gamma_1, \Gamma_2 \types V \of B$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Pair}, potem je $V =\tmpair{V_1}{V_2}$.
 		Po $IP$ imata $V_1$ in $V_2$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyVal-Pair} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+		Po pravilu \rulename{TyVal-Pair} velja $\Gamma_1, \Gamma_2 \types V \of B$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Promise}, potem je $V = \tmpromise{V'}$.
 		Po $IP$ ima $V'$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyVal-Promise} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+		Po pravilu \rulename{TyVal-Promise} velja $\Gamma_1, \Gamma_2 \types V \of B$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Inl}, potem je $V = \tminl{V_1}$.
 		Po $IP$ ima $V_1$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyVal-Inl} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+		Po pravilu \rulename{TyVal-Inl} velja $\Gamma_1, \Gamma_2 \types V \of B$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Inr}, potem je $V = \tminl{V_2}$.
 		Po $IP$ ima $V_2$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyVal-Inr} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+		Po pravilu \rulename{TyVal-Inr} velja $\Gamma_1, \Gamma_2 \types V \of B$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Fun}, potem je $V = \tmfunano{x}{M}$.
 		Po lemi~\ref{lem:strengthening-comp-bb} ima $M$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyVal-Fun} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+		Po pravilu \rulename{TyVal-Fun} velja $\Gamma_1, \Gamma_2 \types V \of B$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Fun-Rec}, potem je $V = \tmfunrecano{f}{x}{M}$.
 		Po lemi~\ref{lem:strengthening-comp-bb} ima $M$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyVal-Fun-Rec} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
+		Po pravilu \rulename{TyVal-Fun-Rec} velja $\Gamma_1, \Gamma_2 \types V \of B$.
 		
 	\end{itemize}
 \end{proof}
 
 \begin{lema}\label{lem:strengthening-comp-bb}
-	Naj za izračun $M$ velja $\Gamma_1, p \of \typromise{A}, \Gamma_2, \bb \types M \of \tycomp{B}{\o, \i}$. Potem velja $\Gamma_1, \Gamma_2, \bb \types M \of \tycomp{B}{\o, \i}$.
+	Naj za izračun $M$ velja $\Gamma_1, p \of \typromise{A}, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$, kjer $\Gamma_2$ vsebuje $\bb$. Potem velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 \end{lema}
 
 \begin{proof}
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, p \of \typromise{A}, \Gamma_2, \bb \types M \of \tycomp{B}{\o, \i}$.
+	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, p \of \typromise{A}, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{TyComp-Return}, potem je $M$ enak $\tmreturn{V}$.
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyComp-Return} velja $\Gamma_1, \Gamma_2, \bb \types M \of \tycomp{B}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Return} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
 		Po $IP$ imata $N_1$ in $N_2$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyComp-Let} velja $\Gamma_1, \Gamma_2, \bb \types M \of \tycomp{B}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Let} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V_1 V_2$.
 		Po lemi~\ref{lem:strengthening-values-bb} imata $V_1$ in $V_2$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyComp-Apply} velja $\Gamma_1, \Gamma_2, \bb \types M \of \tycomp{B}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Apply} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{V}{(x_1,x_2) \mapsto N}$. 
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
 		Po $IP$ ima $N$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyComp-MatchPair} velja $\Gamma_1, \Gamma_2, \bb \types M \of \tycomp{B}{\o, \i}$.
+		Po pravilu \rulename{TyComp-MatchPair} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $\tmmatch{V}{}$.
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyComp-MatchEmpty} velja $\Gamma_1, \Gamma_2, \bb \types M \of \tycomp{B}{\o, \i}$.
+		Po pravilu \rulename{TyComp-MatchEmpty} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}$.
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
 		Po $IP$ imata $N_1$ in $N_2$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyComp-MatchSum} velja $\Gamma_1, \Gamma_2, \bb \types M \of \tycomp{B}{\o, \i}$.
+		Po pravilu \rulename{TyComp-MatchSum} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$.
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
 		Po $IP$ ima $N$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyComp-Signal} velja $\Gamma_1, \Gamma_2, \bb \types M \of \tycomp{B}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Signal} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$.
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
 		Po $IP$ ima $N$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyComp-Interrupt} velja $\Gamma_1, \Gamma_2, \bb \types M \of \tycomp{B}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Interrupt} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Promise}, potem je $M$ enak $\tmwith{op}{x}{N_1}{p}{N_2}$.
 		Po $IP$ imata $N_1$ in $N_2$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyComp-Promise} velja $\Gamma_1, \Gamma_2, \bb \types M \of \tycomp{B}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Promise} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Await}, potem je $M$ enak $\tmawait{V}{y}{N}$.
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
 		Po $IP$ ima $N$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{TyComp-Await} velja $\Gamma_1, \Gamma_2, \bb \types M \of \tycomp{B}{\o, \i}$.
+		Po pravilu \rulename{TyComp-Await} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Subsume}, ima po $IP$ $M$ isti tip v skrčenem kontekstu.
+		\item Če je zadnje pravilo \rulename{TyComp-Subsume}, ima po $IP$ izračun $M$ isti tip v skrčenem kontekstu.
 		
 	\end{itemize}
 \end{proof}
@@ -902,19 +889,15 @@ reorder proofs in that new order.
 		\item Če je zadnje pravilo \rulename{TyVal-Var'}, potem je $V = y$. Ker $\typromise{A}$ ni prenosljiv tip, velja $y \in \Gamma_1$ ali $y \in \Gamma_2$.
 		Po pravilu \rulename{TyVal-Var'} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
 		
-		\item Če je zadnje pravilo \rulename{Ty-Boxed}, potem je $V = \tmboxed{V'}$.
-		Po lemi~\ref{lem:strengthening-values-bb} ima $V'$ isti tip v skrčenem kontekstu.
-		Po pravilu \rulename{Ty-Boxed} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
-		
 		\item Če je zadnje pravilo \rulename{TyVal-Cons}, potem je $V = n$.Po pravilu \rulename{TyVal-Cons} velja $\Gamma_1, \Gamma_2 \types V \of B$.
-		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $V = true$. Po pravilu \rulename{Ty-Cons-T} velja $\Gamma_1, \Gamma_2 \types V \of B$.
-		\item Če je zadnje pravilo \rulename{Ty-Cons-F}, potem je $V = false$. Po pravilu \rulename{Ty-Cons-F} velja $\Gamma_1, \Gamma_2 \types V \of B$.
+%		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $V = true$. Po pravilu \rulename{Ty-Cons-T} velja $\Gamma_1, \Gamma_2 \types V \of B$.
+%		\item Če je zadnje pravilo \rulename{Ty-Cons-F}, potem je $V = false$. Po pravilu \rulename{Ty-Cons-F} velja $\Gamma_1, \Gamma_2 \types V \of B$.
+
+		\item Če je zadnje pravilo \rulename{TyVal-Unit}, potem je $V = ()$.Po pravilu \rulename{TyVal-Unit} velja $\Gamma_1, \Gamma_2 \types V \of B$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Pair}, potem je $V =\tmpair{V_1}{V_2}$.
 		Po $IP$ imata $V_1$ in $V_2$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyVal-Pair} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
-		
-		\item Zadnje pravilo ne more biti \rulename{TyVal-Promise}, saj v tem primeru $B$ ni prenosljiv.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Inl}, potem je $V = \tminl{V_1}$.
 		Po $IP$ ima $V_1$ isti tip v skrčenem kontekstu.
@@ -927,6 +910,12 @@ reorder proofs in that new order.
 		\item Zadnje pravilo ne more biti \rulename{TyVal-Fun}, saj v tem primeru $B$ ni prenosljiv.
 		
 		\item Zadnje pravilo ne more biti \rulename{TyVal-Fun-Rec}, saj v tem primeru $B$ ni prenosljiv.
+		
+		\item Zadnje pravilo ne more biti \rulename{TyVal-Promise}, saj v tem primeru $B$ ni prenosljiv.
+		
+		\item Če je zadnje pravilo \rulename{TyVal-Boxed}, potem je $V = \tmboxed{V'}$.
+		Po lemi~\ref{lem:strengthening-values-bb} ima $V'$ isti tip v skrčenem kontekstu.
+		Po pravilu \rulename{TyVal-Boxed} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
 		
 	\end{itemize}
 \end{proof}
@@ -942,6 +931,7 @@ reorder proofs in that new order.
 \begin{proof}
 	Dokazujemo z strukturno indukcijo na drevo izpeljave koraka $M \reduces M'$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
+	Primeri, ki so enaki kot v dokazu~\ref{trd:ohranitev-izracuni} so izpuščeni.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo $$\tmunbox{[V]}{x}{N} \reduces N[V/x],$$ potem je bilo zadnje pravilo za določitev tipa $M$ \rulename{TyComp-Unbox}. Posledično ima $\tmboxed{V}$ tip $\tyboxed{B}$, $V$ tip $B$ in $N$ tip $\tycomp{A}{\o, \i}$. Po lemi~\ref{lem:substitucija-izračuni-2} ima $M' = N[V/x]$ tip $\tycomp{A}{\o, \i}$.
@@ -1011,7 +1001,7 @@ Redukcijskim pravilom na sliki~\ref{fig:process-type-reductions}, dodamo pravili
 	
 \end{figure}
 
-\begin{izrek}[o ohranitvi]
+\begin{izrek}[o ohranitvi]\label{izr:ohranitev-2}
 	Naj za proces $P$ velja $\Gamma \types P \of C$. Če proces $P$ naredi korak $P \reduces P'$, potem obstaja tak $C'$, da velja $C \tyreduces C'$ in $\Gamma \types P' \of C'$.
 \end{izrek}
 
@@ -1019,6 +1009,7 @@ Redukcijskim pravilom na sliki~\ref{fig:process-type-reductions}, dodamo pravili
 \begin{proof}
 	Dokazujemo z strukturno indukcijo na drevo izpeljave koraka $P \reduces P'$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
+	Primeri, ki so enaki kot v dokazu~\ref{izr:ohranitev} so izpuščeni.
 	
 	\begin{itemize}
 		
