@@ -214,7 +214,7 @@ Izračun odvijanje veže vrednost znotraj zavite vrednosti $\tmboxed{V}$ na spre
 \begin{figure}[H]
 	\centering
 	\small
-	\jR{Box is not loking good}
+	\jR{[W][V/x] is not loking good}
 	\begin{align*}
 		\tmboxed{W}[V/x] &= \tmboxed{W[V/x]} \\
 		(\tmunbox{W}{x}{M})[V/x] &= \tmunbox{W[V/x]}{x}{M[V/x]}
@@ -267,7 +267,7 @@ Sedaj bo vrstni red v okolju pomemben, zato je okolje od sedaj naprej urejen sez
 
 Sedaj lahko program~\ref{prog:razsiritev-1} spremenimo v program~\ref{prog:razsiritev-2}. Namesto, da ima \emph{remote} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora.  
 
-\begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-1},float,floatplacement=h]
+\begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-2},float,floatplacement=h]
 operation call : int * [int -> int] * int
 operation result : int * int
 
@@ -417,7 +417,6 @@ run remote ()
 \subsection{Varnost}
 
 Sedaj dokažemo izrek o varnosti za \lae{} razširjen z rekurzivnimi prestrezniki, prenosljivimi tipi, in dinamičnimi procesi.
-\mP{Let the reader know what changed and how. For example - "dokazi za ostala pravila ostanejo nespremenjeni"}
 
 \begin{figure}[H]
 	\centering

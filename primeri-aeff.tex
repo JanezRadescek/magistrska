@@ -1,125 +1,37 @@
 \section{Primeri v \aeff{}} \label{sec:primeri-aeff}
 
-%\subsection{sinhrona/sekvenčna}
-%Najprej si poglejmo nekaj primerov, na katerih lahko vidimo konkretne težave s katerimi se lahko srečamo ko programiramo. 
-%V funkcijskem programiranju se pogosto uporablja funkcija \emph{map}. V tem konkretnem primeru naj map uporabi funkcijo $f$, ki vrne $true$, če je število praštevilo in false sicer, na trojici $(3,42,97)$ in vrne $(f(3),f(42),f(97))$. 
-%
-%
-% 
-%
-%\begin{lstlisting}[caption={TODO},label={prog:primer-map-seq}]
-%run return 42
-%\end{lstlisting}
-%
-%\subsection{asinhrona teoretično vzporedna}
-%
-%
-%
-%%. Uvedemo koraka $\tmkw{Promise}$ in $\tmkw{Await}$. Korak $\tmkw{Promise}$ ima dve ključni lastnosti. Je edini korak, ki je odvisen od korakov iz drugih procesov.  je da ne more biti odvisen od katerega koli koraka znotraj istega procesa. Od njega pa je lahko odvisen le korak $\tmkw{Await}$. Posledično lahko dinamično spre\begin{flushleft}
+Poglejmo si sledeči sekvenčni sinhroni primer. Poračunati moramo zelo zahtevno in počasno točno funkcijo in prikazati njen rezultat na zaslonu. Ker je tako zelo počasna, preden se je dejansko lotimo, poračunamo še hitrejši približek. Pseudo kodo vidimo na programu~\ref{prog:primer-0}
 
+\begin{lstlisting}[caption={Sinhron sekvečni primer.},label={prog:primer-0},float,floatplacement=h]
+x' = priblizek(42)
+prikazi_na_zaslon(x')
+x = tocna_funkcija(42)
+prikazi_na_zaslon(x)
 
-
-
-
-
-
-%Poglejmo si abstrakten primer, ki predstavlja program za delo z bazami.
-%Program mora znati brati ukaze iz tipkovnice, jih izvesti in na zaslonu izpisati neko povratno informacijo.
-%Uporabnik lahko preko grafičnega umesnika podaja razne ukaze, kot so odpri bazo, spremeni vrednost, zamenjaj geslo...
-%Program na zaslon podaja povratne informacije 
-%Program lahko dostopa do baze na disku ali omrežju.
-%
-%
-%ki prikaže težave s katerimi se lahko srečamo, če je program izključno sinhron in sekvenčen.
-
-Poglejmo si abstrakten primer, ki predstavlja video predvajalnik.
-Ko se program zažene, čaka da dobi lokacijo datoteke. Nato začne predvajati video. Kadarkoli na zahtevo uporabnika ustavi in nato nadaljuje predvajanje. Če dobi novo lokacijo datoteke, preneha z predvajanjem trenutnega videa in začne predvajati nov video.
-
-Naivna verzija takega programa napisana v Pythonu, bi lahko zgledala sledeče.
-
-\begin{lstlisting}[caption={Naiven program.},label={prog:predvajalnik-naiven}]
-video = None
-while true:
-	c = get_command()
-	if is_file_path(c):
-		video = read_file(c)
-		play_video_on_scren(video)
-	elif c == stop
-		
+kontinuacija()
 \end{lstlisting}
 
+Ta primer ima dve težavi, ki sta posledici sekvenčnega sinhronega izvajanja. Prvi problem je da, ker je program sekvenčni, ne moremo računati točne funkcije hkrati z približkom in posledično se program izvaja dlje časa. Drugi problem pa je, da dokler se bo računala točna funkcija, ne moremo izvajati kontinuacije, kar pomeni da se program ne more odzivati na uporabnikov vhod.  
 
-locally you do approximation, and do more complex calculation remotly.
+Obema težavama se zlahka izognemo če program napišemo v jeziku \aeff, kot vidimo v programu~\ref{prog:primer-1}. Najprej v prvem procesu poračunamo približek in ga prikažemo. Nato s pomočjo efekta v drug proces pošljemo vhod točne funkcije. V drugem procesu prestrežemo število $42$, začnemo računati točno funkcijo in ko končamo pošljemo rezultat nazaj v glavni proces. Medtem ko se računa točna vrednost se glavni proces ne zaustavi, ampak nadaljuje z izvajanjem kontinuacije. Ko glavni proces prestreže rezultat, ga izpiše na zaslon in veže v spremenljivko p, da ga po potrebi lahko uporabi tudi kontinuacija.
 
+\begin{lstlisting}[caption={Asinhron Vzporeden primer.},label={prog:primer-1},float,floatplacement=h]
+operation call : int
+operation result : int
+ 
+run x' = priblizek(42)
+	prikazi_na_zaslon(x')
+	send call 42;
+	promise (result x ->
+		prikazi_na_zaslon(x);
+		<x>
+	) as p in
+	kontinuacija()
 
-Poglejmo si preprost primer, ki predstavlja preprost urejevalnik slik.
-Ko se program zažene, čaka da dobi uporabnikov vhod.
-Če dobi lokacijo slike, jo prebere in si jo shrani v sloje.
-Sicer dobi številko sloja in navodila kaj naj naredi z pripadajočo sliko.
-
-\begin{lstlisting}[caption={Sinhron program.},label={prog:editor-python}]
-layers = []
-
-while true:
-	input = get_input()
-	
-	if is_file_path(input):
-		img = read_file(input)
-		layers.append(img)
-	else:
-		layer, command = input	
-		edit_img(layers[layer], command)
+run promise(call a ->
+		let x = tocna_funkcija(a) in
+		send result x;
+		<()>
+	) as _ in
+	()
 \end{lstlisting}
-
-Ena izmed težav, ki se lahko pojavi je da branje datoteke traja zelo dolgo.
-
-
-
-\begin{lstlisting}[caption={Asinhron program.},label={prog:editor-aeff}]
-
-
-let main () = 
-	let rec loop () = 
-		promise (input i ->
-			if is_file_path(input):
-				send read_file input
-				promise (img i ->
-					layers layers.append(img))
-				let img = read_file(input)
-				
-			else:
-			layer, command = input	
-			edit_img(layers[layer], command)
-			loop ()
-		) as _ 
-		in return p
-	in
-	loop ()
-	
-let thread_save_layers () = 
-	let layers = ref [] in
-	let rec add_img () =
-		promise (img_add img ->
-			layers := append(!layers, img);
-			add_img()
-		) as _ in
-		()
-	in	
-	let rec get_img () =
-		promise (img_request i ->
-			let img = nth(!layers, i) in
-			send img_answer img;
-			get_img()
-		) as _ in
-		()
-	in
-	
-	add_img();
-	get_img()
-
-\end{lstlisting}
-
-
-hide details behind functions
-
-primer setup send requenst for init file. Do some local staf in the mintime and once you get init you do the rest.
