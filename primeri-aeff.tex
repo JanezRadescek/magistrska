@@ -8,10 +8,11 @@ prikazi_na_zaslon(x')
 x = tocna_funkcija(42)
 prikazi_na_zaslon(x)
 
-kontinuacija(x)
+kontinuacija1()
+kontinuacija2(x)
 \end{lstlisting}
 
-Ta primer ima dve težavi, ki sta posledici sekvenčnega sinhronega izvajanja. Prvi problem je da, ker je program sekvenčni, ne moremo računati točne funkcije hkrati z približkom in posledično se program izvaja dlje časa. Drugi problem pa je, da dokler se bo računala točna funkcija, ne moremo izvajati kontinuacije, kar pomeni da se program ne more odzivati na uporabnikov vhod.  
+Ta primer ima dve težavi, ki sta posledici sekvenčnega sinhronega izvajanja. Prvi problem je da, ker je program sekvenčni, ne moremo računati točne funkcije hkrati z približkom in posledično se program izvaja dlje časa. Drugi problem pa je, da dokler se bo računala točna funkcija, ne moremo izvajati prve kontinuacije, čeprav je neodvisna od točnega rezultata. Posledično se program ne more odzvati na potencialen uporabnikov vhod.  
 
 Obema težavama se zlahka izognemo če program napišemo v jeziku \aeff, kot vidimo v programu~\ref{prog:primer-1}. Najprej v prvem procesu poračunamo približek in ga prikažemo. Nato s pomočjo efekta v drug proces pošljemo vhod točne funkcije. V drugem procesu prestrežemo število $42$, začnemo računati točno funkcijo in ko končamo pošljemo rezultat nazaj v glavni proces. Medtem ko se računa točna vrednost se glavni proces ne zaustavi, ampak nadaljuje z izvajanjem prve kontinuacije, ki je neodvisna od rezultata točne funkcije. Ko glavni proces prestreže rezultat, ga izpiše na zaslon in veže v spremenljivko p, da ga po potrebi lahko uporabimo v drugi kontinuaciji. S pomočjo blokade preprečimo izvajanje druge kontinuacije dokler ne dobimo rezultata.
 

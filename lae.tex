@@ -270,12 +270,10 @@ Signal in prekinitev na procesih se obnašata enako kot na izračunih. Par proce
 
 \subsection{Sistem tipov}
 
-\mP{For motivation, you can introduce result forms (Slika 10) after operational semantics rules and then give a simple example of a term that is not well typed that does not terminate in a result. }
-Da se izognemo nekaterim napakam ob izvajanju uvedemo sistem tipov.
+Da se izognemo programom, ki se nebi ustavili v obliki rezultata uvedemo sistem tipov.
 Tipe ločimo na tipe za vrednosti, izračune in procese.
-Večina vrednosti dobi standardne tipe, kot so naravno število, boolean, enota, par, vsota in funkcijski tip. 
+Večina vrednosti dobi standardne tipe, kot so naravno število, enota, par, vsota in funkcijski tip. 
 Ker funkcijski tip označuje funkcijo, ki vzame argument in mu priredi izračun, le tej pa imajo, kot bomo kasneje videli, poleg standardnih tipov, še tipe za učinke, ima tudi funkcijski tip dodane tipe za učinke.
-
 
 Dodatno za vrednost obljuba uvedemo tip \emph{obljuba} $\typromise{A}$. 
 Tipom za vrednosti, ki ne vsebujejo funkcijskega tipa ali obljube, pravimo osnovni tipi. 
@@ -1000,23 +998,23 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Let} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V_1 V_2$.
-		Po lemi~\ref{lem:weakening-values} imata $V_1$ in $V_2$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-Apply} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $\tmmatch{V}{}$.
+		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-MatchEmpty} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{V}{(x_1,x_2) \mapsto N}$. 
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
 		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchPair} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $\tmmatch{V}{}$.
-		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
-		Po pravilu \rulename{TyComp-MatchEmpty} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
-		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}$.
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
 		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchSum} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V_1 V_2$.
+		Po lemi~\ref{lem:weakening-values} imata $V_1$ in $V_2$ isti tip v razširjenem kontekstu.
+		Po pravilu \rulename{TyComp-Apply} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$.
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
@@ -1045,8 +1043,6 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 \begin{lema}\label{lem:inversion-lema}
 	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Potem obstaja $(\o', \i') \order{O, I} (\o, \i)$.
 	\begin{itemize}
-		\item Če je $M$ oblike $\tmapp{V}{W}$, potem velja $\Gamma \types V \of \tyfun{B}{\tycomp{A}{\o', \i'}}$ in $\Gamma \types W \of B$.
-		
 		\item Če je $M$ oblike $\tmlet{x}{N_1}{N_2}$, potem velja $\Gamma \types N_1 \of \tycomp{B}{\o', \i'}$, $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$.
 	
 		\item Če je $M$ oblike $\tmmatch{\tmpair{V_1}{W_2}}{N}$, potem velja $\Gamma \types V_1 \of B_1$, $\Gamma \types V_2 \of B_2$ in $\Gamma \types N \of \tycomp{A}{\o', \i'}$.
@@ -1055,9 +1051,11 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 		
 		\item Če je $M$ oblike $\tmmatch{(\tminr[X]{V_2})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}$, potem velja $\Gamma \types \tminl[X]{V_2} \of B_1$, $\Gamma \types N_1 \of \tycomp{A}{\o', \i'}$ in $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$.
 		
+		\item Če je $M$ oblike $\tmapp{V}{W}$, potem velja $\Gamma \types V \of \tyfun{B}{\tycomp{A}{\o', \i'}}$ in $\Gamma \types W \of B$.
+		
 		\item Če je $M$ oblike $\tmopout{op}{V}{N}$, potem velja $\Gamma \types V \of B$ in $\Gamma \types N \of \tycomp{A}{\o', \i'}$.
 		
-		\item Če je $M$ oblike $\tmopin{op}{V}{N}$, potem velja $\Gamma \types V \of B$, $\Gamma \types N \of \tycomp{A}{\o'', \i''}$ in $\opincomp{op}{(\o'', \i'')} \order (\o, \i)$.
+		\item Če je $M$ oblike $\tmopin{op}{V}{N}$, potem velja $\Gamma \types V \of B$, $\Gamma \types N \of \tycomp{A}{\o'', \i''}$ in $\opincomp{op}{(\o'', \i'')} \order{O, I} (\o, \i)$.
 		
 		\item Če je $M$ oblike $\tmwith{op}{x}{N_1}{p}{N_2}$, potem velja $\Gamma, x \of B_{op} \types N_1 \of \tycomp{\typromise{B}}{\o'', \i''}$ in $\Gamma, p \of \typromise{B} \types N_1 \of \tycomp{A}{\o', \i'}$.
 		
@@ -1069,9 +1067,11 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
-		\item Če je zadnje uporabljeno pravilo \rulename{TyComp-Subsume} potem ima $M$ tudi tip $\tycomp{A}{\o', \i'}$. Po $IP$ direktno na $M$ lema sledi, saj je $\order{O, I}$ tranzitiven.
-		\item Sicer ločimo primere glede na obliko izračuna $M$.
-		...TODO
+		\item Če je zadnje pravilo \rulename{TyComp-Let}, \rulename{TyComp-MatchPair}, \rulename{TyComp-MatchSum}, \rulename{TyComp-Apply}, \rulename{TyComp-Signal} ali \rulename{TyComp-Promise}, potem ustrezna točka leme sledi za $(\o', \i') = (\o, \i)$.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem ustrezna točka leme sledi za $\opincomp{op}{(\o'', \i'')} = (\o, \i)$.
+		
+		\item Če je zadnje uporabljeno pravilo \rulename{TyComp-Subsume}, potem ima $M$ tudi tip $\tycomp{A}{\o', \i'}$. Po $IP$ direktno na $M$ lema sledi, saj je $\order{O, I}$ tranzitiven.
 	\end{itemize}
 \end{proof}
 

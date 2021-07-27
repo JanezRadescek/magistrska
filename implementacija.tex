@@ -1,7 +1,15 @@
 \section{Implementacija}\label{sec:impl}
 
+Jezik \aeff{} je implementiran v jeziku Ocaml. Implementacija je sestavljena iz treh glavnih delov.
+Parserja, ki prevede tekst v abstraktno sintaktično drevo (AST) in preveri ustreznost sintakse.  
+Type checkerja, ki preveri, da ima dani program tip.
+Tolmača, ki izvaja korake, dokler ne pridemo do rezultata.
 
-Kot sintaktični sladkor dodamo tudi varovan prestreznik, ki se sproži le kadar je poleg prave operacije tudi pravi pripadajoči tovor.
+\subsection{Dodatni izrazi}
+
+Da \aeff{} postane bolj uporaben so mu dodane konstantni vrednosti $\true$ in $\false$, sintaktičen sladkor za izračun $\tmkw{if}$, funkcije kot so $+, -, *, / ...$, reference in globalne spremenljivke.
+
+Kot sintaktični sladkor je dodan varovan prestreznik, ki se sproži le kadar je poleg prave operacije tudi pravi pripadajoči tovor.
 \begin{figure}[h]
 	\centering
 	\small
@@ -9,13 +17,13 @@ Kot sintaktični sladkor dodamo tudi varovan prestreznik, ki se sproži le kadar
 	\intertext{\textbf{Sintaksa}}
 	M, N
 	\bnfis& ...                            & &\text{obstoječi izračuni} \\
-	\bnfor& \tmwithrecgu{op}{x}{f}{P(x)}{M}{p}{N}  & &\text{varovan rekurzivni prestreznik}
+	\bnfor& \tmwithrecgu{op}{x}{r}{P(x)}{M}{p}{N}  & &\text{varovan rekurzivni prestreznik}
 	\end{align*}
 	
 	\begin{align*}
 	\intertext{\textbf{Semantika}}
-	\tmopin{op}{V}{\tmwithrecgu{op}{f}{x}{P}{M}{p}{N}} \\ \reduces \tmlet{p}{(\ite{P[V/x]}{M[V/x, F/f]}{F\,()})}{\tmopin{op}{V}{N}} \\
-	{\color{rulenameColor}F = \tmfunano{y}{(\tmwithrec{op}{f}{x}{M}{p}{\tmreturn{p}})}}
+	\tmopin{op}{V}{\tmwithrecgu{op}{x}{r}{P}{M}{p}{N}} \\ \reduces \tmlet{p}{(\ite{P[V/x]}{M[V/x, R/r]}{R\,()})}{\tmopin{op}{V}{N}} \\
+	{\color{rulenameColor}R = \tmfunano{y}{(\tmwithrec{op}{x}{r}{M}{p}{\tmreturn{p}})}}
 	\end{align*}
 	
 	\caption{Varovan rekurzivni prestreznik}
@@ -24,17 +32,10 @@ Kot sintaktični sladkor dodamo tudi varovan prestreznik, ki se sproži le kadar
 
 \subsection{Sistem tipov}\label{sec:tipi}
 
-\subsubsection{Hindley–Milner}
-
-\subsubsection{Bidirectional}
-
+Prvotna implementacija izračuna tip programa z Hindley–Milnerjevim algoritmom. 
+Kasneje je bil typechecker spremenjen, da je uporabljal dvosmerni sistem tipov (bidirectional typing), ki temelji na algoritmu iz članka~\cite{bidirectional}.
+Glavna ideja dvosmernega sistema tipov je da lahko izmenjujemo ali tip preverjamo ali ga izračunamo. Kadar so tipi pripisani izrazom, tip le preverimo. V nasprotnem primeru ga lahko izračunamo. Ena izmed prednosti dvosmernega algoritma je, da v primeru napake lahko izpiše boljše poročilo o napaki. 
 
 \subsection{Tolmač}\label{sec:interpreter}
 
-\subsubsection{prej}
-
-\subsubsection{potem}
-
-Pokazat da, če naredimo korak v nek izračun, obstaja zaporedje korakov v prejšnji, ki vodijo v isti izračun.
-
-Pokazati da potrebujemo manj korakov
+Čeprav ima \aeff{} možnost vzporednega izvajanja in smo to do sedaj predpostavljali, sama implementacije le simulira vzporedno izvajanje.
