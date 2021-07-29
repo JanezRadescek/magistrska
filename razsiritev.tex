@@ -1,6 +1,6 @@
 \section{Razširjen \lae{}}\label{sec:razsirjen-lae}
 
-Poglejmo si primer~\ref{prog:razsiritev-0}, ki bi ga lahko napisali v \aeff{}, ki pripada osnovni verziji \lae{}\nobreakdash-računa. V primeru se dve pomožni vrednosti poračunata v drugem procesu, medtem ko se glavni proces nadaljuje. 
+Poglejmo si primer~\ref{prog:razsiritev-0}, ki bi ga lahko napisali v \aeff{}, ki pripada osnovni verziji \lae{}\nobreakdash-računa. Primer je nekoliko bolj konkretna verzija primera~\ref{prog:primer-1} iz poglavja~\ref{sec:primeri-aeff}. Dve pomožni vrednosti se poračunata v drugem procesu. Medtem se glavni proces nemoteno nadaljuje. 
 Primer si lahko predstavljamo kot program, ki v pomožnem procesu poračuna časovno zahteven del, med tem ko glavni proces nemoteno nadaljuje delo.
 
 \begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-0},float,floatplacement=h]
@@ -39,7 +39,7 @@ run	let callCounter = ref 0 in
 run remote (fun x |-> 2 * x)::(fun x |-> 7 * x)::[]
 \end{lstlisting}
 
-Ta primer, ima nekaj problemov, ki jih bomo v nadaljevanju odpravili.
+Ta primer, ima še zmeraj nekaj problemov, ki jih bomo v nadaljevanju odpravili.
 
 
 \subsection{Rekurzivni prestreznik}
@@ -50,7 +50,7 @@ Kadar pričakujemo več prekinitev z isto operacijo, je lahko iz različnih razl
 To funkcionalnost smo do sedaj dosegli tako, da smo obljubo definirali v pomožni rekurzivni funkciji in po potrebi znotraj obljube ponovno klicali to funkcijo, kot lahko vidimo v programu~\ref{prog:razsiritev-0}.
 
 
-Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in kontinuacije $N$ tudi spremenljivko $r$. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
+Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in kontinuacije $N$ tudi spremenljivko $r$ s pomočjo katere lahko ponovno namestimo isti prestreznik. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
 
 
 \begin{figure}[H]
@@ -65,7 +65,6 @@ Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z reku
 	\caption{Izračuni z rekurzivnim prestreznikom}
 	\label{fig:izrazi-prestreznik}
 \end{figure}
-
 
 Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. S to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira z lambda funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik.   
 
@@ -152,7 +151,6 @@ run remote (fun x |-> 2 * x)::(fun x |-> 7 * x)::[]
 \end{lstlisting}
 
 
-
 \subsection{Prenosljivi tipi}
 
 Ko imamo nek signal, je ključno, da tovor ne vsebuje vrednosti obljub, kar smo do sedaj rešili tako, da smo omejili signale na osnovne tipe. Glavni problem tega pristopa je, da funkcijski tip ni med osnovnimi tipi in posledično ne moremo poslati funkcij. Ta problem rešimo z uvedbo \emph{zavite vrednosti} in \emph{zaviti tipi}. Zavite vrednosti bodo lahko tudi lambda funkcije, ki ne bodo vsebovale zunanjih obljub. Posledično jih bo varno poslati. Osnovne tipe skupaj z zavitim tipom imenujemo \emph{prenosljivi tipi}. Da bomo lahko zavito vrednost tudi uporabili, dodamo izračun \emph{odvijanje}, ki iz zavite vrednosti odvije pripadajočo vrednost in jo veže na spremenljivko.
@@ -235,7 +233,7 @@ Izračun odvijanje veže vrednost znotraj zavite vrednosti $\tmboxed{V}$ na spre
 \end{figure}
 
 Da zagotovimo, da ne bi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodelili zavit tip, nekoliko spremenimo pravilo za izračun tipa spremenljivke in dodamo pravili za zavito vrednost in izračun odvijanje.
-Sedaj bo vrstni red v okolju pomemben, zato je okolje od sedaj naprej urejen seznam. Ko določamo tip zavite vrednosti, v okolje dodamo $\bb$. S tem za v bodoče označimo katere spremenljivke so zunanje ali notranje glede na zavito vrednost. 
+Okolje je imelo že od začetka določen vrstni red, vendar šele sedaj to postane zares pomembno. Ko določamo tip zavite vrednosti, v okolje dodamo $\bb$. S tem za v bodoče označimo katere spremenljivke so zunanje ali notranje glede na zavito vrednost. 
 Če je spremenljivka notranja, torej od kar smo jo dodali v okolje, nismo dodali nobenega $\bb$, je pravilo standardno. Če je spremenljivka zunanja, torej od kar je bila dodana v okolje, je bil v okolje dodan tudi $\bb$, mora biti pripadajoči tip v okolju prenosljiv.
 
 \begin{figure}[H]
@@ -303,13 +301,11 @@ run remote ()
 
 \subsection{Dinamični procesi}
 
-Funkcije $f$ v remote call se potencialno izvaja zelo počasi. Zato si želimo, da bi vsak $remote klic$ lahko opravili v svojem procesu, da lahko izvajamo vzporedno namesto zaporedno. 
+Funkcija $f$ v oddaljenem klicu se potencialno izvaja zelo počasi. Zato si želimo, da bi vsak oddaljen klic lahko opravili v svojem procesu, da lahko izvajamo vzporedno namesto zaporedno. 
 Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti na začetku.
-Posledično bi morali vnaprej vedeti, koliko klicov bo remote hkrati dobil, da bi imeli temu primerno pripravljenih procesov.
+Posledično bi morali vnaprej vedeti, koliko klicev bo oddaljeni klic hkrati dobil, da bi imeli temu primerno pripravljenih procesov.
 
 Da rešimo ta problem, dodamo dinamično ustvarjanje novih procesov s pomočjo izračuna $\tmspawn{M}{N}$. 
-
-
 
 \begin{figure}[H]	
 	\centering

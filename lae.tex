@@ -3,7 +3,7 @@
 Račun $\lambda$ je preprost teoretičen programski jezik. Leta 1930 ga je uvedel Alonzo Chuch z namenom formalizacije koncepta izračunljivosti~\cite{rojas2015tutorial}. Račun lambda je Turingovo poln.
 
 
-Račun \lae{} je razširitev računa $\lambda$. Računu \lae{} dodamo izraze, ki poosebijo bistvo asinhrono vzporednega programiranja z pomočjo učinkov. Da \lae{}-račun čim bolj približamo vsakdanjim programskim jezikom, mu dodamo tudi izraze za  naravna števila, par, ujemanje vzorca...
+Račun \lae{} je razširitev računa $\lambda$. Računu \lae{} dodamo izraze, ki poosebijo bistvo asinhrono vzporednega programiranja z pomočjo učinkov. Da \lae{}-račun nekoliko približamo vsakdanjim programskim jezikom, mu dodamo tudi izraze za  naravna števila, par, ujemanje vzorca... Še vedno pa izpustimo veliko izrazov, ki jih sicer imamo v \aeff{}.
 
 
 \subsection{Izrazi}
@@ -270,7 +270,7 @@ Signal in prekinitev na procesih se obnašata enako kot na izračunih. Par proce
 
 \subsection{Sistem tipov}
 
-Da se izognemo programom, ki se nebi ustavili v obliki rezultata uvedemo sistem tipov.
+Da se izognemo programom, ki se nebi ustavili v obliki rezultata, uvedemo sistem tipov.
 Tipe ločimo na tipe za vrednosti, izračune in procese.
 Večina vrednosti dobi standardne tipe, kot so naravno število, enota, par, vsota in funkcijski tip. 
 Ker funkcijski tip označuje funkcijo, ki vzame argument in mu priredi izračun, le tej pa imajo, kot bomo kasneje videli, poleg standardnih tipov, še tipe za učinke, ima tudi funkcijski tip dodane tipe za učinke.
@@ -279,20 +279,21 @@ Dodatno za vrednost obljuba uvedemo tip \emph{obljuba} $\typromise{A}$.
 Tipom za vrednosti, ki ne vsebujejo funkcijskega tipa ali obljube, pravimo osnovni tipi. 
 
 
-Izračunom poleg standardnega tipa dodamo še tipe signalov, ki jih lahko sprožimo, označene z $\o$ in tipe prekinitev, ki jih lahko prestrežemo, označene z $\i$.
+Izračunom poleg standardnega tipa dodamo še tipe signalov, ki jih lahko sprožijo, označene z $\o$, in tipe prekinitev, ki jih lahko prestrežejo, označene z $\i$.
 Tipi učinkov $\o$ in $\i$ so elementi množice $O$ oziroma $I$.
 Množica $\sig$ je množica vseh operacij, ki jih imamo na voljo.
 Množica $O$ je preprosto potenčna množica množice $\sig$ in posledično $\o$ predstavlja množico signalov, ki jih izračun lahko sproži.
 
-Ko prestrežemo neko prekinitev lahko ustrezen prestreznik začne sprožati nove signale in prestrezati nove prekinitve. Zato $I$ definiramo kot največjo fiksno točko preslikave $\Omega$ definirane kot 
+Množico $I$ definiramo kot največjo fiksno točko preslikave $\Omega$ definirane kot 
 $$\Omega(X) = \sig \Rightarrow (O \times X)_\bot ,$$
 kjer je $\Rightarrow$ potenciranje, $\times$ je kartezični produkt in $(-)_\bot$ je dvig.
 
-...TODO vkjučno z def $\opincomp{op}{(\o, \i)}$ na izračunih in procesih
+Ko prestrežemo neko prekinitev lahko ustrezen prestreznik začne sprožati nove signale in prestrezati nove prekinitve.
+Kaj in kako točno se spremenijo efekti definira $\opincomp{op}{(\o, \i)}$.
+
+
 
 Tipi procesov so odvisni od tipov izračunov in posledično vsebujejo tipe učinkov.
-
-Pravila za dodelitev tipa vidimo na sliki~\ref{fig:value-typing-rules} in~\ref{fig:computation-typing-rules}.
 
 
 \begin{figure}[H]
@@ -325,6 +326,7 @@ $$ \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}}, $$
 je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu spremenljivka $p$ v vrednosti $V$ ni več dobro definiran. Da zagotovimo, da vrednost $V$ ne vsebuje spremenljivke $p$, omejimo tipe, ki pripadajo operacijam, na osnovne tipe.
 
 
+Pravila za določitev tipa vrednosti, izračunov in procesov vidimo na sliki~\ref{fig:value-typing-rules},~\ref{fig:computation-typing-rules} in~\ref{fig:process-typing-rules}.
 
 \begin{figure}[H]
 	\centering
@@ -392,7 +394,7 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 			\Gamma \types \tmpromise V : \typromise X
 		}
 	\end{mathpar}
-	\caption{Pravila za izračun tipov za vrednosti.}
+	\caption{Pravila za določitev tipov za vrednosti.}
 	\label{fig:value-typing-rules}
 \end{figure}
 
@@ -480,7 +482,7 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 			\Gamma \types M : \tycomp{X}{\o', \i'}
 		}
 	\end{mathpar}
-	\caption{Pravila za izračun tipov za izračune.}
+	\caption{Pravila za določitev tipov za izračune.}
 	\label{fig:computation-typing-rules}
 \end{figure}
 
@@ -516,7 +518,7 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 			\Gamma \types \tmopin{op}{V}{P} : \opincomp{op}{\tyC}
 		}  
 	\end{mathpar}
-	\caption{Pravila za izračun tipov za procese.}
+	\caption{Pravila za določitev tipov za procese.}
 	\label{fig:process-typing-rules}
 \end{figure}
 
@@ -593,9 +595,8 @@ je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu
 \end{figure}
 
 
-Izrek o varnosti, ki je sestavljen iz izreka o ohranitvi in izreka o napredku nam zagotavlja, da ne moremo dobiti napak ob izvajanju, če imamo tipe, kot smo jih definirali.
-
-Sledi veliko lem, ki so dokazane s strukturno indukcijo. Kadar je v dokazu zanimiv le posamezen primer je posebej označen z $\sitem$.
+Izrek o varnosti razdelimo na izrek o ohranitvi in izreka o napredku.
+Sledi veliko lem potrebnih za dokaz teh dveh izrekov, ki so dokazane s strukturno indukcijo. Kadar je v dokazu zanimiv le posamezen primer je posebej označen z $\sitem$.
 
 
 \begin{lema}\label{lem:ni-spremenljivka}
@@ -777,6 +778,7 @@ Sledi veliko lem, ki so dokazane s strukturno indukcijo. Kadar je v dokazu zanim
 				\end{itemize}
 				
 			\end{itemize}
+		
 		\end{itemize}
 		
 	\end{itemize}
