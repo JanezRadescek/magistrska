@@ -4,9 +4,9 @@ Poglejmo si sledeči sekvenčni sinhroni primer. Poračunati moramo zelo zahtevn
 
 \begin{lstlisting}[caption={Sinhron sekvečni primer.},label={prog:primer-0},float,floatplacement=h]
 x' = priblizek(42)
-prikazi_na_zaslon(x')
-x = tocna_funkcija(42)
-prikazi_na_zaslon(x)
+zaslon(x')
+x = funkcija(42)
+zaslon(x)
 
 kontinuacija1()
 kontinuacija2(x)
@@ -14,17 +14,17 @@ kontinuacija2(x)
 
 Ta primer ima dve težavi, ki sta posledici sekvenčnega sinhronega izvajanja. Prvi problem je da, ker je program sekvenčni, ne moremo računati točne funkcije hkrati z približkom in posledično se program izvaja dlje časa. Drugi problem pa je, da dokler se bo računala točna funkcija, ne moremo izvajati prve kontinuacije, čeprav je neodvisna od točnega rezultata. Posledično se program ne more odzvati na potencialen uporabnikov vhod.  
 
-Obema težavama se zlahka izognemo če program napišemo v jeziku \aeff, kot vidimo v programu~\ref{prog:primer-1}. Najprej v prvem procesu poračunamo približek in ga prikažemo. Nato s pomočjo efekta v drug proces pošljemo vhod točne funkcije. V drugem procesu prestrežemo število $42$, začnemo računati točno funkcijo in ko končamo pošljemo rezultat nazaj v glavni proces. Medtem ko se računa točna vrednost se glavni proces ne zaustavi, ampak nadaljuje z izvajanjem prve kontinuacije, ki je neodvisna od rezultata točne funkcije. Ko glavni proces prestreže rezultat, ga izpiše na zaslon in veže v spremenljivko p, da ga po potrebi lahko uporabimo v drugi kontinuaciji. V primeru, da končamo s prvo kontinuacijo preden dobimo rezultat, ki ga potrebujemo v drugi kontinuaciji, blokiramo nadaljnje izvajanje s pomočjo blokade.
+Obema težavama se zlahka izognemo če program napišemo v jeziku \aeff, kot vidimo v programu~\ref{prog:primer-1}. Celoten program razdelimo v dva procesa. Posamezen proces se začne z besedo $\tmkw{run}$. Procesi se lahko izvajajo vzporedno. Najprej v prvem procesu poračunamo približek $\tmkw{let}\ x' = \text{priblizek}(42)$ in ga prikažemo na zaslon z $\text{zaslon}(x');$. Nato s pomočjo efekta $\tmkw{\uparrow}\, \text{call}\,42;$ v drug proces pošljemo število $42$. V drugem procesu prestrežemo število $42$ s pomočjo $\tmwith{call}{a}{M}{\_}{()}$ in jo vežemo v spremenljivko $a$. Nakar začnemo računati točno funkcijo z $\tmkw{let}\ x' = \text{funkcija}(42)$. Ko končamo, pošljemo rezultat nazaj v glavni proces z $\tmkw{\uparrow}\, \text{result}\,x$. Medtem ko se računa točna vrednost se glavni proces ne zaustavi, ampak nadaljuje z izvajanjem prve kontinuacije $\text{kontinuacija}1()$, ki je neodvisna od rezultata točne funkcije. Ko glavni proces prestreže rezultat z $$\tmwith{result}{x}{M}{p}{...}$$, ga izpiše na zaslon in veže v spremenljivko p, da ga po potrebi lahko uporabimo v drugi kontinuaciji. V primeru, da končamo s prvo kontinuacijo preden dobimo rezultat, ne smemo nadaljevati z drugo kontinuacijo sam le ta potrebuje rezultat. Blokada $\tmawait{p}{a}{...}$ blokira nadaljnje izvajanje, dokler se spremenljivka $p$ ne substituira z neko vrednostjo $\tmpromise{V}$. Takrat se bo $a$ v $\text{kontinuacija}2(a)$ substituiral z vrednostjo $V$ in izvajanje se bo nadaljevalo.
 
 \begin{lstlisting}[caption={Asinhron Vzporeden primer.},label={prog:primer-1},float,floatplacement=h]
 operation call : int
 operation result : int
  
 run let x' = priblizek(42) in
-    prikazi_na_zaslon(x');
+    zaslon(x');
     send call 42;
     promise (result x ->
-    	prikazi_na_zaslon(x);
+    	zaslon(x);
     	<x>
     ) as p in
     kontinuacija1();
@@ -32,7 +32,7 @@ run let x' = priblizek(42) in
     kontinuacija2(a)
 
 run promise(call a ->
-    	let x = tocna_funkcija(a) in
+    	let x = funkcija(a) in
     	send result x;
     	<()>
     ) as _ in
