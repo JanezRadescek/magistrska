@@ -11,18 +11,18 @@ Račun \lae{} je razširitev računa $\lambda$. Računu \lae{} dodamo izraze, ki
 Izraze v \lae{}-računu razdelimo na vrednosti, izračune in procese. 
 
 
-Imamo običajne vrednosti kot so spremenljivke, naravna števila, enote, pari, leve in desne inkluzije, lambda in rekurzivna lambda.
-Nenavadna in nova vrednost je obljuba. Je vrednost, ki jo je vrnil izračun prestreznik in jo posebej označimo, da ji lažje pravilno določimo tip.
+Imamo običajne vrednosti kot so spremenljivke, naravna števila, enote, pari, leve in desne inkluzije, funkcije in rekurzivne funkcije.
+Nenavadna in nova vrednost je obljuba. Je vrednost, ki jo je vrnil prestreznik in jo posebej označimo, da ji lažje pravilno določimo tip.
 
-Imamo običajne izračune kot so vrni, zaporedje, ujemanje in aplikacija.
+Imamo običajne izračune kot so vračanje vrednosti, zaporedje, ujemanje za pare in vsote in aplikacija.
 Poleg teh imamo tudi sledeče.
-Izračun signal vsebuje operacijo $op$ in pripadajočo vrednost $V$ imenovano tovor, ki ju želimo prenesti na druge procese. Vsebuje tudi nadaljevanje $M$.
-Izračun prekinitev vsebuje operacijo $op$ in pripadajočo vrednost $V$, ki bosta vplivali na izračune v nadaljevanju $M$. 
-
-Prestreznik je bistveni izračun za asinhrono izvajanje. Vsebuje nadaljevanje $N$, ki se načeloma izvaja.
+\emph{Signal} vsebuje operacijo $\op$ in pripadajočo vrednost $V$ imenovano \emph{tovor}, ki ju želimo prenesti na druge procese. Vsebuje tudi \emph{nadaljevanje} $M$, ki predstavlja preostanek programa, ki se bo izvedel, ko bo signal poslan.
+Ko signal preide v drug proces ga preimenujemo v \emph{prekinitev}. Prekinitev vsebuje operacijo $\op$ in pripadajočo vrednost $V$, ki bosta vplivali na \emph{prestreznike} na katere bo prekinitev naletela v nadaljevanju $M$. 
+\emph{Prestreznik} je bistveni izračun za asinhrono izvajanje. Vsebuje nadaljevanje $N$, ki se načeloma izvaja.
 Ko pride prekinitev z istim imenom operacije se spremenljivka $x$ substituira z tovorom $V$ v izračunu $M$. Celoten izračun se sedaj spremeni v zaporedje $M$ in $N$, kjer bo rezultat izračuna $M$ vezan v spremenljivko $p$.
- 
-Namen izračuna blokada je, da prepreči uporabo spremenljivke $p$ iz prestreznika, preden se obljuba izpolni. To doseže z blokiranjem izvajanja nadaljevanja $N$.
+Namen \text{blokade} je, da prepreči uporabo spremenljivke $p$ iz prestreznika, preden se obljuba izpolni. To doseže z blokiranjem izvajanja nadaljevanja $M$.
+
+Osnovni proces je imenovan \emph{Zagon}. Vsebuje izračun $M$, ki se izvaja 
 
 
 Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
@@ -35,11 +35,11 @@ Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi} v Backus-Naurjevi obliki 
 	\intertext{\textbf{Vrednosti}}
 	V, W
 	\bnfis& x                                       & &\text{spremenljivka} \\
-	\bnfor& n    							        & &\text{konstantne vrednosti} \\
+	\bnfor& n    							        & &\text{naravno število} \\
 	\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          & &\text{enota in par} \\
 	\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      & &\text{leva in desna inkluzija} \\
-	\bnfor& \tmfun{x \of X}{M}                      & &\text{lambda} \\
-	\bnfor& \tmfunrec{f}{x : X}{M}                  & &\text{rekurzivna lambda} \\
+	\bnfor& \tmfun{x \of X}{M}                      & &\text{funkcija} \\
+	\bnfor& \tmfunrec{f}{x : X}{M}                  & &\text{rekurzivna funkcija} \\
 	\bnfor& \tmpromise V                            & &\text{obljuba}
 	\\[1ex]
 	\intertext{\textbf{Izračuni}}
@@ -57,10 +57,10 @@ Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi} v Backus-Naurjevi obliki 
 		\\[1ex]
 	\intertext{\textbf{Procesi}}
  	P, Q
-	\bnfis & \tmrun M & & \text{run} \\
+	\bnfis & \tmrun M & & \text{zagon} \\
 	\bnfor & \tmpar P Q & & \text{vzporedna procesa} \\
-	\bnfor & \tmopout{op}{V}{P} & & \text{proces signal} \\
-	\bnfor & \tmopin{op}{V}{P} & & \text{proces prekinitev}
+	\bnfor & \tmopout{op}{V}{P} & & \text{signal procesa} \\
+	\bnfor & \tmopin{op}{V}{P} & & \text{prekinitev procesa}
 	\end{align*}
 
 	\caption{Vrednosti, izračuni in procesi.}
@@ -70,7 +70,7 @@ Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi} v Backus-Naurjevi obliki 
 
 \subsection{Operacijska semantika}
 
-Substitucije na vrednostih in izračunih definiramo, kot vidimo na sliki~\ref{fig:substitucije}.
+Substitucije na vrednostih in izračunih definiramo, kot vidimo na sliki~\ref{fig:substitucije}. Vezane spremenljivke ustrezno preimenujemo.
 
 \begin{figure}[H]
 	\centering
@@ -80,21 +80,22 @@ Substitucije na vrednostih in izračunih definiramo, kot vidimo na sliki~\ref{fi
 		x[V/x] = V \qquad y[V/x] = y\ {\color{rulenameColor}(y \neq x)} \qquad n[V/x] = n \\
 		()[V/x] = () \qquad	\tmpair{W_1}{W_2}[V/x] = \tmpair{W_1[V/x]}{W_2[V/x]} \\
 		(\tminl{W})[V/x] = \tminl{(W[V/x])} \qquad (\tminr{W})[V/x] = \tminr{(W[V/x])} \\
-		(\tmfunano{x}{M})[V/x] = \tmfunano{x}{(M[V/x])} \\ (\tmfunrecano{f}{x}{M})[V/x] = \tmfunrecano{f}{x}{(M[V/x])} \\
+		(\tmfunano{y}{M})[V/x] = \tmfunano{y}{(M[V/x])}\ {\color{rulenameColor}(y \neq x)} \\
+		(\tmfunrecano{f}{y}{M})[V/x] = \tmfunrecano{f}{y}{(M[V/x])}\ {\color{rulenameColor}(y \neq x)} \\
 		\tmpromise{W}[V/x] = \tmpromise{W[V/x]}
 	\end{mathpar}
 	\textbf{Izračuni}
 	\begin{align*}
 		(\tmreturn{W})[V/x] &= \tmreturn{(W[V/x])} \\
-		(\tmlet{x}{M}{N})[V/x] &= \tmlet{x}{(M[V/x])}{(N[V/x])} \\
+		(\tmlet{y}{M}{N})[V/x] &= \tmlet{y}{(M[V/x])}{(N[V/x])} \\
 		(\tmmatch{W}{\tmpair{y_1}{y_2} \mapsto M})[V/x] &= \tmmatch{W[V/x]}{\tmpair{y_1}{y_2} \mapsto (M[V/x])} \\
 		(\tmmatch{W}{\tminl{y_1} \mapsto M_1, \tminr{y_2} \mapsto& M_2})[V/x] = \\  
-		\tmmatch{W[V/x]&}{\tminl{x} \mapsto (M[V/x]), \tminr{y} \mapsto (N[V/x])} \\
+		\tmmatch{W[V/x]&}{\tminl{y_1} \mapsto (M_1[V/x]), \tminr{y_2} \mapsto (M_2[V/x])} \\
 		(\tmapp{W_1}{W_2})[V/x] &= \tmapp{(W_1[V/x])}{(W_2[V/x])} \\
 		(\tmopout{op}{W}{M})[V/x] &= \tmopout{op}{W[V/x]}{M[V/x]} \\
 		(\tmopin{op}{W}{M})[V/x] &= \tmopin{op}{W[V/x]}{M[V/x]} \\
 		(\tmwith{op}{y}{M}{p}{N})[V/x] &= \tmwith{op}{y}{M[V/x]}{p}{N[V/x]} \\
-		(\tmawait{V}{y}{M}) &= \tmawait{V[V/x]}{y}{M[V/x]}
+		(\tmawait{W}{y}{M}) &= \tmawait{W[V/x]}{y}{M[V/x]}
 	\end{align*}
 	\caption{Substitucije za vrednosti in izračune.}
 	\label{fig:substitucije}
@@ -169,7 +170,7 @@ Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z 
 	\coopinfer{}{
 		M \reduces M'
 	}{
-		\tmwith{op}{x}{M}{N} \reduces \tmwith{op}{x}{M'}{N}
+		\tmwith{op}{x}{M}{p}{N} \reduces \tmwith{op}{x}{M'}{p}{N}
 	}
 	\end{align*}
 	
@@ -179,7 +180,7 @@ Račun \lae\ opremimo z operacijsko semantiko malih korakov, ki je definirana z 
 
 
 Poleg teh pravil, ki so identična pravilom iz članka od Ahmana in Pretnarja~\cite{aeff}, dodamo še dve novi.
-Prvo pravilo potegne blokado ven iz zaporedja. Drugo pravilo prestavi prekinitev takoj za blokado. Obe pravili skupaj dosežeta dvoje. Malenkost večji del prvotnega izračuna je postal asinhron. Kar nam lahko v primeru, da bo obljuba izpolnjena in bomo nadaljevali z izvajanjem tega dela, nekoliko pohitri izvajanje. Druga prednost pa je, da izračun, ki je v čakajočem stanju, se vedno začne z izračunom $\tmkw{Await}$. Posledično je prepoznati ali je izračun v čakajočem stanju trivialno in se bodo delni rezultati nekoliko poenostavili. 
+Prvo pravilo potegne blokado ven iz zaporedja. Drugo pravilo prestavi prekinitev takoj za blokado. Obe pravili skupaj dosežeta dvoje. Malenkost večji del prvotnega izračuna je postal asinhron. Kar nam lahko v primeru, da bo obljuba izpolnjena in bomo nadaljevali z izvajanjem tega dela, nekoliko pohitri izvajanje. Druga prednost pa je, da izračun, ki je v čakajočem stanju, se vedno začne z blokado. Posledično je prepoznati ali je izračun v čakajočem stanju trivialno in se bodo delni rezultati nekoliko poenostavili. 
 Rezultati ostanejo enaki kot v originalnem članku~\cite{aeff}.
 
 
@@ -274,9 +275,9 @@ Da se izognemo programom, ki se nebi ustavili v obliki rezultata, uvedemo sistem
 Tipe ločimo na tipe za vrednosti, izračune in procese.
 Večina vrednosti dobi standardne tipe, kot so naravno število, enota, par, vsota in funkcijski tip. 
 Ker funkcijski tip označuje funkcijo, ki vzame argument in mu priredi izračun, le tej pa imajo, kot bomo kasneje videli, poleg standardnih tipov, še tipe za učinke, ima tudi funkcijski tip dodane tipe za učinke.
-
-Dodatno za vrednost obljuba uvedemo tip \emph{obljuba} $\typromise{A}$. 
-Tipom za vrednosti, ki ne vsebujejo funkcijskega tipa ali obljube, pravimo osnovni tipi. 
+ 
+Dodatno uvedemo \emph{tip obljub} $\typromise{A}$, ki predstavlja obljube, izpolnjene z vrednostmi tipa A.
+Tipom za vrednosti, ki ne vsebujejo funkcijskega tipa ali obljube, pravimo \emph{osnovni tipi}. 
 
 
 Izračunom poleg standardnega tipa dodamo še tipe signalov, ki jih lahko sprožijo, označene z $\o$, in tipe prekinitev, ki jih lahko prestrežejo, označene z $\i$.
@@ -284,17 +285,34 @@ Tipi učinkov $\o$ in $\i$ so elementi množice $O$ oziroma $I$.
 Množica $\sig$ je množica vseh operacij, ki jih imamo na voljo.
 Množica $O$ je preprosto potenčna množica množice $\sig$ in posledično $\o$ predstavlja množico signalov, ki jih izračun lahko sproži.
 
+\mP{Ali veš, zakaj ta fiksna točka obstaja?}
 Množico $I$ definiramo kot največjo fiksno točko preslikave $\Omega$ definirane kot 
 $$\Omega(X) = \sig \Rightarrow (O \times X)_\bot ,$$
-kjer je $\Rightarrow$ potenciranje, $\times$ je kartezični produkt in $(-)_\bot$ je dvig.
+kjer je $\Rightarrow$ potenciranje, $\times$ je kartezični produkt in $(-)_\bot$ je dvig. Dvig je disjunktna unija množice z $\bot$.
 
 Ko prestrežemo neko prekinitev lahko ustrezen prestreznik začne sprožati nove signale in prestrezati nove prekinitve.
-Kaj in kako točno se spremenijo efekti definira $\opincomp{op}{(\o, \i)}$.
+Kako točno se spremenijo efekti definira $\opincomp{op}{(\o, \i)}$.
 
+$$\opincomp{op}{(\o, \i)}~\defeq~
+\begin{cases}
+	\left(\o \cup \o' , \i[\op \mapsto \bot] \cup \i' \right) & \mbox{če } \i\, (\op) = (\o',\i')\\
+	(\o,\i) & \mbox{sicer} 
+\end{cases}$$
 
+Tip $\i[\op \mapsto \bot]$ je povsod enak $\i$, le $\op$ sedaj kaže na $\bot$.
+$$
+\i \cup \i'
+~\defeq~
+\op \mapsto 
+\begin{cases}
+	(\o'' \cup \o''' , \i'' \cup \i''') & \mbox{če } \i\, (\op) = (\o'',\i'') \wedge \i'\, (\op) = (\o''',\i''') \\
+	(\o'' , \i'') & \mbox{če } \i\, (\op) = (\o'',\i'') \wedge \i'\, (\op) = \bot \\
+	              & \mbox{ali } \i\, (\op) = \bot \wedge \i'\, (\op) = (\o'',\i'') \\
+	\bot & \mbox{če } \i\, (\op) = \bot \wedge \i'\, (\op) = \bot \\
+\end{cases}
+$$
 
 Tipi procesov so odvisni od tipov izračunov in posledično vsebujejo tipe učinkov.
-
 
 \begin{figure}[H]
 	\centering
@@ -302,7 +320,7 @@ Tipi procesov so odvisni od tipov izračunov in posledično vsebujejo tipe učin
 	\textbf{Tipi}
 	\begin{align*}
 	\text{Osnovni tipi vrednosti $\bar{A}$, $\bar{B}$}
-	\bnfis & \tysym{int} \,\bnfor\! \tysym{bool} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \,\bnfor\! \typrod{\bar{A}}{\bar{B}} \,\bnfor\! \tysum{\bar{A}}{\bar{B}}
+	\bnfis & \tysym{int} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \,\bnfor\! \typrod{\bar{A}}{\bar{B}} \,\bnfor\! \tysum{\bar{A}}{\bar{B}}
 	\\%[1ex]
 	\text{Tipi vrednosti $A$, $B$}
 	\bnfis & \bar{A} \, \bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B} \,\bnfor\! \tyfun{A}{\tycomp{B}{\o,\i}} \,\bnfor\! \typromise{A}
@@ -325,7 +343,7 @@ lahko naredi korak v izračun
 $$ \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}}, $$
 je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu spremenljivka $p$ v vrednosti $V$ ni več dobro definiran. Da zagotovimo, da vrednost $V$ ne vsebuje spremenljivke $p$, omejimo tipe, ki pripadajo operacijam, na osnovne tipe.
 
-
+\jR{Napiši malo o tipih}
 Pravila za določitev tipa vrednosti, izračunov in procesov vidimo na sliki~\ref{fig:value-typing-rules},~\ref{fig:computation-typing-rules} in~\ref{fig:process-typing-rules}.
 
 \begin{figure}[H]
@@ -335,63 +353,54 @@ Pravila za določitev tipa vrednosti, izračunov in procesov vidimo na sliki~\re
 		\quad
 		\coopinfer{TyVal-Var}{
 		}{
-			\Gamma, x \of X, \Gamma' \types x : X
+			\Gamma, x \of A, \Gamma' \types x : A
 		}
 		\quad
 		\coopinfer{TyVal-Cons}{
 		}{
-			\Gamma \types n : int
+			\Gamma \types n : \tysym{int}
 		}
 		\qquad
-%		\coopinfer{Ty-Cons-T}{
-%		}{
-%			\Gamma \types true : bool
-%		}
-%		\qquad
-%		\coopinfer{Ty-Cons-F}{
-%		}{
-%			\Gamma \types false : bool
-%		}
 		\coopinfer{TyVal-Unit}{
 		}{
 			\Gamma \types \tmunit : \tyunit
 		}
 		\quad
 		\coopinfer{TyVal-Pair}{
-			\Gamma \types V : X \\
-			\Gamma \types W : Y
+			\Gamma \types V : A \\
+			\Gamma \types W : B
 		}{
-			\Gamma \types \tmpair{V}{W} : \typrod{X}{Y}
+			\Gamma \types \tmpair{V}{W} : \typrod{A}{B}
 		}
 		\\
 		\coopinfer{TyVal-Inl}{
-			\Gamma \types V : X
+			\Gamma \types V : A
 		}{
-			\Gamma \types \tminl[Y]{V} : X + Y
+			\Gamma \types \tminl[B]{V} : A + B
 		}
 		\quad
 		\coopinfer{TyVal-Inr}{
-			\Gamma \types W : Y
+			\Gamma \types W : B
 		}{
-			\Gamma \types \tminr[X]{W} : X + Y
+			\Gamma \types \tminr[A]{W} : A + B
 		}
 		\quad
 		\coopinfer{TyVal-Fun}{
-			\Gamma, x \of X \types M : \tycomp{Y}{\o,\i}
+			\Gamma, x \of A \types M : \tycomp{B}{\o,\i}
 		}{
-			\Gamma \types \tmfun{x : X}{M} : \tyfun{X}{\tycomp{Y}{\o,\i}}
+			\Gamma \types \tmfun{x : A}{M} : \tyfun{A}{\tycomp{B}{\o,\i}}
 		}
 		\\
 		\coopinfer{TyVal-Fun-Rec}{
-			\Gamma,f \of \tyfun{X}{\tycomp{Y}{\o,\i}}, x \of X \types M : \tycomp{Y}{\o,\i}
+			\Gamma,f \of \tyfun{A}{\tycomp{B}{\o,\i}}, x \of A \types M : \tycomp{B}{\o,\i}
 		}{
-			\Gamma \types \tmfunrec{f}{x : X}{M} : \tyfun{X}{\tycomp{Y}{\o,\i}}
+			\Gamma \types \tmfunrec{f}{x : A}{M} : \tyfun{A}{\tycomp{B}{\o,\i}}
 		}
 		\quad
 		\coopinfer{TyVal-Promise}{
-			\Gamma \types V : X
+			\Gamma \types V : A
 		}{
-			\Gamma \types \tmpromise V : \typromise X
+			\Gamma \types \tmpromise V : \typromise A
 		}
 	\end{mathpar}
 	\caption{Pravila za določitev tipov za vrednosti.}
@@ -403,83 +412,83 @@ Pravila za določitev tipa vrednosti, izračunov in procesov vidimo na sliki~\re
 	\small
 	\begin{mathpar}
 		\coopinfer{TyComp-Return}{
-			\Gamma \types V : X
+			\Gamma \types V : A
 		}{
-			\Gamma \types \tmreturn{V} : \tycomp{X}{\o,\i} 
+			\Gamma \types \tmreturn{V} : \tycomp{A}{\o,\i} 
 		}
 		\qquad
 		\coopinfer{TyComp-Let}{
-			\Gamma \types M : \tycomp{X}{\o,\i}
+			\Gamma \types M : \tycomp{A}{\o,\i}
 			\\
-			\Gamma, x \of X \types N : \tycomp{Y}{\o,\i} 
+			\Gamma, x \of A \types N : \tycomp{B}{\o,\i} 
 		}{												
 			\Gamma \types
-			\tmlet{x}{M}{N} : \tycomp{Y}{\o,\i}       
+			\tmlet{x}{M}{N} : \tycomp{B}{\o,\i}       
 		}											
 		\\
 		\coopinfer{TyComp-MatchEmpty}{
 			\Gamma \types V : \tyempty
 		}{
-			\Gamma \types \tmmatch[\tycomp{Z}{(\o,\i)}]{V}{} : \tycomp{Z}{\o,\i}
+			\Gamma \types \tmmatch[\tycomp{C}{(\o,\i)}]{V}{} : \tycomp{C}{\o,\i}
 		}
 		\quad
 		\coopinfer{TyComp-MatchPair}{
-			\Gamma \types V : \typrod{X}{Y} \\
-			\Gamma, x \of X, y \of Y \types M : \tycomp{Z}{\o,\i}
+			\Gamma \types V : \typrod{A}{B} \\
+			\Gamma, x \of A, y \of B \types M : \tycomp{C}{\o,\i}
 		}{
-			\Gamma \types \tmmatch{V}{\tmpair{x}{y} \mapsto M} : \tycomp{Z}{\o,\i}
+			\Gamma \types \tmmatch{V}{\tmpair{x}{y} \mapsto M} : \tycomp{C}{\o,\i}
 		}
 		\\
 		\coopinfer{TyComp-MatchSum}{
-			\Gamma \types V : X + Y \\\\
-			\Gamma, x \of X \types M : \tycomp{Z}{\o,\i} \\
-			\Gamma, y \of Y \types N : \tycomp{Z}{\o,\i} \\
+			\Gamma \types V : A + B \\\\
+			\Gamma, x \of A \types M : \tycomp{C}{\o,\i} \\
+			\Gamma, y \of B \types N : \tycomp{C}{\o,\i} \\
 		}{
-			\Gamma \types \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N} : \tycomp{Z}{\o,\i}
+			\Gamma \types \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N} : \tycomp{C}{\o,\i}
 		}
 		\quad
 		\coopinfer{TyComp-Apply}{
-			\Gamma \types V : \tyfun{X}{\tycomp{Y}{\o,\i}} \\
-			\Gamma \types W : X
+			\Gamma \types V : \tyfun{A}{\tycomp{B}{\o,\i}} \\
+			\Gamma \types W : A
 		}{
-			\Gamma \types \tmapp{V}{W} : \tycomp{Y}{\o,\i}
+			\Gamma \types \tmapp{V}{W} : \tycomp{B}{\o,\i}
 		}
 		\\
 		\coopinfer{TyComp-Signal}{
 			\op \in \o \\
 			\Gamma \types V : A_\op \\
-			\Gamma \types M : \tycomp{X}{\o,\i} 
+			\Gamma \types M : \tycomp{A}{\o,\i} 
 		}{
-			\Gamma \types \tmopout{op}{V}{M} : \tycomp{X}{\o,\i}
+			\Gamma \types \tmopout{op}{V}{M} : \tycomp{A}{\o,\i}
 		}
 		\qquad
 		\coopinfer{TyComp-Interrupt}{
 			\Gamma \types V : A_\op \\
-			\Gamma \types M : \tycomp{X}{\o,\i} 
+			\Gamma \types M : \tycomp{A}{\o,\i} 
 		}{
-			\Gamma \types \tmopin{op}{V}{M} : \tycomp{X}{\opincomp {op} (\o,\i)}
+			\Gamma \types \tmopin{op}{V}{M} : \tycomp{A}{\opincomp {op} (\o,\i)}
 		}
 		\\
 		\coopinfer{TyComp-Promise}{
 			\i\, (\op) = ({\o'} , {\i'}) \\
-			\Gamma, x \of A_\op \types M : \tycomp{\typromise X}{\o',\i'} \\
-			\Gamma, p \of \typromise X \types N : \tycomp{Y}{\o,\i} 
+			\Gamma, x \of A_\op \types M : \tycomp{\typromise A}{\o',\i'} \\
+			\Gamma, p \of \typromise A \types N : \tycomp{B}{\o,\i} 
 		}{
-			\Gamma \types \tmwith{op}{x}{M}{p}{N} : \tycomp{Y}{\o,\i}
+			\Gamma \types \tmwith{op}{x}{M}{p}{N} : \tycomp{B}{\o,\i}
 		}
 		\\
 		\coopinfer{TyComp-Await}{
-			\Gamma \types V : \typromise X \\
-			\Gamma, x \of X \types M : \tycomp{Y}{\o,\i} 
+			\Gamma \types V : \typromise A \\
+			\Gamma, x \of A \types M : \tycomp{B}{\o,\i} 
 		}{
-			\Gamma \types \tmawait{V}{x}{M} : \tycomp{Y}{\o,\i}
+			\Gamma \types \tmawait{V}{x}{M} : \tycomp{B}{\o,\i}
 		}
 		\qquad
 		\coopinfer{TyComp-Subsume}{
-			\Gamma \types M : \tycomp{X}{\o, \i} \\
+			\Gamma \types M : \tycomp{A}{\o, \i} \\
 			(\o,\i) \order {O \times I} (\o',\i')
 		}{
-			\Gamma \types M : \tycomp{X}{\o', \i'}
+			\Gamma \types M : \tycomp{A}{\o', \i'}
 		}
 	\end{mathpar}
 	\caption{Pravila za določitev tipov za izračune.}
@@ -521,6 +530,8 @@ Pravila za določitev tipa vrednosti, izračunov in procesov vidimo na sliki~\re
 	\caption{Pravila za določitev tipov za procese.}
 	\label{fig:process-typing-rules}
 \end{figure}
+
+Kadar se program ustavi si želimo, da bi se ustavil v neki dokončni obliki s katero bomo zadovoljni. Kdaj točno je končan program v zadovoljivi obliki, nam povejo pravila na sliki~\ref{fig:results-rules}.
 
 \begin{figure}[H]
 	\centering
@@ -610,7 +621,7 @@ Sledi veliko lem potrebnih za dokaz teh dveh izrekov, ki so dokazane s strukturn
 \end{lema}
 
 \begin{proof}
-	Predpostavimo, da je $V$ spremenljivka. Edino pravilo za določitev tipa spremenljivke je \rulename{TIP-VAR}.
+	Predpostavimo, da je $V$ spremenljivka. Edino pravilo za določitev tipa spremenljivke je \rulename{TyVal-Var}.
 	Od tod sledi, da je tip $A$ v kontekstu $\Gamma$. Kar je v protislovju z predpostavko leme, da se tip $A$ ne pojavi v kontekstu $\Gamma$.
 	\begin{itemize}
 		\item Edini pravili za tip $B_1 \times B_2$ sta \rulename{TyVal-Var} in \rulename{TyVal-Pair}.
@@ -645,7 +656,7 @@ Sledi veliko lem potrebnih za dokaz teh dveh izrekov, ki so dokazane s strukturn
 		Po pravilih \rulename{R-Return} in \rulename{R-Comp} sledi, da je $M$ rezultat in velja (ii).
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
-		Izračun $N_1$ ima tip in po $IP$ lahko naredi korak ali pa je rezultat. Če $N_1$ lahko naredi korak v $N_1'$, potem lahko po pravilu za evalvacijo v okolju tudi $M$ naredi korak v $\tmlet{x}{N_1'}{N_2}$.
+		Izračun $N_1$ ima tip in po indukcijski predpostavki lahko naredi korak ali pa je rezultat. Če $N_1$ lahko naredi korak v $N_1'$, potem lahko po pravilu za evalvacijo v okolju tudi $M$ naredi korak v $\tmlet{x}{N_1'}{N_2}$.
 		Če pa je $N_1$ rezultat, ločimo dve možnosti glede na zadnje pravilo. 
 		\begin{itemize}
 			\item Če je zadnje pravilo \rulename{R-Signal}, potem je $N_1$ enak $\tmopout{op}{V}{N_3}$ in lahko $M$ naredi korak v $\tmopout{op}{V}{(\tmlet{x}{N_3}{N_2})}$.
@@ -680,11 +691,11 @@ Sledi veliko lem potrebnih za dokaz teh dveh izrekov, ki so dokazane s strukturn
 		\end{itemize}
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$.
-		Po $IP$ lahko ali $N$ naredi korak v $N'$ in posledično lahko $M$ naredi korak v $\tmopout{op}{V}{N'}$.
+		Po indukcijski predpostavki lahko ali $N$ naredi korak v $N'$ in posledično lahko $M$ naredi korak v $\tmopout{op}{V}{N'}$.
 		Ali pa je $N$ rezultat in je posledično po pravilu \rulename{R-Signal} tudi $M$ rezultat.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$.
-		Izračun $N$ ima tip in po $IP$ lahko naredi korak ali pa je rezultat.
+		Izračun $N$ ima tip in po indukcijski predpostavki lahko naredi korak ali pa je rezultat.
 		Če $N$ lahko naredi korak v $N'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmopin{op}{V}{N'}$. 
 		Če pa je $N$ rezultat ločimo dve možnosti glede na zadnje pravilo.
 		\begin{itemize}
@@ -692,14 +703,14 @@ Sledi veliko lem potrebnih za dokaz teh dveh izrekov, ki so dokazane s strukturn
 			\item če je zadnje pravilo \rulename{R-Comp}, potem ločimo tri primere.
 			\begin{itemize}
 				\item Če je $N$ enak $\tmreturn{V}$, potem lahko $M$ naredi korak v $\tmreturn{V}$.
-				\item Če je $N$ enak $\tmwith{op'}{x}{N_1}{p}{N_2}$, potem lahko $M$ naredi ali korak v $\tmlet{p}{N_1[V/x]}{N_2}$, če velja $op = op'$, ali v $\tmwith{op'}{x}{N_1}{p}{\tmopin{op}{V}{N_2}}$ sicer.
+				\item Če je $N$ enak $\tmwith{op'}{x}{N_1}{p}{N_2}$, potem lahko $M$ naredi ali korak v $\tmlet{p}{N_1[V/x]}{\tmopin{op}{V}{N_2}}$, če velja $op = op'$, ali v $\tmwith{op'}{x}{N_1}{p}{\tmopin{op}{V}{N_2}}$ sicer.
 				\item Če je $N$ enak $\tmawait{p}{y}{N''}$, potem lahko $M$ naredi korak v $\tmawait{p}{x}{(\tmopin{op}{V}{N''})}$.
 			\end{itemize}
 		\end{itemize}
 		
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Promise}, potem je $M$ enak $\tmwith{op}{x}{N_1}{p}{N_2}$.
-		Izračun $N_2$ ima tip in po $IP$ lahko $N_2$ naredi korak ali pa je že delna vrednost.
+		Izračun $N_2$ ima tip in po indukcijski predpostavki lahko $N_2$ naredi korak ali pa je že delna vrednost.
 		Če $N_2$ lahko naredi korak v $N_2'$, potem po pravilu za evalvacijo v okolju tudi $M$ lahko naredi korak v $\tmwith{op}{x}{N_1}{p}{N_2'}$.
 		Če pa je $N_2$ rezultat, ločimo dva primera.
 		\begin{itemize}
@@ -715,7 +726,7 @@ Sledi veliko lem potrebnih za dokaz teh dveh izrekov, ki so dokazane s strukturn
 			\item Sicer je $V$ enak $\tmpromise{W}$. Tedaj lahko $M$ naredi korak v $N[W/p]$.
 		\end{itemize}
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Subsume}, lahko $IP$ uporabimo direktno na $M$ in posledično lahko $M$ naredi korak ali pa je $M$ rezultat.
+		\item Če je zadnje pravilo \rulename{TyComp-Subsume}, lahko po indukcijski predpostavki uporabimo direktno na $M$ in posledično lahko $M$ naredi korak ali pa je $M$ rezultat.
 			
 	\end{itemize}
 	
@@ -751,7 +762,7 @@ Sledi veliko lem potrebnih za dokaz teh dveh izrekov, ki so dokazane s strukturn
 			\end{itemize}
 		\end{itemize}
 		
-		\item Če je zadnje pravilo \rulename{TyProc-Par}, potem je $P$ enak $\tmpar{Q_1}{Q_2}$. Ker imata $Q_1$ in $Q_2$ tip, lahko po $IP$ naredita korak ali pa sta že rezultata.
+		\item Če je zadnje pravilo \rulename{TyProc-Par}, potem je $P$ enak $\tmpar{Q_1}{Q_2}$. Ker imata $Q_1$ in $Q_2$ tip, lahko po indukcijski predpostavki naredita korak ali pa sta že rezultata.
 		Če lahko eden izmed njiju naredi korak, recimo $Q_1$ lahko naredi korak v $Q_1'$, lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmpar{Q_1'}{Q_2}$. Podobno dokažemo, če lahko $Q_2$ naredi korak.
 		Sicer sta $Q_1$ in $Q_2$ rezultata. Ločimo dve možnosti.
 		\begin{itemize}
@@ -759,11 +770,11 @@ Sledi veliko lem potrebnih za dokaz teh dveh izrekov, ki so dokazane s strukturn
 			\item Sicer je $P$ rezultat po pravilu \rulename{R-Parallel}.
 		\end{itemize}
 		
-		\item Če je zadnje pravilo \rulename{TyProc-Signal}, potem je $P$ enak $\tmopout{op}{V}{Q}$. Proces $Q$ ima tip in po $IP$ lahko naredi korak ali pa je rezultat.
+		\item Če je zadnje pravilo \rulename{TyProc-Signal}, potem je $P$ enak $\tmopout{op}{V}{Q}$. Proces $Q$ ima tip in po indukcijski predpostavki lahko naredi korak ali pa je rezultat.
 		Če $Q$ lahko naredi korak v $Q'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmopout{op}{V}{Q'}$.
 		Sicer je tudi $P$ rezultat po pravilu \rulename{R-Out}.
 		
-		\item Če je zadnje pravilo \rulename{TyProc-Interrupt}, potem je $P$ enak $\tmopin{op}{V}{Q}$. Proces $Q$ ima tip in po $IP$ lahko naredi korak ali pa je rezultat.
+		\item Če je zadnje pravilo \rulename{TyProc-Interrupt}, potem je $P$ enak $\tmopin{op}{V}{Q}$. Proces $Q$ ima tip in po indukcijski predpostavki lahko naredi korak ali pa je rezultat.
 		\begin{itemize}
 			\item Če $Q$ lahko naredi korak v $Q'$, potem lahko po pravilu za evalvacijo v okolju tudi $P$ naredi korak v $\tmopin{op}{V}{Q'}$.
 			\item Če je $Q$ rezultat ločimo dva primera.
@@ -819,13 +830,13 @@ Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 %		\item Če je zadnje pravilo \rulename{Ty-Cons-T}, potem je $W=true$ in $B=bool$. Ker je $W[V/x] = true[V/x] = true$, ima $W[V/x]$ tip $bool = B$, po pravilu \rulename{Ty-Cons-T}. 
 %		\item Če je zadnje pravilo \rulename{Ty-Cons-F}, potem je $W$ enak $false$ in $B$ enak $bool$. Ker je $W[V/x] = false[V/x] = false$, ima $W[V/x]$ tip $bool = B$, po pravilu \rulename{Ty-Cons-F}.
 		
-		\item Če je zadnje pravilo \rulename{TyVal-Pair}, potem je $W =\tmpair{W_1}{W_2}$ in $B = B_1 \times B_2$. Po $IP$ imata $W_1[V/x]$ in $W_2[V/x]$ tip $B_1$ in $B_2$.
+		\item Če je zadnje pravilo \rulename{TyVal-Pair}, potem je $W =\tmpair{W_1}{W_2}$ in $B = B_1 \times B_2$. Po indukcijski predpostavki imata $W_1[V/x]$ in $W_2[V/x]$ tip $B_1$ in $B_2$.
 		Ker je $W[V/x] = \tmpair{W_1[V/x]}{W_2[V/x]}$, ima vrednost $W[V/x]$ tip $\typrod{B_1}{B_2} = B$ po pravilu \rulename{TyVal-Pair}.
 		
-		\item Če je zadnje pravilo \rulename{TyVal-Inl}, potem je $W = \tminl{W_1}$ in $B = B_1 + B_2$. Po $IP$ ima $W_1[V/x]$ tip $B_1$.
+		\item Če je zadnje pravilo \rulename{TyVal-Inl}, potem je $W = \tminl{W_1}$ in $B = B_1 + B_2$. Po indukcijski predpostavki ima $W_1[V/x]$ tip $B_1$.
 		Ker je $W[V/x] = \tminl{W_1[V/x]}$, ima vrednost $W[V/x]$ tip $B_1 + B_2 = B$ po pravilu \rulename{Ty-Sum}.
 		
-		\item Če je zadnje pravilo \rulename{TyVal-Inr}, potem je $W = \tminr{W_2}$ in $B = B_1 + B_2$. Po $IP$ ima $W_2[V/x]$ tip $B_2$.
+		\item Če je zadnje pravilo \rulename{TyVal-Inr}, potem je $W = \tminr{W_2}$ in $B = B_1 + B_2$. Po indukcijski predpostavki ima $W_2[V/x]$ tip $B_2$.
 		Ker je $W[V/x] = \tminr{W_2[V/x]}$, ima vrednost $W[V/x]$ tip $B_1 + B_2 = B$ po pravilu \rulename{Ty-Sum}.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Fun}, potem je $W = \tmfunano{y}{M}$ in $B = \tyfun{B_1}{B_2}$. Po lemi~\ref{lem:substitucija-izračuni} ima $M[V/x]$ tip $B_2$.
@@ -834,7 +845,7 @@ Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 		\item Če je zadnje pravilo \rulename{TyVal-Fun-Rec}, potem je $W = \tmfunrecano{f}{y}{M}$ in $B = \tyfun{B_1}{B_2}$. Po lemi~\ref{lem:substitucija-izračuni} ima $M[V/x]$ tip $B_2$.
 		Ker je $W[V/x] = \tmfunrecano{f}{y}{M[V/x]}$, ima vrednost $W[V/x]$ tip $\tyfun{B_1}{B_2}$ po pravilu \rulename{TyVal-Fun-Rec}.
 		
-		\item Če je zadnje pravilo \rulename{TyVal-Promise}, potem je $W = \tmpromise{W'}$ in $B = \typromise{B'}$. Po $IP$ ima $W'[V/x]$ tip $B'$.
+		\item Če je zadnje pravilo \rulename{TyVal-Promise}, potem je $W = \tmpromise{W'}$ in $B = \typromise{B'}$. Po indukcijski predpostavki ima $W'[V/x]$ tip $B'$.
 		Ker je $W[V/x] = \tmpromise{W'}$, ima vrednost $W[V/x]$ tip $\typromise{B'} = B$ po pravilu \rulename{TyVal-Promise}.
 	\end{itemize}
 \end{proof}
@@ -856,7 +867,7 @@ Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
 		Izračuna $N_1$ in $N_2$ imata tip $\tycomp{C}{\o, \i}$ in $\tycomp{B}{\o, \i}$.
-		Po $IP$ velja, da imata $N_1[V/x]$ in $N_2[V/x]$ isti tip.
+		Po indukcijski predpostavki velja, da imata $N_1[V/x]$ in $N_2[V/x]$ isti tip.
 		Ker je $M[V/x]$ enak $\tmlet{x}{N_1[V/x]}{N_2[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Let}.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $W_1 W_2$. Vrednost $W_1$ ima tip $\tyfun{C}{\tycomp{B}{\o, \i}}$ in vrednost $W_2$ ima tip $C$.
@@ -865,7 +876,7 @@ Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{W}{(y_1,y_2) \mapsto N}$. 
 		Ker ima vrednost $W$ tip $X \times Y$, ima tudi $W[V/x]$ tip $X \times Y$ po lemi~\ref{lem:substitucija-vrednosti}.
-		Ker ima $N$ tip $\tycomp{B}{\o, \i}$, ima tudi $N[V/x]$ tip $\tycomp{B}{\o, \i}$ po $IP$.
+		Ker ima $N$ tip $\tycomp{B}{\o, \i}$, ima tudi $N[V/x]$ tip $\tycomp{B}{\o, \i}$ po indukcijski predpostavki.
 		Ker je $M[V/x]$ enak $\tmmatch{W[V/x]}{(y_1,y_2) \mapsto N[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-MatchPair}. 
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $\tmmatch{W}{}$.
@@ -874,31 +885,31 @@ Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $\tmmatch{W}{\tminl{y_1} \mapsto N_1, \tminr{y_2} \mapsto N_2}$.
 		Ker ima vrednost $W$ tip $X + Y$, ima tudi $W[V/x]$ tip $X + Y$ po lemi~\ref{lem:substitucija-vrednosti}.
-		Ker imata $N_1$ in $N_2$ tip $\tycomp{B}{\o, \i}$, imata tudi $N_1[V/x]$ in $N_2[V/x]$ tip $\tycomp{B}{\o, \i}$ po $IP$.
+		Ker imata $N_1$ in $N_2$ tip $\tycomp{B}{\o, \i}$, imata tudi $N_1[V/x]$ in $N_2[V/x]$ tip $\tycomp{B}{\o, \i}$ po indukcijski predpostavki.
 		Ker je $M[V/x]$ enak $\tmmatch{W[V/x]}{\tminl{y_1} \mapsto N_1[V/x], \tminr{y_2} \mapsto N_2[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-MatchSum}.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{W}{N}$.
 		Ker ima vrednost $W$ tip $C_{op}$, ima tudi $W[V/x]$ tip $C_{op}$ po lemi~\ref{lem:substitucija-vrednosti}.
-		Ker ima $N$ tip $\tycomp{B}{\o, \i}$, ima tudi $N[V/x]$ tip $\tycomp{B}{\o, \i}$ po $IP$.
+		Ker ima $N$ tip $\tycomp{B}{\o, \i}$, ima tudi $N[V/x]$ tip $\tycomp{B}{\o, \i}$ po indukcijski predpostavki.
 		Ker je $M[V/x]$ enak $\tmopout{op}{W[V/x]}{N[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Signal}.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{W}{N}$ in $(\o, \i) = \opincomp{op}{\o', \i'}$.
 		Ker ima vrednost $W$ tip $C_{op}$, ima tudi $W[V/x]$ tip $C_{op}$ po lemi~\ref{lem:substitucija-vrednosti}.
-		Ker ima $N$ tip $\tycomp{B}{\o', \i'}$, ima tudi $N[V/x]$ tip $\tycomp{B}{\o', \i'}$ po $IP$.
+		Ker ima $N$ tip $\tycomp{B}{\o', \i'}$, ima tudi $N[V/x]$ tip $\tycomp{B}{\o', \i'}$ po indukcijski predpostavki.
 		Ker je $M[V/x]$ enak $\tmopin{op}{W[V/x]}{N[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Signal}.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Promise}, potem je $M$ enak $\tmwith{op}{y}{N_1}{p}{N_2}$.
-		Ker ima $N_1$ tip $\tycomp{\typromise{C}}{\o', \i'}$, ima tudi $N_1[V/x]$ tip $\tycomp{\typromise{C}}{\o', \i'}$ po $IP$.
-		Ker ima $N_2$ tip $\tycomp{B}{\o, \i}$, ima tudi $N_2[V/x]$ tip $\tycomp{B}{\o, \i}$ po $IP$.
+		Ker ima $N_1$ tip $\tycomp{\typromise{C}}{\o', \i'}$, ima tudi $N_1[V/x]$ tip $\tycomp{\typromise{C}}{\o', \i'}$ po indukcijski predpostavki.
+		Ker ima $N_2$ tip $\tycomp{B}{\o, \i}$, ima tudi $N_2[V/x]$ tip $\tycomp{B}{\o, \i}$ po indukcijski predpostavki.
 		Ker je $M[V/x]$ enak $\tmwith{op}{y}{N_1}{p}{N_2}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Promise}.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Await}, potem je $M$ enak $\tmawait{W}{y}{N}$.
 		Ker ima vrednost $W$ tip $\typromise{C}$, ima tudi $W[V/x]$ tip $\typromise{C}$ po lemi~\ref{lem:substitucija-vrednosti}.
-		Ker ima $N$ tip $\tycomp{B}{\o', \i'}$, ima tudi $N[V/x]$ tip $\tycomp{B}{\o', \i'}$ po $IP$.
+		Ker ima $N$ tip $\tycomp{B}{\o', \i'}$, ima tudi $N[V/x]$ tip $\tycomp{B}{\o', \i'}$ po indukcijski predpostavki.
 		Ker je $M[V/x]$ enak $\tmawait{W[V/x]}{y}{N[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Await}.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Subsume}, potem ima $M$ tip $\tycomp{B}{\o', \i'}$, kjer je $(\o', \i') \order{O \times I} (\o, \i)$.
-		Po $IP$ ima tudi $M[V/x]$ tip $\tycomp{B}{\o', \i'}$. Po pravilu \rulename{TyComp-Subsume} ima $M[V/x]$ tip $\tycomp{B}{\o, \i}$.
+		Po indukcijski predpostavki ima tudi $M[V/x]$ tip $\tycomp{B}{\o', \i'}$. Po pravilu \rulename{TyComp-Subsume} ima $M[V/x]$ tip $\tycomp{B}{\o, \i}$.
 		
 	\end{itemize}
 
@@ -923,16 +934,16 @@ Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 		\item Če je zadnje pravilo \rulename{TyVal-Unit}, potem je $V = ()$. Po pravilu \rulename{TyVal-Unit} velja $\Gamma_1, \Gamma_2 \types V \of B$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Pair}, potem je $V =\tmpair{V_1}{V_2}$.
-		Po $IP$ imata $V_1$ in $V_2$ isti tip v skrčenem kontekstu.
+		Po indukcijski predpostavki imata $V_1$ in $V_2$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyVal-Pair} velja $\Gamma_1, \Gamma_2 \types V \of B$.
 		
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Inl}, potem je $V = \tminl{V_1}$.
-		Po $IP$ ima $V_1$ isti tip v skrčenem kontekstu.
+		Po indukcijski predpostavki ima $V_1$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyVal-Inl} velja $\Gamma_1, \Gamma_2 \types V \of B$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Inr}, potem je $V = \tminl{V_2}$.
-		Po $IP$ ima $V_2$ isti tip v skrčenem kontekstu.
+		Po indukcijski predpostavki ima $V_2$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyVal-Inr} velja $\Gamma_1, \Gamma_2 \types V \of B$.
 		
 		\item Zadnje pravilo ne more biti \rulename{TyVal-Fun}, saj v tem primeru $B$ ni osnovni tip.
@@ -963,13 +974,13 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Unit}, potem je $V = ()$. Po pravilu \rulename{TyVal-Unit} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
-		\item Če je zadnje pravilo \rulename{TyVal-Pair}, potem je $V =\tmpair{V_1}{V_2}$. Po $IP$ imata $V_1$ in $V_2$ isti tip v razširjenem kontekstu.
+		\item Če je zadnje pravilo \rulename{TyVal-Pair}, potem je $V =\tmpair{V_1}{V_2}$. Po indukcijski predpostavki imata $V_1$ in $V_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyVal-Pair} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
-		\item Če je zadnje pravilo \rulename{TyVal-Inl}, potem je $V = \tminl{V_1}$. Po $IP$ ima $V_1$ isti tip v razširjenem kontekstu.
+		\item Če je zadnje pravilo \rulename{TyVal-Inl}, potem je $V = \tminl{V_1}$. Po indukcijski predpostavki ima $V_1$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyVal-Inl} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
-		\item Če je zadnje pravilo \rulename{TyVal-Inr}, potem je $V = \tminl{V_2}$. Po $IP$ ima $V_2$ isti tip v razširjenem kontekstu.
+		\item Če je zadnje pravilo \rulename{TyVal-Inr}, potem je $V = \tminl{V_2}$. Po indukcijski predpostavki ima $V_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyVal-Inr} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Fun}, potem je $V = \tmfunano{x}{M}$. Po lemi~\ref{lem:weakening-comp} ima $M$ isti tip v razširjenem kontekstu.
@@ -978,7 +989,7 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 		\item Če je zadnje pravilo \rulename{TyVal-Fun-Rec}, potem je $V = \tmfunrecano{f}{x}{M}$. Po lemi~\ref{lem:weakening-comp} ima $M$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyVal-Fun-Rec} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 		
-		\item Če je zadnje pravilo \rulename{TyVal-Promise}, potem je $V = \tmpromise{V'}$. Po $IP$ ima $V'$ isti tip v razširjenem kontekstu.
+		\item Če je zadnje pravilo \rulename{TyVal-Promise}, potem je $V = \tmpromise{V'}$. Po indukcijski predpostavki ima $V'$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyVal-Promise} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types V \of A$.
 	\end{itemize}
 \end{proof}
@@ -997,7 +1008,7 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 		Po pravilu \rulename{TyComp-Return} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
-		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
+		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Let} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $\tmmatch{V}{}$.
@@ -1006,12 +1017,12 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{V}{(x_1,x_2) \mapsto N}$. 
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
-		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
+		Po indukcijski predpostavki ima $N$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchPair} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}$.
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
-		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
+		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchSum} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V_1 V_2$.
@@ -1020,27 +1031,30 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$.
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
-		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
+		Po indukcijski predpostavki ima $N$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Signal} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$.
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
-		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
+		Po indukcijski predpostavki ima $N$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Interrupt} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Promise}, potem je $M$ enak $\tmwith{op}{x}{N_1}{p}{N_2}$.
-		Po $IP$ imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
+		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Promise} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Await}, potem je $M$ enak $\tmawait{V}{y}{N}$.
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
-		Po $IP$ ima $N$ isti tip v razširjenem kontekstu.
+		Po indukcijski predpostavki ima $N$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Await} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Subsume}, ima po $IP$ $M$ isti tip v razširjenem kontekstu.
+		\item Če je zadnje pravilo \rulename{TyComp-Subsume}, ima po indukcijski predpostavki $M$ isti tip v razširjenem kontekstu.
 		
 	\end{itemize}
 \end{proof}
+
+Kadar ne dokazujemo na drevo izpeljave za tip izračuna ne vemo, katero pravilo točno je bilo zadnje uporabljeno. Posledično ne moremo uporabiti uporabiti predpostavk pravila, ki bi nam povedale o tipih komponent, kljub temu, da imamo tip celega izračuna.
+S pomočjo sledeča leme lahko vseeno deloma uporabimo ustrezne predpostavke, čeprav v nekoliko šibkejši obliki.
 
 \begin{lema}\label{lem:inversion-lema}
 	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Potem obstaja $(\o', \i') \order{O, I} (\o, \i)$.
@@ -1073,7 +1087,7 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem ustrezna točka leme sledi za $\opincomp{op}{(\o'', \i'')} = (\o, \i)$.
 		
-		\item Če je zadnje uporabljeno pravilo \rulename{TyComp-Subsume}, potem ima $M$ tudi tip $\tycomp{A}{\o', \i'}$. Po $IP$ direktno na $M$ lema sledi, saj je $\order{O, I}$ tranzitiven.
+		\item Če je zadnje uporabljeno pravilo \rulename{TyComp-Subsume}, potem ima $M$ tudi tip $\tycomp{A}{\o', \i'}$. Po indukcijski predpostavki direktno na $M$ lema sledi, saj je $\order{O, I}$ tranzitiven.
 	\end{itemize}
 \end{proof}
 
@@ -1148,23 +1162,23 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 		\item Če je zadnje pravilo evalvacija v okolju ločimo štiri primere glede na obliko $M$.
 		\begin{itemize}
 			\item Če je oblike $$\tmlet{x}{N}{N''},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{B}{\o', \i'}$ in $N''$ tip $\tycomp{A}{\o'', \i''}$.
-			Po $IP$ ima $N'$ tip $\tycomp{B}{\o', \i'}$.
+			Po indukcijski predpostavki ima $N'$ tip $\tycomp{B}{\o', \i'}$.
 			Po pravilu \rulename{TyComp-Subsume} ima $N'$ tip $\tycomp{A}{\o, \i}$.
 			Po pravilu \rulename{TyComp-Subsume} ima $N''$ tip $\tycomp{A}{\o, \i}$.
 			Po pravilu \rulename{TyComp-Let} ima $\tmlet{x}{N'}{N''}$ tip $\tycomp{A}{\o, \i}$.
 			
 			\item Če je oblike $$\tmopout{op}{V}{N},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{A}{\o', \i'}$.
-			Po $IP$ ima $N'$ tip $\tycomp{A}{\o', \i'}$.
+			Po indukcijski predpostavki ima $N'$ tip $\tycomp{A}{\o', \i'}$.
 			Po pravilu \rulename{TyComp-Signal} ima $\tmopout{op}{V}{N'}$ tip $\tycomp{A}{\o', \i'}$.
 			Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 			
-			\item Če je oblike $$\tmopin{op}{V}{N},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{A}{\o', \i'}$.
-			Po $IP$ ima $N'$ tip $\tycomp{A}{\o', \i'}$.
-			Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N'}$ tip $\tycomp{A}{\o', \i'}$.
+			\item Če je oblike $$\tmopin{op}{V}{N},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{A}{\o'', \i''}$ in velja $\opincomp{op}{(\o'', \i'')} \order{O, I} (\o, \i)$.
+			Po indukcijski predpostavki ima $N'$ tip $\tycomp{A}{\o'', \i''}$.
+			Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N'}$ tip $\tycomp{A}{\opincomp{op}{(\o'', \i'')}}$.
 			Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 			
 			\item Če je oblike $$\tmwith{op}{x}{N''}{N},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{A}{\o', \i'}$ in $N''$ tip $\tycomp{\typromise{B}}{\o'', \i''}$.
-			Po $IP$ ima $N'$ tip $\tycomp{A}{\o', \i'}$.
+			Po indukcijski predpostavki ima $N'$ tip $\tycomp{A}{\o', \i'}$.
 			Po pravilu \rulename{TyComp-Promise} ima $\tmwith{op}{x}{N''}{N'}$ tip $\tycomp{A}{\o', \i'}$.
 			Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		\end{itemize}
@@ -1233,10 +1247,10 @@ Potencialno spremembo tipa formaliziramo z pravili za redukcijo tipov, ki jih la
 		
 		\item Če je zadnje uporabljeno pravilo
 		$$\tmopin{op}{V}{\tmrun M} \reduces \tmrun {(\tmopin{op}{V}{M})},$$
-		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Interrupt}. Tip $C$ je oblike $\tyrun{A}{\o, \i}$.
+		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Interrupt}. Tip $C$ je oblike $\tyrun{A}{\opincomp{op}{(\o, \i)}}$.
 		Posledično ima $V$ tip $B$ in $M$ tip $\tycomp{A}{\o, \i}$.
-		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{M}$ tip $\tycomp{A}{\o, \i}$.
-		Po pravilu \rulename{TyProc-Run} ima $P'$ tip $\tyrun{A}{\o, \i}$, kjer je $C$ naredil korak \rulename{TyRedu-Same}.
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{M}$ tip $\tycomp{A}{\opincomp{op}{(\o, \i)}}$.
+		Po pravilu \rulename{TyProc-Run} ima $P'$ tip $\tyrun{A}{\opincomp{op}{(\o, \i)}} = C$, kjer je $C$ naredil korak \rulename{TyRedu-Same}.
 		
 		\item Če je zadnje uporabljeno pravilo
 		$$\tmpar{\tmopout{op}{V}{Q_1}}{Q_2} \reduces \tmopout{op}{V}{\tmpar{Q_1}{\tmopin{op}{V}{Q_2}}},$$
@@ -1275,7 +1289,7 @@ Potencialno spremembo tipa formaliziramo z pravili za redukcijo tipov, ki jih la
 		},$$
 		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Par}. Tip $C$ je oblike $\typar{C_1}{C_2}$.
 		Proces $Q_1$ ima tip $C_1$ in $Q_2$ tip $C_2$.
-		Po $IP$ ima $Q_1'$ tip $C_1'$.
+		Po indukcijski predpostavki ima $Q_1'$ tip $C_1'$.
 		Po pravilu \rulename{TyProc-Par} ima $\tmpar{Q_1'}{Q_2}$ tip $\typar{C_1'}{C_2}$, kjer je $C$ naredil korak \rulename{TyRedu-Par}.
 
 		\item Če je zadnje uporabljeno pravilo
@@ -1296,7 +1310,7 @@ Potencialno spremembo tipa formaliziramo z pravili za redukcijo tipov, ki jih la
 		},$$
 		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Signal}.
 		Posledično ima $V$ tip $B$ in $Q$ tip $C$.
-		Po $IP$ ima $Q'$ tip $C'$.
+		Po indukcijski predpostavki ima $Q'$ tip $C'$.
 		Po pravilu \rulename{TyProc-Signal} ima $\tmopout{op}{V}{Q'}$ tip $C'$, kjer je $C$ naredil korak \rulename{TyRedu-Change}.
 		
 		\item Če je zadnje uporabljeno pravilo
@@ -1308,7 +1322,7 @@ Potencialno spremembo tipa formaliziramo z pravili za redukcijo tipov, ki jih la
 		},$$
 		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Interrupt}.
 		Posledično ima $V$ tip $B$ in $Q$ tip $C$.
-		Po $IP$ ima $Q'$ tip $C'$.
+		Po indukcijski predpostavki ima $Q'$ tip $C'$.
 		Po pravilu \rulename{TyProc-Interrupt} ima $\tmopin{op}{V}{Q'}$ tip $C'$, kjer je $C$ naredil korak \rulename{TyRedu-Change}.
 	\end{itemize}
 
