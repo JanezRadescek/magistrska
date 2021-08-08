@@ -1054,7 +1054,7 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 \end{proof}
 
 Kadar ne dokazujemo na drevo izpeljave za tip izračuna ne vemo, katero pravilo točno je bilo zadnje uporabljeno. Posledično ne moremo uporabiti uporabiti predpostavk pravila, ki bi nam povedale o tipih komponent, kljub temu, da imamo tip celega izračuna.
-S pomočjo sledeča leme lahko vseeno deloma uporabimo ustrezne predpostavke, čeprav v nekoliko šibkejši obliki.
+S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke, čeprav v nekoliko šibkejši obliki.
 
 \begin{lema}\label{lem:inversion-lema}
 	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Potem obstaja $(\o', \i') \order{O, I} (\o, \i)$.
@@ -1144,7 +1144,7 @@ S pomočjo sledeča leme lahko vseeno deloma uporabimo ustrezne predpostavke, č
 		
 		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces \tmlet{p}{N_1[V/x]}{\tmopin{op}{V}{N_2}},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $A_{op}$, $N_1$ tip $\tycomp{\typromise{B}}{\o'', \i''}$ in $N_2$ tip $\tycomp{A}{\o', \i'}$.
 		Po lemi~\ref{lem:substitucija-izračuni} ima $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\o'', \i''}$.
-		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N_2}$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N_2}$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
 		Ker velja $\i(op) = (\o'', \i'')$, velja $(\o'', \i'') \order{O \times I} \opincomp{op}{(\o', \i')}$ in posledično ima po pravilu \rulename{TyComp-Subsume} izračun $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\opincomp{op}{(\o', \i')}}$
 		Po pravilu \rulename{TyComp-Let} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
