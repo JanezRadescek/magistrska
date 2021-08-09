@@ -1,9 +1,11 @@
-\section{Implementacija}\label{sec:impl}
+\section{Zaključek}\label{sec:konec}
+
+Medtem ko je cilj \lae-računa, da pokaže pravilnost asinhronih konceptov prikazanih v prejšnjih poglavjih, je cilj jezika \aeff{}, da te koncepte lahko tudi preizkusimo. Zato ima jezik \aeff{} določene stvari, ki jih \lae-račun nima.
 
 Jezik \aeff{} je implementiran v jeziku Ocaml. Implementacija je sestavljena iz treh glavnih delov.
 Parserja, ki prevede tekst v abstraktno sintaktično drevo (AST) in preveri ustreznost sintakse.  
 Type checkerja, ki preveri, da ima dani program tip.
-Tolmača, ki izvaja korake, dokler ne pridemo do rezultata.
+In tolmača, ki izvaja korake, dokler ne pridemo do rezultata.
 
 \subsection{Dodatni izrazi}
 
@@ -36,10 +38,10 @@ Kot sintaktični sladkor je dodan varovan prestreznik, ki se sproži le kadar je
 
 \subsection{Sistem tipov}\label{sec:tipi}
 
-Prvotna implementacija izračuna tip programa z Hindley–Milnerjevim algoritmom. 
+Prvotna implementacija jezika \aeff izračuna tip programa z Hindley–Milnerjevim algoritmom. 
 Kasneje je bil typechecker spremenjen, da je uporabljal dvosmerni sistem tipov (bidirectional typing), ki temelji na algoritmu iz članka~\cite{bidirectional}.
-Glavna ideja dvosmernega sistema tipov je da lahko izmenjujemo ali tip preverjamo ali ga izračunamo. Kadar so tipi pripisani izrazom, tip le preverimo. V nasprotnem primeru ga lahko izračunamo. Ena izmed prednosti dvosmernega algoritma je, da v primeru napake lahko izpiše boljše poročilo o napaki. 
+Glavna ideja dvosmernega sistema tipov je, da lahko dinamično izmenjuje med preverjanjem in računanjem tipa. Kadar so tipi pripisani izrazom, tip le preverimo, kar je enostavneje, kot ga izračunati in v primeru napake lahko izpiše boljše poročilo o napaki. Vendar pa pripisovanje tipov ni obvezno in ga v tem primeru lahko izračunamo. Posledično lahko uporabnik, poda tip le nekaterim delom programa, preostalim pa ne.
 
 \subsection{Tolmač}\label{sec:interpreter}
 
-Čeprav ima \aeff{} možnost vzporednega izvajanja in smo to do sedaj predpostavljali, sama implementacije le simulira vzporedno izvajanje.
+Čeprav ima \aeff{} možnost vzporednega izvajanja in smo to do sedaj v primerih programov predpostavljali, sama implementacije zaenkrat le simulira vzporedno izvajanje.
