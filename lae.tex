@@ -19,7 +19,7 @@ Poleg teh imamo tudi sledeče.
 \emph{Signal} vsebuje operacijo $\op$ in pripadajočo vrednost $V$ imenovano \emph{tovor}, ki ju želimo prenesti na druge procese. Vsebuje tudi \emph{nadaljevanje} $M$, ki predstavlja preostanek programa, ki se bo izvedel, ko bo signal poslan.
 Ko signal preide v drug proces ga preimenujemo v \emph{prekinitev}. Prekinitev vsebuje operacijo $\op$ in pripadajočo vrednost $V$, ki bosta vplivali na \emph{prestreznike} na katere bo prekinitev naletela v nadaljevanju $M$. 
 \emph{Prestreznik} je bistveni izračun za asinhrono izvajanje. Vsebuje nadaljevanje $N$, ki se načeloma izvaja.
-Ko pride prekinitev z istim imenom operacije se spremenljivka $x$ substituira z tovorom $V$ v izračunu $M$. Celoten izračun se sedaj spremeni v zaporedje $M$ in $N$, kjer bo rezultat izračuna $M$ vezan v spremenljivko $p$.
+Ko pride prekinitev z istim imenom operacije se spremenljivka $x$ substituira z tovorom $V$ v izračunu $M$. Tudi izračunu $M$ rečemo obljuba. Celoten izračun se sedaj spremeni v zaporedje $M$ in $N$, kjer bo rezultat izračuna $M$ vezan v spremenljivko $p$. Ko se to zgodi rečemo, da se je izpolnila obljuba $p$.
 Namen \text{blokade} je, da prepreči uporabo spremenljivke $p$ iz prestreznika, preden se obljuba izpolni. To doseže z blokiranjem izvajanja nadaljevanja $M$.
 
 Osnovni proces je imenovan \emph{Zagon}. Vsebuje izračun $M$, ki se izvaja 
@@ -50,8 +50,8 @@ Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi} v Backus-Naurjevi obliki 
 	\bnfor& \tmmatch{V}{\tmpair{x}{y} \mapsto M}    & &\text{ujemanje produkta} \\
 	\bnfor& \tmmatch{V}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}	& &\text{ujemanje vsote} \\
 	\bnfor& V\,W                                    & &\text{aplikacija} \\
-	\bnfor& \tmopout{op}{V}{M}       & &\text{signal} \\
-	\bnfor& \tmopin{op}{V}{M}          & &\text{prekinitev} \\
+	\bnfor& \tmopout{op}{V}{M}       & &\text{signal izračuna} \\
+	\bnfor& \tmopin{op}{V}{M}          & &\text{prekinitev izračuna} \\
 	\bnfor& \tmwith{op}{x}{M}{p}{N}      & &\text{prestreznik} \\
 	\bnfor& \tmawait{V}{x}{M}             & &\text{blokada}
 		\\[1ex]
@@ -273,78 +273,38 @@ Signal in prekinitev na procesih se obnašata enako kot na izračunih. Par proce
 
 Da se izognemo programom, ki se nebi ustavili v obliki rezultata, uvedemo sistem tipov.
 Tipe ločimo na tipe za vrednosti, izračune in procese.
-Večina vrednosti dobi standardne tipe, kot so naravno število, enota, par, vsota in funkcijski tip. 
-Ker funkcijski tip označuje funkcijo, ki vzame argument in mu priredi izračun, le tej pa imajo, kot bomo kasneje videli, poleg standardnih tipov, še tipe za učinke, ima tudi funkcijski tip dodane tipe za učinke.
- 
-Dodatno uvedemo \emph{tip obljub} $\typromise{A}$, ki predstavlja obljube, izpolnjene z vrednostmi tipa A.
-Tipom za vrednosti, ki ne vsebujejo funkcijskega tipa ali obljube, pravimo \emph{osnovni tipi}. 
-
-
-Izračunom poleg standardnega tipa dodamo še tipe signalov, ki jih lahko sprožijo, označene z $\o$, in tipe prekinitev, ki jih lahko prestrežejo, označene z $\i$.
-Tipi učinkov $\o$ in $\i$ so elementi množice $O$ oziroma $I$.
-Množica $\sig$ je množica vseh operacij, ki jih imamo na voljo.
-Množica $O$ je preprosto potenčna množica množice $\sig$ in posledično $\o$ predstavlja množico signalov, ki jih izračun lahko sproži.
-
-\mP{Ali veš, zakaj ta fiksna točka obstaja?}
-Množico $I$ definiramo kot največjo fiksno točko preslikave $\Omega$ definirane kot 
-$$\Omega(X) = \sig \Rightarrow (O \times X)_\bot ,$$
-kjer je $\Rightarrow$ potenciranje, $\times$ je kartezični produkt in $(-)_\bot$ je dvig. Dvig je disjunktna unija množice z $\bot$.
-
-Ko prestrežemo neko prekinitev lahko ustrezen prestreznik začne sprožati nove signale in prestrezati nove prekinitve.
-Kako točno se spremenijo efekti definira $\opincomp{op}{(\o, \i)}$.
-
-$$\opincomp{op}{(\o, \i)}~\defeq~
-\begin{cases}
-	\left(\o \cup \o' , \i[\op \mapsto \bot] \cup \i' \right) & \mbox{če } \i\, (\op) = (\o',\i')\\
-	(\o,\i) & \mbox{sicer} 
-\end{cases}$$
-
-Tip $\i[\op \mapsto \bot]$ je povsod enak $\i$, le $\op$ sedaj kaže na $\bot$.
-$$
-\i \cup \i'
-~\defeq~
-\op \mapsto 
-\begin{cases}
-	(\o'' \cup \o''' , \i'' \cup \i''') & \mbox{če } \i\, (\op) = (\o'',\i'') \wedge \i'\, (\op) = (\o''',\i''') \\
-	(\o'' , \i'') & \mbox{če } \i\, (\op) = (\o'',\i'') \wedge \i'\, (\op) = \bot \\
-	              & \mbox{ali } \i\, (\op) = \bot \wedge \i'\, (\op) = (\o'',\i'') \\
-	\bot & \mbox{če } \i\, (\op) = \bot \wedge \i'\, (\op) = \bot \\
-\end{cases}
-$$
-
-Tipi procesov so odvisni od tipov izračunov in posledično vsebujejo tipe učinkov.
 
 \begin{figure}[H]
 	\centering
 	\small
 	\textbf{Tipi}
 	\begin{align*}
-	\text{Osnovni tipi vrednosti $\bar{A}$, $\bar{B}$}
-	\bnfis & \tysym{int} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \,\bnfor\! \typrod{\bar{A}}{\bar{B}} \,\bnfor\! \tysum{\bar{A}}{\bar{B}}
-	\\%[1ex]
-	\text{Tipi vrednosti $A$, $B$}
-	\bnfis & \bar{A} \, \bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B} \,\bnfor\! \tyfun{A}{\tycomp{B}{\o,\i}} \,\bnfor\! \typromise{A}
-	\\
-	\text{Tip izračuna $A$} \bnfis& \tycomp{A}{\o,\i}
-	\\
-	\text{Tip procesa $\tyC$, $\tyD$}  \bnfis & \tyrun{A}{\o, \i} \,\bnfor\! \typar{\tyC}{\tyD}
+		\text{Osnovni tipi vrednosti $\bar{A}$, $\bar{B}$}
+		\bnfis & \tysym{int} \,\bnfor\! \tyunit \,\bnfor\! \tyempty \,\bnfor\! \typrod{\bar{A}}{\bar{B}} \,\bnfor\! \tysum{\bar{A}}{\bar{B}}
+		\\%[1ex]
+		\text{Tipi vrednosti $A$, $B$}
+		\bnfis & \bar{A} \, \bnfor\! \typrod{A}{B} \,\bnfor\! \tysum{A}{B} \,\bnfor\! \tyfun{A}{\tycomp{B}{\o,\i}} \,\bnfor\! \typromise{A}
+		\\
+		\text{Tip izračuna $A$} \bnfis& \tycomp{A}{\o,\i}
+		\\
+		\text{Tip procesa $\tyC$, $\tyD$}  \bnfis & \tyrun{A}{\o, \i} \,\bnfor\! \typar{\tyC}{\tyD}
 	\end{align*}
 	\textbf{Operacije in pripadajoči osnovni tipi}
 	\begin{align*}
 		(op_1, \bar{A}_{op_1}),\, (op_2, \bar{A}_{op_2}),\, ... ,\, (op_n, \bar{A}_{op_k})
 	\end{align*}
-	\caption{Tipi izrazov in tipi, ki pripadajo določenim operacijam}
+	\caption{Tipi izrazov in tipi, ki pripadajo določenim operacijam.}
 	\label{fig:tipi}
 \end{figure}
 
-Vsaki operaciji priredimo nek tip, kot vidimo na sliki~\ref{fig:tipi}. Ker izračun 
-$$ \tmwith{op}{x}{M}{p}{\tmopout{op'}{V}{N}} $$
-lahko naredi korak v izračun
-$$ \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}}, $$
-je ključno da vrednost $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu spremenljivka $p$ v vrednosti $V$ ni več dobro definiran. Da zagotovimo, da vrednost $V$ ne vsebuje spremenljivke $p$, omejimo tipe, ki pripadajo operacijam, na osnovne tipe.
+Večina vrednosti dobi standardne tipe, kot so naravno število, enota, par, vsota in funkcijski tip. 
+Ker funkcijski tip označuje funkcijo, ki vzame argument in mu priredi izračun, le tej pa imajo, kot bomo kasneje videli, poleg standardnih tipov, še tipe za učinke, ima tudi funkcijski tip dodane tipe za učinke.
+ 
+Dodatno uvedemo \emph{tip obljub} $\typromise{A}$, ki predstavlja obljube, izpolnjene z vrednostmi tipa A. 
 
-\jR{Napiši malo o tipih}
-Pravila za določitev tipa vrednosti, izračunov in procesov vidimo na sliki~\ref{fig:value-typing-rules},~\ref{fig:computation-typing-rules} in~\ref{fig:process-typing-rules}.
+Tipom za vrednosti, ki ne vsebujejo funkcijskega tipa ali obljube, pravimo \emph{osnovni tipi}.
+
+Pravila za določitev tipa vrednosti vidimo na sliki~\ref{fig:value-typing-rules}.
 
 \begin{figure}[H]
 	\centering
@@ -406,6 +366,80 @@ Pravila za določitev tipa vrednosti, izračunov in procesov vidimo na sliki~\re
 	\caption{Pravila za določitev tipov za vrednosti.}
 	\label{fig:value-typing-rules}
 \end{figure}
+
+Izračunom poleg standardnega tipa dodamo še tipe signalov, ki jih lahko sprožijo, označene z $\o$, in tipe prekinitev, ki jih lahko prestrežejo, označene z $\i$.
+
+Tipi učinkov $\o$ in $\i$ so elementi množice $O$ oziroma $I$.
+Množica $\sig$ je množica vseh operacij, ki jih imamo na voljo.
+
+Ko se signal sproži, le to nima direktnega vpliva na nadaljevanje izračuna. Posledično je množica $O$ preprosto potenčna množica množice $\sig$ in $\o$ predstavlja množico signalov, ki jih izračun lahko sproži.
+
+Nasprotno, ko prestreznik ujame prekinitev, se bo nadaljevanju dodal izračun obljuba iz prestreznika. Slednji lahko vsebuje nove signale in prestreznike. Posledično lahko sedaj spremenjeni izračun začne oddajati nove signale in prestrezati nove prekinitve. Toda tudi novi prestrezniki lahko ponovno namestijo nove signale in prestreznike in tako naprej.
+To (potencialno neskončno) rekurzivno ponavljanje prestreznikov in obljub želimo prikazati v tipu.
+Množico $I$ definiramo kot največjo fiksno točko preslikave $\Omega$, definirane kot 
+$$\Omega(X) = \sig \Rightarrow (O \times X)_\bot ,$$
+kjer je $\Rightarrow$ potenciranje, $\times$ je kartezični produkt in $(-)_\bot$ je dvig. Dvig je disjunktna unija množice z $\bot$.
+
+Če izračun za neko operacijo $\op$ ne bo imel prestreznika, se bo to v $i$ izražalo tako, da bo $i$ slikal $\op$ v $\bot$. 
+Sicer bo $i$ slikal $\op$ v par $(\o', \i')$, kjer $o'$ predstavlja nove signale in $i'$ nove prestreznike v izračunih obljuba.
+
+Ko proces ali izračun od zunaj dobi novo prekinitev, se mu lahko spremeni tip efektov.
+Če v izračunu ni ustreznega prestreznika in posledično $i$ slika operacijo v $\bot$, potem prekinitev ne bo vplivala na izračun.
+Če pa imamo ustrezen prestreznik, kar se v tipu vidi tako da $i$ slika v nek $(\o',\i')$, potem nov tip signalov dobimo tako, da preprosto naredimo unijo $\o \cup \o'$. Ker se bo prekinitev razširila čez celotno nadaljevanje, bo sprožila vse ustrezne prestreznike in bo tip prekinitev sedaj kazal na $\bot$.
+Nato naredimo ustrezno unijo $\i \cup \i'$.
+Te spremembe natančne definira sledeča preslikava.
+
+$$\opincomp{op}{(\o, \i)}~\defeq~
+\begin{cases}
+	\left(\o \cup \o' , \i[\op \mapsto \bot] \cup \i' \right) & \mbox{če } \i\, (\op) = (\o',\i')\\
+	(\o,\i) & \mbox{sicer} 
+\end{cases}$$
+
+Tip $\i[\op \mapsto \bot]$ je povsod enak $\i$, le $\op$ sedaj kaže na $\bot$.
+$$
+\i \cup \i'
+~\defeq~
+\op \mapsto 
+\begin{cases}
+	(\o'' \cup \o''' , \i'' \cup \i''') & \mbox{če } \i\, (\op) = (\o'',\i'') \wedge \i'\, (\op) = (\o''',\i''') \\
+	(\o'' , \i'') & \mbox{če } \i\, (\op) = (\o'',\i'') \wedge \i'\, (\op) = \bot \\
+	              & \mbox{ali } \i\, (\op) = \bot \wedge \i'\, (\op) = (\o'',\i'') \\
+	\bot & \mbox{če } \i\, (\op) = \bot \wedge \i'\, (\op) = \bot \\
+\end{cases}
+$$
+
+%Vsaki operaciji priredimo nek tip, kot vidimo na sliki~\ref{fig:tipi}. 
+Signal izračuna ima isti tip kot kontinuacija. Sproti pa preverimo, da je operacija $\op$ v $o$ in da ima tovor tip, ki pripada operaciji.
+Ker izračun 
+$$ \tmwith{op}{x}{M}{p}{\tmopout{op'}{V}{N}} $$
+lahko naredi korak v izračun
+$$ \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}}, $$
+je ključno da tovor $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu spremenljivka $p$ v vrednosti $V$ ni več dobro definiran. Da zagotovimo, da vrednost $V$ ne vsebuje spremenljivke $p$, omejimo tipe, ki pripadajo operacijam, na osnovne tipe.
+
+Prekinitev ima tip, ki ga dobimo tako da na tipu kontinuacije uporabimo preslikavo $\opincomp{op}$. Prav tako preverimo, da ima tovor tip, ki pripada operaciji $\op$. 
+
+Prestreznik ima isti tip kot kontinuacija. Preverimo tudi, da je $\op$ ena izmed operacij, ki jo lahko prestrežemo in da ima izračun obljuba tip obljuba z ustreznimi efekti.
+
+Ko računamo tip blokade je bistveno, da ima vrednost $V$ tip obljuba. 
+
+Preostali izračuni imajo pričakovane tipe.
+
+Na tipih efektov imamo urejenost. Na $O$ je urejenost dana z relacijo podmnožica $\subset$.
+Na $I$ pa je dana z sledečo operacijo.
+$$
+\begin{array}{l c l}
+	\i \order I \i'
+	&
+	\defiff
+	&
+	\forall\, (\op \in \sig) \, (\o'' \in O) \, (\i'' \in I) .\, \i\, (\op) = ({\o''} , {\i''}) \implies 
+	\\[0.5ex]
+	&& \exists\, (\o''' \in O) \, (\i''' \in I) .\, \i'\, (\op) = ({\o'''} , {\i'''}) \wedge \o'' \order O \o''' \wedge \i'' \order I \i'''
+\end{array}
+$$
+Za tip $\tycomp{A}{\o, \i}$ rečemo, da je pod tip tipa $\tycomp{A}{\o', \i'}$, če velja $\o \order{O} o'$ in $\i \order{I} i'$. Če lahko izračunu določimo nek podtip tipa $\tycomp{A}{\o, \i}$, potem ima izračun tudi tip $\tycomp{A}{\o, \i}$.
+
+Pravila za določitev tipa izračunov vidimo na sliki~\ref{fig:computation-typing-rules}.
 
 \begin{figure}[H]
 	\centering
@@ -494,6 +528,10 @@ Pravila za določitev tipa vrednosti, izračunov in procesov vidimo na sliki~\re
 	\caption{Pravila za določitev tipov za izračune.}
 	\label{fig:computation-typing-rules}
 \end{figure}
+
+Tipi procesa zagon je odvisen od tip pripadajočega izračuna in posledično vsebuje tipe učinkov. Signal procesa ima isti tip, kot nadaljevanje. Podobno kot se spremeni tip prekinitve izračuna, se spremeni tip prekinitve procesa. Tip vzporednih procesov preprosto ohrani oba tipa.
+
+Pravila za določitev tipa procesov vidimo na sliki~\ref{fig:process-typing-rules}.
 
 \begin{figure}[H]
 	\centering
