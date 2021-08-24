@@ -82,8 +82,11 @@ Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verzij
 	\centering
 	\small
 	\begin{align*}
-		\tmlet{x}{(\tmwithrec{op}{y}{r}{M}{p}{N_1})}{N_2} &\reduces \tmwithrec{op}{y}{r}{M}{p}{(\tmlet{x}{N_1}{N_2})}
-		\\
+		\tmlet{x}{(\tmwithrec{op}{y}{r}{M}{p}{N_1})}{N_2} \reduces \\
+		\tmwithrec{op}{y}{r}{M}{p}{(\tmlet{x}{N_1}{N_2})}
+	\end{align*}
+	\vspace{-6ex}
+	\begin{align*}
 		\tmwithrec{op}{x}{r}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}}
 		\\
 		\tmopin{op}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, R/r]}{\tmopin{op}{V}{N}} \\
@@ -97,9 +100,8 @@ Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verzij
 \end{figure}
 
 Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrezniku. 
-Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$ red namesto enakosti. Ker sedaj v kontekst dodamo tip $r$ moramo paziti da pripadajoč tip efektov ni prevelik, saj sicer morda ne bomo mogli določiti tipa za $M$.
+Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$ red namesto enakosti. Ker sedaj v kontekst dodamo tip $\tyfun{\tyunit}{\tycomp{\typromise{B}}{\o', \i'}}$ moramo paziti da pripadajoč tip efektov ni prevelik, saj sicer morda ne bomo mogli določiti tipa za $M$.
 
-\jR{Omeni zakaj se je enakost spremenila v order}
 \begin{figure}[H]
 	\centering
 	\small
@@ -209,19 +211,21 @@ Sedaj vsaki operaciji namesto osnovnega tipa pripada prenosljiv tip.
 	\label{fig:prenosljive-operacije}
 \end{figure}
 
-Izračun odvijanje veže vrednost znotraj zavite vrednosti $\tmboxed{V}$ na spremenljivko $x$, ki jo lahko uporabimo v kontinuaciji $M$.
+Obstoječim substitucijam dodamo dve novi za nova izraza, kot vidimo na sliki~\ref{fig:substitucija-box}.
 
 \begin{figure}[H]
 	\centering
 	\small
-	\jR{[W][V/x] is not loking good}
 	\begin{align*}
 		\tmboxed{W}[V/x] &= \tmboxed{W[V/x]} \\
 		(\tmunbox{W}{x}{M})[V/x] &= \tmunbox{W[V/x]}{x}{M[V/x]}
 	\end{align*}
-	\caption{Substitucija za rekurzivni prestreznik.}
+	\vspace{-5ex}
+	\caption{Dodatne substitucije.}
 	\label{fig:substitucija-box}
 \end{figure}
+
+Izračun odvijanje veže vrednost znotraj zavite vrednosti $\tmboxed{V}$ na spremenljivko $x$, ki jo lahko uporabimo v kontinuaciji $M$.
 
 \begin{figure}[h]
 	\centering
@@ -341,9 +345,14 @@ Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
 	\small
 	\begin{align*}
 	\tmlet{x}{(\tmspawn{M_1}{M_2})}{N} & \reduces \tmspawn{M_1}{\tmlet{x}{M_2}{N}}
-	\\
-	\tmwithrec{op}{x}{r}{M}{p}{\tmspawn{N_1}{N_2}} & \reduces \tmspawn{N_1}{\tmwithrec{op}{x}{r}{M}{p}{N_2}}
-	\\
+	\end{align*}
+	\vspace{-6ex}
+	\begin{align*}
+	\tmwithrec{op}{x}{r}{M}{p}{\tmspawn{N_1}{N_2}} \reduces \\
+	\tmspawn{N_1}{\tmwithrec{op}{x}{r}{M}{p}{N_2}}
+	\end{align*}
+	\vspace{-6ex}
+	\begin{align*}
 	\tmopin{op}{V}{\tmspawn{M}{N}} & \reduces \tmspawn{M}{\tmopin{op}{V}{N}}
 	\\
 	\tmrun{(\tmspawn{M}{N})} & \reduces \tmpar{\tmrun{M}}{\tmrun{N}}
@@ -442,20 +451,20 @@ Sedaj dokažemo izrek o varnosti za \lae{} razširjen z rekurzivnimi prestreznik
 	Primeri, ki so enaki kot v dokazu~\ref{trd:gamma-napredek} so izpuščeni. V primerih, ki so drugačni, omenimo le spremenjen ali dodan del.
 	
 	\begin{itemize}
-		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $$\tmlet{x}{N_1}{N_2}.$$
 		Če je $N_1$ rezultat, dobimo dodatno možnost.
 		\begin{itemize}
 			\item Če je zadnje pravilo \rulename{R-Spawn}, potem je $N_1$ enak $\tmspawn{N_3}{N_4}$ in lahko $M$ naredi korak v $\tmspawn{N_3}{(\tmlet{x}{N_4}{N_2})}$.
 		\end{itemize}
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $$\tmopin{op}{V}{N}.$$
 		Če je $N$ rezultat, dobimo dodatno možnost.
 		\begin{itemize}
 			\item Če je zadnje pravilo \rulename{R-Spawn}, potem je $N$ enak $\tmspawn{N_1}{N_2}$ in lahko $M$ naredi korak v $\tmspawn{N_1}{(\tmopin{op}{V}{N_2})}$.
 		\end{itemize}
 		
 		
-		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $\tmwith{op}{x}{N_1}{p}{N_2}$.
+		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $$\tmwithrec{op}{x}{r}{N_1}{p}{N_2}.$$
 		Če je $N_2$ rezultat, dobimo dodatno možnost.
 		\begin{itemize}
 			\item Če je zadnje pravilo \rulename{R-Spawn}, potem je $N_2$ oblike $\tmspawn{N_3}{N_4}$ in lahko $M$ naredi korak v $\tmspawn{N_3}{\tmwith{op}{x}{N_1}{p}{N_4}}$.
@@ -522,16 +531,16 @@ Lemi~\ref{lem:weakening-values-2} in~\ref{lem:weakening-comp-2} se navezujeta en
 	Primeri, ki so enaki kot v dokazu~\ref{lem:weakening-comp} so izpuščeni.
 	
 	\begin{itemize}
-		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$.
+		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $$\tmwithrec{op}{x}{r}{N_1}{p}{N_2}.$$
 		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-RecPromise} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Unbox}, potem je $M$ enak $\tmunbox{V}{x}{N}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Unbox}, potem je $M$ enak $$\tmunbox{V}{x}{N}.$$
 		Po lemi~\ref{lem:weakening-values} ima $V$ isti tip v razširjenem kontekstu.
 		Po indukcijski predpostavki ima $N$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Unbox} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Spawn}, potem je $M$ enak $\tmspawn{N_1}{N_2}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Spawn}, potem je $M$ enak $$\tmspawn{N_1}{N_2}.$$
 		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Spawn} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
@@ -605,49 +614,49 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
-		\item Če je zadnje pravilo \rulename{TyComp-Return}, potem je $M$ enak $\tmreturn{V}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Return}, potem je $M$ enak $$\tmreturn{V}.$$
 		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Return} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $$\tmlet{x}{N_1}{N_2}.$$
 		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Let} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $\tmmatch{V}{}$.
+		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $$\tmmatch{V}{}.$$
 		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchEmpty} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{V}{(x_1,x_2) \mapsto N}$. 
+		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $$\tmmatch{V}{(x_1,x_2) \mapsto N}.$$ 
 		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
 		Po indukcijski predpostavki ima $N$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchPair} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}$.
+		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $$\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}.$$
 		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Run}. Tip $C$ je oblike $\tyrun{A}{\o, \i}$.
 		Izračun $M$ ima tip $\tycomp{B}{\o', \i'}$ in $N$ tip $\tycomp{A}{\o, \i}$.
 		Po pravilu \rulename{TyProc-Par} ima $P'$ tip $\typar{\tycomp{A}{\o, \i}}{\tycomp{B}{\o', \i'}}$, kjer je $C$ naredil korak \rulename{TyRedu-Spawn-R}.
 		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchSum} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V_1 V_2$.
+		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $$V_1 V_2.$$
 		Po lemi~\ref{lem:weakening-values-bb} imata $V_1$ in $V_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Apply} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $$\tmopout{op}{V}{N}.$$
 		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
 		Po indukcijski predpostavki ima $N$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Signal} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $$\tmopin{op}{V}{N}.$$
 		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
 		Po indukcijski predpostavki ima $N$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Interrupt} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$.
+		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $$\tmwithrec{op}{x}{r}{N_1}{p}{N_2}.$$
 		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-RecPromise} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Await}, potem je $M$ enak $\tmawait{V}{y}{N}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Await}, potem je $M$ enak $$\tmawait{V}{y}{N}.$$
 		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
 		Po indukcijski predpostavki ima $N$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Await} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
@@ -733,14 +742,14 @@ Sledeči lemi o substituciji za vrednosti in izračune se nanašata ena na drugo
 	Primeri, ki so enaki kot v dokazu~\ref{lem:substitucija-izračuni} so izpuščeni.
 	
 	\begin{itemize}
-		\item Če je zadnje pravilo \rulename{TyComp-Unbox}, potem je $M$ enak $\tmunbox{W}{x}{N}$. Vrednost $W$ ima tip $B$ in izračun $N$ tip $\tycomp{B}{\o, \i}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Unbox}, potem je $M$ enak $$\tmunbox{W}{x}{N}.$$ Vrednost $W$ ima tip $B$ in izračun $N$ tip $\tycomp{B}{\o, \i}$.
 		Po indukcijski predpostavki velja, da ima $N[V/x]$ isti tip. Po lemi~\ref{lem:substitucija-vrednosti-2} ima $W[V/x]$ isti tip. Ker je $M[V/x]$ enak $\tmunbox{W[V/x]}{x}{N[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Unbox}.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $\tmwithrec{op}{r}{x}{N_1}{p}{N_2}$. Izračun $N_1$ ima tip $\tycomp{C}{\o', \i'}$ in $N_2$ tip $\tycomp{B}{\o, \i}$.
+		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $$\tmwithrec{op}{r}{x}{N_1}{p}{N_2}.$$ Izračun $N_1$ ima tip $\tycomp{C}{\o', \i'}$ in $N_2$ tip $\tycomp{B}{\o, \i}$.
 		Po indukcijski predpostavki velja, da imata $N_1[V/x]$ in $N_2[V/x]$ isti tip. Ker je $M[V/x]$ enak $\tmwithrec{op}{r}{x}{N_1[V/x]}{p}{N_2[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-RecPromise}.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Spawn}, potem je $M$ enak $\tmspawn{N_1}{N_2}$. Izračun $N_1$ ima tip $\tycomp{C}{\o', \i'}$ in $N_2$ tip $\tycomp{B}{\o, \i}$.
-		Po indukcijski predpostavki velja, da imata $N_1[V/x]$ in $N_2[V/x]$ isti tip. Ker je $M[V/x]$ enak $\tmspawn{N_1[V/x]}{N_2[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Spawn}.	
+		\item Če je zadnje pravilo \rulename{TyComp-Spawn}, potem je $M$ enak $$\tmspawn{N_1}{N_2}.$$ Izračun $N_1$ ima tip $\tycomp{C}{\o', \i'}$ in $N_2$ tip $\tycomp{B}{\o, \i}$.
+		Po indukcijski predpostavki velja, da imata $N_1[V/x]$ in $N_2[V/x]$ isti tip. Po pravilu \rulename{TyComp-Spawn} ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$.	
 	\end{itemize}
 	
 \end{proof}
@@ -809,49 +818,49 @@ Sledeči lemi o krepitvi konteksta za vrednosti in izračune se nanašata ena na
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
-		\item Če je zadnje pravilo \rulename{TyComp-Return}, potem je $M$ enak $\tmreturn{V}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Return}, potem je $M$ enak $$\tmreturn{V}.$$
 		Po lemi~\ref{lem:strengthening-values-promise} ima $V$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-Return} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $$\tmlet{x}{N_1}{N_2}.$$
 		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-Let} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V_1 V_2$.
+		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $$V_1 V_2.$$
 		Po lemi~\ref{lem:strengthening-values-promise} imata $V_1$ in $V_2$ isti tip v skrčenempotem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Run}. Tip $C$ je oblike $\tyrun{A}{\o, \i}$.
 		Izračun $M$ ima tip $\tycomp{B}{\o', \i'}$ in $N$ tip $\tycomp{A}{\o, \i}$.
 		Po pravilu \rulename{TyProc-Par} ima $P'$ tip $\typar{\tycomp{A}{\o, \i}}{\tycomp{B}{\o', \i'}}$, kjer je $C$ naredil korak \rulename{TyRedu-Spawn-R}. kontekstu.
 		Po pravilu \rulename{TyComp-Apply} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{V}{(x_1,x_2) \mapsto N}$. 
+		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $$\tmmatch{V}{(x_1,x_2) \mapsto N}.$$ 
 		Po lemi~\ref{lem:strengthening-values-promise} ima $V$ isti tip v skrčenem kontekstu.
 		Po indukcijski predpostavki ima $N$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchPair} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $\tmmatch{V}{}$.
+		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $$\tmmatch{V}{}.$$
 		Po lemi~\ref{lem:strengthening-values-promise} ima $V$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchEmpty} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}$.
+		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $$\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}.$$
 		Po lemi~\ref{lem:strengthening-values-promise} ima $V$ isti tip v skrčenem kontekstu.
 		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchSum} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $$\tmopout{op}{V}{N}.$$
 		Po lemi~\ref{lem:strengthening-values-promise} ima $V$ isti tip v skrčenem kontekstu.
 		Po indukcijski predpostavki ima $N$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-Signal} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $$\tmopin{op}{V}{N}.$$
 		Po lemi~\ref{lem:strengthening-values-promise} ima $V$ isti tip v skrčenem kontekstu.
 		Po indukcijski predpostavki ima $N$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-Interrupt} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$.
+		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $$\tmwithrec{op}{x}{r}{N_1}{p}{N_2}.$$
 		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-RecPromise} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Await}, potem je $M$ enak $\tmawait{V}{y}{N}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Await}, potem je $M$ enak $$\tmawait{V}{y}{N}.$$
 		Po lemi~\ref{lem:strengthening-values-promise} ima $V$ isti tip v skrčenem kontekstu.
 		Po indukcijski predpostavki ima $N$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-Await} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
@@ -964,47 +973,47 @@ Sledeči lemi o krepitvi konteksta za vrednosti in izračune se nanašata ena na
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
-		\item Če je zadnje pravilo \rulename{TyComp-Return}, potem je $M$ enak $\tmreturn{V}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Return}, potem je $M$ enak $$\tmreturn{V}.$$
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-Return} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $\tmlet{x}{N_1}{N_2}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Let}, potem je $M$ enak $$\tmlet{x}{N_1}{N_2}.$$
 		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-Let} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $V_1 V_2$.
+		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $$V_1 V_2.$$
 		Po lemi~\ref{lem:strengthening-values-bb} imata $V_1$ in $V_2$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-Apply} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $\tmmatch{V}{(x_1,x_2) \mapsto N}$. 
+		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $$\tmmatch{V}{(x_1,x_2) \mapsto N}.$$ 
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
 		Po indukcijski predpostavki ima $N$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchPair} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $\tmmatch{V}{}$.
+		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $$\tmmatch{V}{}.$$
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchEmpty} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}$.
+		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $$\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}.$$
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
 		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchSum} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $\tmopout{op}{V}{N}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $$\tmopout{op}{V}{N}.$$
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
 		Po indukcijski predpostavki ima $N$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-Signal} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $\tmopin{op}{V}{N}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Interrupt}, potem je $M$ enak $$\tmopin{op}{V}{N}.$$
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
 		Po indukcijski predpostavki ima $N$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-Interrupt} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$.
+		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $$\tmwithrec{op}{x}{r}{N_1}{p}{N_2}.$$
 		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-RecPromise} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Await}, potem je $M$ enak $\tmawait{V}{y}{N}$.
+		\item Če je zadnje pravilo \rulename{TyComp-Await}, potem je $M$ enak $$\tmawait{V}{y}{N}.$$
 		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ isti tip v skrčenem kontekstu.
 		Po indukcijski predpostavki ima $N$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-Await} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
