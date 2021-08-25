@@ -38,7 +38,7 @@ Kot sintaktični sladkor je dodan varovan prestreznik, ki se sproži le kadar je
 
 \subsection{Sistem tipov}\label{sec:tipi}
 
-Prvotna implementacija jezika \aeff izračuna tip programa z Hindley–Milnerjevim algoritmom. 
+Prvotna implementacija jezika \aeff{} izračuna tip programa z Hindley–Milnerjevim algoritmom. 
 Kasneje je bil typechecker spremenjen, da je uporabljal dvosmerni sistem tipov (bidirectional typing), ki temelji na algoritmu iz članka~\cite{bidirectional}.
 Glavna ideja dvosmernega sistema tipov je, da lahko dinamično izmenjuje med preverjanjem in računanjem tipa. Kadar so tipi pripisani izrazom, tip le preverimo, kar je enostavneje, kot ga izračunati in v primeru napake lahko izpiše boljše poročilo o napaki. Vendar pa pripisovanje tipov ni obvezno in ga v tem primeru lahko izračunamo. Posledično lahko uporabnik, poda tip le nekaterim delom programa, preostalim pa ne.
 

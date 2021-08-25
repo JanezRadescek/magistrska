@@ -66,17 +66,20 @@ Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z reku
 	\label{fig:izrazi-prestreznik}
 \end{figure}
 
-Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. S to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira z lambda funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik.   
+Substitucijo prestreznika popravimo, kot vidimo na sliki~\ref{fig:substitucija-prestreznik}
 
 \begin{figure}[H]
 	\centering
 	\small
 	\begin{align*}
-		(\tmwithrec{op}{y}{r}{M}{p}{N})[V/x] &= \tmwith{op}{y}{r}{M[V/x]}{p}{N[V/x]}
+		(\tmwithrec{op}{y}{r}{M}{p}{N})[V/x] &= \tmwithrec{op}{y}{r}{M[V/x]}{p}{N[V/x]}
 	\end{align*}
+	\vspace{-5ex}
 	\caption{Substitucija za rekurzivni prestreznik.}
 	\label{fig:substitucija-prestreznik}
 \end{figure}
+
+Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. S to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira z lambda funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik.   
 
 \begin{figure}[H]
 	\centering
@@ -108,7 +111,7 @@ Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$
 	\begin{mathpar}
 		\coopinfer{TyComp-RecPromise}{
 			({\o'} , {\i'}) \order{O \times I} \i\, (\op)\\
-			\Gamma, x \of \tymobile{A}_\op, r \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\o', \i'}} \types M : \tycomp{\typromise B}{\o',\i'} \\
+			\Gamma, x \of \tymobile{A}_\op, r \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\o'', \i''}} \types M : \tycomp{\typromise B}{\o',\i'} \\
 			\Gamma, p \of \typromise B \types N : \tycomp{C}{\o,\i}
 		}{
 			\Gamma \types \tmwithrec{op}{x}{r}{M}{p}{N} \of \tycomp{C}{\o, \i}
