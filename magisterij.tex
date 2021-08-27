@@ -65,6 +65,10 @@ na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati m
 \usepackage{mathtools} % mathllap
 
 \usepackage{listings}
+\lstset{
+	escapeinside={(*@}{@*)},          % if you want to add LaTeX within your code
+}
+
 \renewcommand{\lstlistingname}{Program}% Listing -> Program
 \renewcommand{\lstlistlistingname}{Kazalo Programov}% List of Listings -> Kazalo Programov
 
@@ -207,13 +211,15 @@ Zahvaljujem se \dots
 \end{center}
 %Tukaj napišemo povzetek vsebine. Sem sodi razlaga vsebine in ne opis tega, kako je delo
 %organizirano.
-V delu si pogledamo programski jezik \aeff\ in račun \lae\ na katerem temelji. Račun \lae razširimo z rekurzivno obljubo, razcepom in \jR{Box/Unbox}. \jR{Ground} tipe nadomestimo z mobilnimi tipi, ki nam omogočajo pošiljanje tipov za katere prej nebi zmogli pokazati da so varni. Obstoječi sistem tipov nadomestimo z dvostranskim sistemom, ki predvsem izboljša sporočila v primeru napak. Dokažemo izreka o napredku in ohranitvi za razširjen \lae. Ne deterministično operacijsko semantiko malih korakov nadomestimo z deterministično \jR{big.SMALL kak} semantiko in pokažemo, da je prejšnji v nekem smislu ekvivalentna.
+V delu si pogledamo programski jezik \aeff{} in \lae{}-račun na katerem temelji. Glavna lastnost \lae{}-računa je možnost asinhronega izvajanja v navezi z vzporednim izvajanjem. To dosežemo tako, da ko prestreznik čaka, da dobi odgovor v obliki efekta iz drugega procesa, naprej izvaja svoje nadaljevanje. Ko prestreže želeni efekt ga primerno obdela in izvajanje se spet nadaljuje. Osnovno verzijo \lae{}-računa razširimo z rekurzivnimi obljubami, mobilnimi tipi in dinamičnimi procesi. Rekurzivne obljube omogočijo, da bo program lahko reagiral na več efektov z istim imenom operacije. Mobilni tipi omogočijo pošiljanje funkcij, ki jih prej nismo mogli. Dinamični procesi pa omogočijo ustvarjanje novih procesov sproti po potrebi. 
+Dokažemo izreka o napredku in ohranitvi za osnovni in razširjen \lae{}-račun.
+Omenimo tudi nekatere razlike med teoretično in implementirano verzijo.
 
 
 
 \vfill
 \begin{center}
-\textbf{English translation of the title} \\[3mm] % prevod slovenskega naslova dela
+\textbf{Asynchronous algebraic effects} \\[3mm] % prevod slovenskega naslova dela
 \textsc{Abstract}\\[2mm]
 \end{center}
 

@@ -1,56 +1,66 @@
 \section{Razširjen \lae{}}\label{sec:razsirjen-lae}
 
-Poglejmo si primer~\ref{prog:razsiritev-0}, ki bi ga lahko napisali v \aeff{}, ki pripada osnovni verziji \lae{}\nobreakdash-računa. Primer je nekoliko bolj konkretna verzija primera~\ref{prog:primer-1} iz poglavja~\ref{sec:primeri-aeff}. Dve pomožni vrednosti se poračunata v drugem procesu. Medtem se glavni proces nemoteno nadaljuje. 
-Primer si lahko predstavljamo kot program, ki v pomožnem procesu poračuna časovno zahteven del, med tem ko glavni proces nemoteno nadaljuje delo.
+Poglejmo si primer~\ref{prog:razsiritev-0}, ki bi ga lahko napisali v \aeff{}, ki pripada osnovni verziji \lae{}\nobreakdash-računa. Primer je nekoliko bolj konkretna verzija primera~\ref{prog:primer-1} iz poglavja~\ref{sec:primeri-aeff}. 
+Imamo dve funkciji, $\mathsf{callWith}$ in $\mathsf{remote}$.
+Funkcija $\mathsf{remote}$ sprejme seznam funkcij. Ko bo prišla prekinitev $\mathsf{call}$, bo iz seznama vzela ustrezno funkcijo, izračunala vrednost te funkcije v dani vrednosti $\mathsf{x}$ in poslala nazaj signal z id-jem klica in rezultatom. Na koncu pa bo s pomočjo rekurzivne pomožne funkcije ponovno namestila prestreznik.
+Funkcija $\mathsf{callWith}$ sprejme referenco (ki bo predstavljala unikatno številko klica), id funkcije (ki jo želimo poračunati) in vrednost (v kateri želimo izračunati funkcijo).
+Nato pošlje signal $\mathsf{call}$ z ustreznimi vrednstmi in poveča številko v referenci. Namesto da sama funkcija čaka na rezultat, bo vrnila pomožno funkcijo, ki bo čakala na rezultat (s pravo številko klica).  
+V prvem procesu ustvarimo referenco in s pomočjo $\mathsf{callWith}$ začnemo računati dve pomožni vrednosti, na kateri pa ne čakamo, da se izračunata, ampak nemudoma začnemo z računanjem vrednosti $\mathsf{z}$. Šele nato začnemo po potrebi čakati na prvi dve vrednosti in končno vse tri vrednosti seštejemo.
+V drugem procesu začnemo funkcijo $\mathsf{remote}$ s seznamom dveh funkcij.
+
+Ta primer ima še zmeraj nekaj problemov, ki jih bomo v nadaljevanju odpravili.
+
 
 \begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-0},float,floatplacement=h]
 operation call : int * int * int
 operation result : int * int
 
-let callWith =
-	fun callCounter fNo x ->
-		let callNo = !callCounter in
-		send call (callNo, fNo, x);
-		callCounter := callNo + 1;
-		promise (result (callNo', y) when callNo = callNo' ->
-			return <y>
-		) as p in
-		let valueThunk () = awaitValue p in
-		return valueThunk
+let callWith callCounter fNo x =
+    let callNo = !callCounter in
+    send call (callNo, fNo, x);
+    callCounter := callNo + 1;
+    let rec loop () =
+    	promise (result (callNo', y) ->
+    		if callNo = callNo' then
+    			return <<y>>
+    		else
+    			loop ()
+    	) as p in
+    	return p
+    in
+    let p' = loop () in
+    let valueThunk () = awaitValue p' in
+    return valueThunk
 
 let remote fList =
-	let rec loop () =
-		promise (call (callNo, fNo, x) ->
-			let f = nth fList fNo in
-			let y = f x in
-			send result (callNo, y);
-			loop ()
-		) as p in
-		return p
-	in
-	loop ()
+    let rec loop () =
+    	promise (call (callNo, fNo, x) ->
+    		let f = nth fList fNo in
+    		let y = f x in
+    		send result (callNo, y);
+    		loop ()
+    	) as p in
+    	return p
+    in
+    loop ()
 
 run	let callCounter = ref 0 in
-	let y1 = callWith callCounter 0 2 in
-	let y2 = callWith callCounter 1 3 in
-	let z = 42 + 7 in
-	return y1 () + y2 () + z
+    let y1 = callWith callCounter 0 2 in
+    let y2 = callWith callCounter 1 3 in
+    let z = 42 + 7 in
+    return y1 () + y2 () + z
 
-run remote (fun x |-> 2 * x)::(fun x |-> 7 * x)::[]
+run remote [(fun x -> 2 * x);(fun x -> 7 * x)]
 \end{lstlisting}
-
-Ta primer, ima še zmeraj nekaj problemov, ki jih bomo v nadaljevanju odpravili.
 
 
 \subsection{Rekurzivni prestreznik}
 
 
-Kadar pričakujemo več prekinitev z isto operacijo, je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko, da je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
+Kadar pričakujemo več prekinitev z isto operacijo, je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
+To funkcionalnost smo do sedaj dosegli tako, da smo obljubo definirali v pomožni rekurzivni funkciji in po potrebi znotraj obljube ponovno klicali to funkcijo, kot smo videli v programu~\ref{prog:razsiritev-0}.
 
-To funkcionalnost smo do sedaj dosegli tako, da smo obljubo definirali v pomožni rekurzivni funkciji in po potrebi znotraj obljube ponovno klicali to funkcijo, kot lahko vidimo v programu~\ref{prog:razsiritev-0}.
-
-
-Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in kontinuacije $N$ tudi spremenljivko $r$ s pomočjo katere lahko ponovno namestimo isti prestreznik. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
+Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in kontinuacije $N$ tudi spremenljivko $r$, s pomočjo katere lahko ponovno namestimo isti prestreznik. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
 
 
 \begin{figure}[H]
@@ -66,7 +76,7 @@ Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z reku
 	\label{fig:izrazi-prestreznik}
 \end{figure}
 
-Substitucijo prestreznika popravimo, kot vidimo na sliki~\ref{fig:substitucija-prestreznik}
+Substitucijo prestreznika popravimo, kot vidimo na sliki~\ref{fig:substitucija-prestreznik}. V bodoče bomo uporabljali sledečo okrajšavo $M[V_1/x_1, V_2/x_2] \defeq (M[V_1/x_1])[V_2/x_2]$.
 
 \begin{figure}[H]
 	\centering
@@ -79,11 +89,11 @@ Substitucijo prestreznika popravimo, kot vidimo na sliki~\ref{fig:substitucija-p
 	\label{fig:substitucija-prestreznik}
 \end{figure}
 
-Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. S to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira z lambda funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik.   
+Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. S to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira z funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik. 
 
 \begin{figure}[H]
 	\centering
-	\small
+	\small~
 	\begin{align*}
 		\tmlet{x}{(\tmwithrec{op}{y}{r}{M}{p}{N_1})}{N_2} \reduces \\
 		\tmwithrec{op}{y}{r}{M}{p}{(\tmlet{x}{N_1}{N_2})}
@@ -102,8 +112,8 @@ Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verzij
 	\label{fig:semantika-prestreznik}
 \end{figure}
 
-Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrezniku. 
-Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$ red namesto enakosti. Ker sedaj v kontekst dodamo tip $\tyfun{\tyunit}{\tycomp{\typromise{B}}{\o', \i'}}$ moramo paziti da pripadajoč tip efektov ni prevelik, saj sicer morda ne bomo mogli določiti tipa za $M$.
+Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrezniku. Spremenljivka $r$ dobi tip $\tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \op \mapsto (\o', \i')}}$, ki lepo predstavlja izračun, ki ne sproži nobenega signala in prestreže le operacijo $\op$.
+Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$ red namesto enakosti. Ker sedaj v kontekst dodamo tip $\tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \op \mapsto (\o', \i')}}$ moramo paziti da pripadajoč tip efektov $(\o', \i')$ ni prevelik, saj sicer morda ne bomo mogli določiti tipa za $M$.
 
 \begin{figure}[H]
 	\centering
@@ -111,7 +121,7 @@ Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$
 	\begin{mathpar}
 		\coopinfer{TyComp-RecPromise}{
 			({\o'} , {\i'}) \order{O \times I} \i\, (\op)\\
-			\Gamma, x \of \tymobile{A}_\op, r \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\o'', \i''}} \types M : \tycomp{\typromise B}{\o',\i'} \\
+			\Gamma, x \of \tymobile{A}_\op, r \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \op \mapsto (\o', \i')}} \types M : \tycomp{\typromise B}{\o',\i'} \\
 			\Gamma, p \of \typromise B \types N : \tycomp{C}{\o,\i}
 		}{
 			\Gamma \types \tmwithrec{op}{x}{r}{M}{p}{N} \of \tycomp{C}{\o, \i}
@@ -122,7 +132,7 @@ Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$
 	\label{fig:tipi-pravila-rekurzivni-prestreznik}
 \end{figure} 
 
-Program~\ref{prog:razsiritev-1} ima isti semantičen pomen kot program~\ref{prog:razsiritev-0}, le da je tokrat napisan z rekurzivno obljubo.
+Program~\ref{prog:razsiritev-1} ima isti semantičen pomen kot program~\ref{prog:razsiritev-0}, le da je tokrat napisan z rekurzivno obljubo. Ker nimamo pomožne funkcije je koda nekoliko krajša in tudi lažje berljiva.
 
 \begin{lstlisting}[caption={Primer z rekurzivnim prestreznikom},label={prog:razsiritev-1},float,floatplacement=h]
 operation call : int * int * int
@@ -133,18 +143,21 @@ let callWith =
 		let callNo = !callCounter in
 		send call (callNo, fBoxed, x);
 		callCounter := callNo + 1;
-		promise (result (callNo', y) when callNo = callNo' ->
-			return <y>
+		promise (result (callNo', y) (*@\hlyellow{$r$}@*) ->
+			if callNo = callNo' then
+				return <y>
+			else
+				(*@\hlyellow{$r$}@*) ()
 		) as p in
 		let valueThunk () = awaitValue p in
 		return valueThunk
 
 let remote fList =
-	promise (call (callNo, fNo, x) r ->
+	promise (call (callNo, fNo, x) (*@\hlyellow{$r$}@*) ->
 		let f = nth fList fNo in
 		let y = f x in
 		send result (callNo, y);
-		r()
+		(*@\hlyellow{$r$}@*)()
 	) as _ in
 	()
 
@@ -154,7 +167,7 @@ run	let callCounter = ref 0 in
 	let z = 42 + 7 in
 	return y1 () + y2 () + z
 
-run remote (fun x |-> 2 * x)::(fun x |-> 7 * x)::[]
+run remote [(fun x -> 2 * x);(fun x -> 7 * x)]
 \end{lstlisting}
 
 
@@ -272,37 +285,40 @@ Okolje je imelo že od začetka določen vrstni red, vendar šele sedaj to posta
 	\label{fig:tipi-pravila-prenosljivi}
 \end{figure} 
 
-Sedaj lahko program~\ref{prog:razsiritev-1} spremenimo v program~\ref{prog:razsiritev-2}. Namesto, da ima \emph{remote} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora.  
+Sedaj lahko program~\ref{prog:razsiritev-1} spremenimo v program~\ref{prog:razsiritev-2}. Namesto, da ima \emph{remote} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora. Na ta način smo bolj fleksibilni pri pisanju kode, hkrati pa je tudi bolj jasno kot prej katera funkcija se bo poračunala.
 
 \begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-2},float,floatplacement=h]
-operation call : int * [int -> int] * int
+operation call : int * (*@\hlyellow{$[int -> int]$}@*) * int
 operation result : int * int
 
 let callWith =
-	fun callCounter fBoxed x ->
-		let callNo = !callCounter in
-		send call (callNo, fBoxed, x);
-		callCounter := callNo + 1;
-		promise (result (callNo', y) when callNo = callNo' ->
-			return <y>
-		) as p in
-		let valueThunk () = awaitValue p in
-		return valueThunk
+    fun callCounter fBoxed x ->
+    	let callNo = !callCounter in
+    	send call (callNo, fBoxed, x);
+    	callCounter := callNo + 1;
+    	promise (result (callNo', y) ->
+    		if callNo = callNo' then
+    			return <y>
+    		else
+    			r ()
+    	) as p in
+    	let valueThunk () = awaitValue p in
+    	return valueThunk
 
 let remote () =
-	promise (call (callNo, fBoxed, x) r ->
-		unbox fBoxed as [f] in
-		let y = f x in
-		send result (callNo, y);
-		r ()
-	) as _ in
-	()
+    promise (call (callNo, fBoxed, x) r ->
+    	(*@\hlyellow{$unbox fBoxed as [f] in$}@*)
+    	let y = f x in
+    	send result (callNo, y);
+    	r ()
+    ) as _ in
+    ()
 
 run	let callCounter = ref 0 in
-let y1 = callWith callCounter [fun x |-> 2 * x] 2 in
-let y2 = callWith callCounter [fun x |-> 7 * x] 3 in
-let z = 42 + 7 in
-return y1 () + y2 () + z
+    let y1 = callWith callCounter (*@\hlyellow{$[fun x -> 2 * x]$}@*) 2 in
+    let y2 = callWith callCounter (*@\hlyellow{$[fun x -> 7 * x]$}@*) 3 in
+    let z = 42 + 7 in
+    return y1 () + y2 () + z
 
 run remote ()
 	
@@ -385,7 +401,7 @@ Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo 
 \end{figure}
 
 
-Sedaj ko imamo dinamične procese, lahko obe evalvaciji funkcije $f$ opravimo hkrati v svojem procesu, kar potencialno pohitri izvajanje programa. Primer~\ref{prog:razsiritev-2} lahko sedaj spremenimo v~\ref{prog:razsiritev-3}. 
+Sedaj ko imamo dinamične procese, lahko obe evalvaciji funkcije $\mathsf{f}$ v $\mathsf{remote}$ opravimo hkrati v svojem procesu, kar potencialno pohitri izvajanje programa. Primer~\ref{prog:razsiritev-2} lahko sedaj spremenimo v~\ref{prog:razsiritev-3}. 
 
 \begin{lstlisting}[caption={Primer z dinamičnimi procesi},label={prog:razsiritev-3},float,floatplacement=H]
 operation call : int * [int -> int] * int
@@ -396,16 +412,19 @@ let callWith =
 		let callNo = !callCounter in
 		send call (callNo, fBoxed, x);
 		callCounter := callNo + 1;
-		promise (result (callNo', y) when callNo = callNo' ->
-			return <y>
+		promise (result (callNo', y) ->
+			if callNo = callNo' then
+				return <y>
+			else
+				r ()
 		) as p in
 		let valueThunk () = awaitValue p in
 		return valueThunk
 
 let remote () =
 	promise (call (callNo, fBoxed, x) r ->
-		unbox fBoxed as [f] in
-		spawn(
+		(*@\hlyellow{$spawn$}@*)(
+			unbox fBoxed as [f] in
 			let y = f x in
 			send result (callNo, y)
 		);
@@ -425,7 +444,9 @@ run remote ()
 
 \subsection{Varnost}
 
-Sedaj dokažemo izrek o varnosti za \lae{} razširjen z rekurzivnimi prestrezniki, prenosljivimi tipi, in dinamičnimi procesi.
+
+
+Tudi za vse dinamične procese si želimo da se razširijo do vrha. Zato rezultatom za izračune iz slike~\ref{fig:results-rules} dodamo še sledeč rezultat. 
 
 \begin{figure}[H]
 	\centering
@@ -436,13 +457,12 @@ Sedaj dokažemo izrek o varnosti za \lae{} razširjen z rekurzivnimi prestreznik
 			\CompResult {\Psi} {\tmspawn{M}{N}}
 		}
 	\end{mathpar}
-	
-
+	\vspace{-5ex}
 	\caption{Dodaten rezultat za izračune.}
 	\label{fig:results-rules-2}
 \end{figure}
 
-
+Sedaj bomo ponovno dokazali izreka o napredku in ohranitvi ter potrebne leme, tokrat za \lae{}-račun razširjen z rekurzivnimi prestrezniki, prenosljivimi tipi, in dinamičnimi procesi. Kadar je dokaz zelo podoben dokazu od prej, bomo dokazali le dele, ki so se spremenili ali so na novo. 
 
 \begin{trditev}[o napredku]\label{trd:gamma-napredek-2}
 	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$, kjer je $\Gamma = x_1 \of \typromise{A_1}, x_2 \of \typromise{A_2},..., x_i \of \typromise{A_i}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\CompResult{\Gamma}{M}$.
@@ -1076,7 +1096,8 @@ Tudi sedaj bomo potrebovali lemo o inverziji. Vse točke iz leme~\ref{lem:invers
 		
 		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmwithrec{op}{x}{r}{N_1}{p}{N_2}} \reduces $$ $$ \tmlet{p}{N_1[V/x, R/r]}{\tmopin{op}{V}{N_2}},$$ potem ima po lemi~\ref{lem:inversion-lema-2} vrednost $V$ tip $B_{op}$, $N_1$ tip $\tycomp{\typromise{B}}{\o'', \i''}$, $N_2$ tip $\tycomp{A}{\o', \i'}$.
 		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N_2}$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
-		Ker velja $(\o'', \i'') \order{O, I} \i'(op)$, velja $(\o'', \i'') \order{O \times I} \opincomp{op}{(\o', \i')}$ in posledično ima po pravilu \rulename{TyComp-Subsume} izračun $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\opincomp{op}{(\o', \i')}}$
+		Ker velja $(\o'', \i'') \order{O, I} \i'(op)$, velja $(\o'', \i'') \order{O \times I} \opincomp{op}{(\o', \i')}$ in posledično ima po pravilu \rulename{TyComp-Subsume} in lemi~\ref{lem:substitucija-izračuni-2} izračun $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\opincomp{op}{(\o', \i')}}$.
+		Po lemi~\ref{lem:substitucija-izračuni-2} ima $(N_1[V/x])[R/r]$ tip $\tycomp{\typromise{B}}{\opincomp{op}{(\o', \i')}}$, saj ima $R$ isti tip kot spremenljivka $r$.
 		Po pravilu \rulename{TyComp-Let} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
@@ -1106,8 +1127,8 @@ Tudi sedaj bomo potrebovali lemo o inverziji. Vse točke iz leme~\ref{lem:invers
 \end{proof}
 
 
-Ko iz enega procesa ustvarimo dva paralelna procesa se temu primerno tip spremeni v paralelni tip. 
-Redukcijskim pravilom na sliki~\ref{fig:process-type-reductions}, dodamo pravili na sliki~\ref{fig:process-type-reductions-spawn}.
+Ko iz enega procesa ustvarimo dva paralelna procesa, se temu primerno tip spremeni v paralelni tip. 
+Pravilom za spremembo tipa na sliki~\ref{fig:process-type-reductions} dodamo pravili na sliki~\ref{fig:process-type-reductions-spawn}.
 
 \begin{figure}[H]
 	\centering
@@ -1122,7 +1143,7 @@ Redukcijskim pravilom na sliki~\ref{fig:process-type-reductions}, dodamo pravili
 			\tyrun{A}{\o, \i} \tyreduces \typar{\tyrun{A}{\o, \i}}{\tyrun{A'}{\o', \i'}}
 		}
 	\end{mathpar}
-	\caption{Dodatna pravila za redukcijo tipov.}
+	\caption{Dodatna pravila za spremembo tipov.}
 	\label{fig:process-type-reductions-spawn}
 	
 \end{figure}
@@ -1152,8 +1173,6 @@ Redukcijskim pravilom na sliki~\ref{fig:process-type-reductions}, dodamo pravili
 	\end{itemize}
 
 \end{proof}
-
-
 
 
 

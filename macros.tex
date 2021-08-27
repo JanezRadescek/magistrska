@@ -157,6 +157,8 @@
 %\newcommand{\tmwith}[6]{\tmkw{promise}\; (\tm{#1}\; #2 \mapsto #3)\; \tmkw{as}\; #4 \of \typromise{#5}\; \tmkw{in}\; #6} % interrupt hook
 \newcommand{\tmspawn}[2]{\tmkw{spawn} (#1, #2)} % Spawn new process
 
+\newcommand{\tmif}[3]{\tmkw{if}\; #1\ \tmkw{then}\; #2\ \tmkw{else}\; #3} % if
+
 %% process
 
 \newcommand{\tmrun}[1]{\tmkw{run}\; #1} % running a computation as a process
@@ -233,7 +235,9 @@
 %%% Redex highlighting
 
 \definecolor{redexColor}{rgb}{0.83, 0.83, 0.83} % the color of highlighted redexes
+\definecolor{yellowish}{rgb}{0.9, 0.9, 0} % the color of changed code
 \newcommand{\highlightgray}[1]{{\setlength{\fboxsep}{1.5pt}\colorbox{redexColor}{$#1$}}} % highlight redexes with gray(ish) background
+\newcommand{\hlyellow}[1]{{\setlength{\fboxsep}{1.5pt}\colorbox{yellowish}{$#1$}}} % highlight redexes with yellow(ish) background
 \newcommand{\highlightwhite}[1]{{\setlength{\fboxsep}{1.5pt}\colorbox{white}{$#1$}}} % highlight redexes with white background
 
 
