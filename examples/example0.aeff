@@ -1,0 +1,39 @@
+operation call : int * int * int
+operation result : int * int
+
+let callWith callCounter fNo x =
+	let callNo = !callCounter in
+	send call (callNo, fNo, x);
+	callCounter := callNo + 1;
+	let rec loop () =
+		promise (result (callNo', y) ->
+			if callNo = callNo' then
+				return <<y>>
+			else
+				loop ()
+		) as p in
+		return p
+	in
+	let p' = loop () in
+	let valueThunk () = awaitValue p' in
+	return valueThunk
+
+let remote fList =
+	let rec loop () =
+		promise (call (callNo, fNo, x) ->
+			let f = nth fList fNo in
+			let y = f x in
+			send result (callNo, y);
+			loop ()
+		) as p in
+		return p
+	in
+	loop ()
+
+run	let callCounter = ref 0 in
+	let y1 = callWith callCounter 0 2 in
+	let y2 = callWith callCounter 1 3 in
+	let z = 42 + 7 in
+	return y1 () + y2 () + z
+
+run remote [(fun x -> 2 * x);(fun x -> 7 * x)]

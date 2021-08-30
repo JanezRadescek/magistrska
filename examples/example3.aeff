@@ -1,0 +1,32 @@
+operation call : int * [|int -> int|] * int
+operation result : int * int
+
+let callWith =
+    fun callCounter fBoxed x ->
+    	let callNo = !callCounter in
+    	send call (callNo, fBoxed, x);
+    	callCounter := callNo + 1;
+    	promise (result (callNo', y) when callNo = callNo' ->
+    		return <<y>>
+    	) as p in
+    	let valueThunk () = awaitValue p in
+    	return valueThunk
+
+let remote () =
+    promise (call (callNo, fBoxed, x) r ->
+    	spawn (
+			unbox fBoxed as [|f|] in
+			let y = f x in
+			send result (callNo, y)
+		);
+    	r ()
+    ) as _ in
+    ()
+
+run	let callCounter = ref 0 in
+    let y1 = callWith callCounter [|fun x -> 2 * x|] 2 in
+    let y2 = callWith callCounter [|fun x -> 7 * x|] 3 in
+    let z = 42 + 7 in
+    return y1 () + y2 () + z
+
+run remote ()
