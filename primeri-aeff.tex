@@ -1,42 +1,44 @@
 \section{Motivacijski primer} \label{sec:primeri-aeff}
 
-Poglejmo si sledeči sekvenčni sinhroni primer. Poračunati moramo zelo zahtevno in počasno točno funkcijo in prikazati njen rezultat na zaslonu. Ker je tako zelo počasna, preden se je dejansko lotimo, poračunamo še hitrejši približek in ga prikazujemo, dokler ga ne bo nadomestila točna vrednost. Nakar bomo nekaj časa računali prvo kontinuacijo neodvisno od točne vrednosti, nato pa še drugo kontinuacijo odvisno od točne vrednosti. Pseudo kodo vidimo na programu~\ref{prog:primer-0}.
+Poglejmo si sledeči sekvenčni sinhroni primer. Poračunati moramo zelo zahtevno in počasno točno funkcijo in prikazati njen rezultat na zaslonu. Ker je tako zelo počasna, preden se je dejansko lotimo, poračunamo še hitrejši približek in ga prikazujemo, dokler ga ne bo nadomestila točna vrednost. Nakar bomo nekaj časa računali prvo nadaljevanje neodvisno od točne vrednosti, nato pa še drugo nadaljevanje odvisno od točne vrednosti. Psevdokodo vidimo na programu~\ref{prog:primer-0}.
 
 \begin{lstlisting}[caption={Sinhron sekvečni primer.},label={prog:primer-0},float,floatplacement=H]
-x' = priblizek(42)
+x' (*@$\defeq{}$@*) priblizek(42)
 zaslon(x')
-x = funkcija(42)
+x (*@$\defeq{}$@*) funkcija(42)
 zaslon(x)
 
-kontinuacija1()
-kontinuacija2(x)
+nadaljevanje1()
+nadaljevanje2(x)
 \end{lstlisting}
 
-Ta primer ima dve težavi, ki sta posledici sekvenčnega sinhronega izvajanja. Prvi problem je da, ker je program sekvenčni, ne moremo računati točne funkcije hkrati z približkom in posledično se program izvaja dlje časa. Drugi problem pa je, da dokler se bo računala točna funkcija, ne moremo izvajati prve kontinuacije, čeprav je neodvisna od točnega rezultata. Posledično se program ne more odzvati na potencialen uporabnikov vhod ali kak drug učinek.  
+Ta primer ima dve težavi, ki sta posledici sekvenčnega sinhronega izvajanja. Prvi problem je da, ker je program sekvenčni, ne moremo računati točne funkcije hkrati z približkom in posledično se program izvaja dlje časa. Drugi problem pa je, da dokler se bo računala točna funkcija, ne moremo izvajati prvega nadaljevanja, čeprav je neodvisen od točnega rezultata. Posledično se program ne more odzvati na potencialen uporabnikov vhod ali kak drug učinek.  
 
-Obema težavama se lahko izognemo, če program napišemo v jeziku \aeff, kot vidimo v programu~\ref{prog:primer-1}. Celoten program razdelimo v dva procesa. Posamezen proces se začne z besedo $\tmkw{run}$. Različni procesi se lahko izvajajo vzporedno. Najprej v prvem procesu poračunamo približek $\tmkw{let}\ x' = \text{priblizek}(42)$ in ga prikažemo na zaslon z $\text{zaslon}(x');$. Nato s pomočjo učinka signal $\tmkw{\uparrow}\, \text{call}\,42;$ v drug proces pošljemo število $42$. Signal se bo razširil navzgor po procesu. Ko bo prišel na nivo procesov, se bo razširil v drug proces in spremenil v prekinitev, ki bo potovala po procesu navznoter. V drugem procesu prestrežemo prekinitev s številko $42$ s pomočjo prestreznika $\tmwith{call}{a}{M}{\_}{()}$ in jo vežemo v spremenljivko $a$. Nakar začnemo računati točno funkcijo z $\tmkw{let}\ x = \text{funkcija}(a)$. Ko končamo, pošljemo rezultat nazaj v glavni proces z $\tmkw{\uparrow}\, \text{result}\,x$. Medtem ko se računa točna vrednost v drugem procesu se glavni proces ne zaustavi, ampak nadaljuje z izvajanjem prve kontinuacije $\text{kontinuacija}1()$, ki je neodvisna od rezultata točne funkcije. Ko glavni proces prestreže točen rezultat z $$\tmwith{result}{x}{M}{p}{...}$$, ga izpiše na zaslon in veže v spremenljivko p. V primeru, da končamo s prvo kontinuacijo preden dobimo rezultat, ne smemo nadaljevati z drugo kontinuacijo, saj le ta potrebuje rezultat. Blokada $\tmawait{p}{a}{...}$ blokira nadaljnje izvajanje, dokler se spremenljivka $p$ ne substituira z neko vrednostjo $\tmpromise{V}$. Takrat se bo $a$ v $\text{kontinuacija}2(a)$ substituiral z vrednostjo $V$ in izvajanje se bo nadaljevalo.
+Obema težavama se lahko izognemo, če program napišemo v jeziku \aeff, kot vidimo v programu~\ref{prog:primer-1}. Celoten program razdelimo v dva procesa. Posamezen proces se začne z besedo $\tmkw{run}$. Različni procesi se lahko izvajajo vzporedno.
+Najprej s pomočjo učinka signal $\tmkw{\uparrow}\, \text{klic}\,42;$ v drug proces pošljemo število $42$. Signal se bo razširil navzgor po procesu. Ko bo prišel na nivo procesov, se bo razširil v drug proces in spremenil v prekinitev, ki bo potovala po procesu navznoter. V drugem procesu prestrežemo prekinitev s številko $42$ s pomočjo prestreznika $\tmwith{klic}{a}{M}{\_}{()}$ in jo vežemo v spremenljivko $a$. Nakar začnemo računati točno funkcijo z $\tmkw{let}\ x = \text{funkcija}(a)$. Ko končamo, pošljemo rezultat nazaj v glavni proces z $\tmkw{\uparrow}\, \text{rezultat}\,x$.
+Medtem ko se računa točna vrednost v drugem procesu se bistveno glavni proces ne zaustavi, ampak nadaljuje z izvajanjem. Najprej poračunamo približek $\tmkw{let}\ x' = \text{priblizek}(42)$ in ga prikažemo na zaslon z $\text{zaslon}(x');$. Nato nadaljujemo z izvajanjem prvega nadaljevanja $\text{nadaljevanje}1()$, ki je neodvisen od rezultata točne funkcije. Ko glavni proces prestreže točen rezultat z $$\tmwith{result}{x}{M}{p}{...}$$ ga izpiše na zaslon in veže v spremenljivko p. V primeru, da končamo z aproksimacijo in prvim nadaljevanjem preden dobimo rezultat, ne smemo nadaljevati z drugim nadaljevanjem, saj le ta potrebuje rezultat. Blokada $\tmawait{p}{a}{...}$ blokira nadaljnje izvajanje, dokler se spremenljivka $p$ ne substituira z neko vrednostjo $\tmpromise{V}$. Takrat se bo $a$ v $\text{nadaljevanje}2(a)$ substituiral z vrednostjo $V$ in izvajanje se bo nadaljevalo.
 
 \begin{lstlisting}[caption={Asinhron Vzporeden primer.},label={prog:primer-1},float,floatplacement=H]
-operation call : int
-operation result : int
- 
-run let x' = priblizek(42) in
+operation klic : int
+operation rezultat : int
+
+run send klic 42;
+    let x' (*@$\defeq{}$@*) priblizek(42) in
     zaslon(x');
-    send call 42;
     promise (result x ->
     	zaslon(x);
     	<x>
     ) as p in
-    kontinuacija1();
+    nadaljevanje1();
     await p until <a> in
-    kontinuacija2(a)
+    nadaljevanje2(a)
 
-run promise(call a ->
-    	let x = funkcija(a) in
+run promise(klic a ->
+    	let x (*@$\defeq{}$@*) funkcija(a) in
     	send result x;
     	<()>
     ) as _ in
     ()
 \end{lstlisting}
 
-Na ta način smo hkrati izvajali glavni del programa hkrati z računanjem točne vrednosti. Pri tem pa nismo blokirali glavnega programa razen potencialno v blokadi, ko sicer program nebi bil več varen.
+Na ta način smo izvajali glavni del programa hkrati z računanjem točne vrednosti. Pri tem pa nismo blokirali glavnega programa razen potencialno v blokadi, ko sicer program nebi bil več varen.

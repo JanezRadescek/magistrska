@@ -15,28 +15,28 @@ Ta primer ima še zmeraj nekaj problemov, ki jih bomo v nadaljevanju odpravili.
 operation call : int * int * int
 operation result : int * int
 
-let callWith callCounter fNo x =
-    let callNo = !callCounter in
+let callWith callCounter fNo x (*@$\defeq{}$@*)
+    let callNo (*@$\defeq{}$@*) !callCounter in
     send call (callNo, fNo, x);
     callCounter := callNo + 1;
-    let rec loop () =
+    let rec loop () (*@$\defeq{}$@*)
     	promise (result (callNo', y) ->
     		if callNo = callNo' then
-    			return <<y>>
+    			return <y>
     		else
     			loop ()
     	) as p in
     	return p
     in
-    let p' = loop () in
-    let valueThunk () = awaitValue p' in
+    let p' (*@$\defeq{}$@*) loop () in
+    let valueThunk () (*@$\defeq{}$@*) awaitValue p' in
     return valueThunk
 
-let remote fList =
-    let rec loop () =
+let remote fList (*@$\defeq{}$@*)
+    let rec loop () (*@$\defeq{}$@*)
     	promise (call (callNo, fNo, x) ->
-    		let f = nth fList fNo in
-    		let y = f x in
+    		let f (*@$\defeq{}$@*) nth fList fNo in
+    		let y (*@$\defeq{}$@*) f x in
     		send result (callNo, y);
     		loop ()
     	) as p in
@@ -44,13 +44,13 @@ let remote fList =
     in
     loop ()
 
-run	let callCounter = ref 0 in
-    let y1 = callWith callCounter 0 2 in
-    let y2 = callWith callCounter 1 3 in
-    let z = 42 + 7 in
+run	let callCounter (*@$\defeq{}$@*) ref 0 in
+    let y1 (*@$\defeq{}$@*) callWith callCounter 0 2 in
+    let y2 (*@$\defeq{}$@*) callWith callCounter 1 3 in
+    let z (*@$\defeq{}$@*) 42 + 7 in
     return y1 () + y2 () + z
 
-run remote [(fun x -> 2 * x);(fun x -> 7 * x)]
+run remote ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)
 \end{lstlisting}
 
 
@@ -60,7 +60,7 @@ run remote [(fun x -> 2 * x);(fun x -> 7 * x)]
 Kadar pričakujemo več prekinitev z isto operacijo, je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
 To funkcionalnost smo do sedaj dosegli tako, da smo obljubo definirali v pomožni rekurzivni funkciji in po potrebi znotraj obljube ponovno klicali to funkcijo, kot smo videli v programu~\ref{prog:razsiritev-0}.
 
-Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in kontinuacije $N$ tudi spremenljivko $r$, s pomočjo katere lahko ponovno namestimo isti prestreznik. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
+Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in nadaljevanja $N$ tudi spremenljivko $r$, s pomočjo katere lahko ponovno namestimo isti prestreznik. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
 
 
 \begin{figure}[H]
@@ -138,9 +138,9 @@ Program~\ref{prog:razsiritev-1} ima isti semantičen pomen kot program~\ref{prog
 operation call : int * int * int
 operation result : int * int
 
-let callWith =
+let callWith (*@$\defeq{}$@*)
 	fun callCounter fBoxed x ->
-		let callNo = !callCounter in
+		let callNo (*@$\defeq{}$@*) !callCounter in
 		send call (callNo, fBoxed, x);
 		callCounter := callNo + 1;
 		promise (result (callNo', y) (*@\hlyellow{$r$}@*) ->
@@ -149,25 +149,25 @@ let callWith =
 			else
 				(*@\hlyellow{$r$}@*) ()
 		) as p in
-		let valueThunk () = awaitValue p in
+		let valueThunk () (*@$\defeq{}$@*) awaitValue p in
 		return valueThunk
 
-let remote fList =
+let remote fList (*@$\defeq{}$@*)
 	promise (call (callNo, fNo, x) (*@\hlyellow{$r$}@*) ->
-		let f = nth fList fNo in
-		let y = f x in
+		let f (*@$\defeq{}$@*) nth fList fNo in
+		let y (*@$\defeq{}$@*) f x in
 		send result (callNo, y);
 		(*@\hlyellow{$r$}@*)()
 	) as _ in
 	()
 
-run	let callCounter = ref 0 in
-	let y1 = callWith callCounter 0 2 in
-	let y2 = callWith callCounter 1 3 in
-	let z = 42 + 7 in
+run	let callCounter (*@$\defeq{}$@*) ref 0 in
+	let y1 (*@$\defeq{}$@*) callWith callCounter 0 2 in
+	let y2 (*@$\defeq{}$@*) callWith callCounter 1 3 in
+	let z (*@$\defeq{}$@*) 42 + 7 in
 	return y1 () + y2 () + z
 
-run remote [(fun x -> 2 * x);(fun x -> 7 * x)]
+run remote ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)
 \end{lstlisting}
 
 
@@ -241,7 +241,7 @@ Obstoječim substitucijam dodamo dve novi za nova izraza, kot vidimo na sliki~\r
 	\label{fig:substitucija-box}
 \end{figure}
 
-Izračun odvijanje veže vrednost znotraj zavite vrednosti $\tmboxed{V}$ na spremenljivko $x$, ki jo lahko uporabimo v kontinuaciji $M$.
+Izračun odvijanje veže vrednost znotraj zavite vrednosti $\tmboxed{V}$ na spremenljivko $x$, ki jo lahko uporabimo v nadaljevanju $M$.
 
 \begin{figure}[h]
 	\centering
@@ -291,9 +291,9 @@ Sedaj lahko program~\ref{prog:razsiritev-1} spremenimo v program~\ref{prog:razsi
 operation call : int * (*@\hlyellow{$[int -> int]$}@*) * int
 operation result : int * int
 
-let callWith =
+let callWith (*@$\defeq{}$@*)
     fun callCounter fBoxed x ->
-    	let callNo = !callCounter in
+    	let callNo (*@$\defeq{}$@*) !callCounter in
     	send call (callNo, fBoxed, x);
     	callCounter := callNo + 1;
     	promise (result (callNo', y) ->
@@ -302,22 +302,22 @@ let callWith =
     		else
     			r ()
     	) as p in
-    	let valueThunk () = awaitValue p in
+    	let valueThunk () (*@$\defeq{}$@*) awaitValue p in
     	return valueThunk
 
-let remote () =
+let remote () (*@$\defeq{}$@*)
     promise (call (callNo, fBoxed, x) r ->
     	(*@\hlyellow{$unbox fBoxed as [f] in$}@*)
-    	let y = f x in
+    	let y (*@$\defeq{}$@*) f x in
     	send result (callNo, y);
     	r ()
     ) as _ in
     ()
 
-run	let callCounter = ref 0 in
-    let y1 = callWith callCounter (*@\hlyellow{$[fun x -> 2 * x]$}@*) 2 in
-    let y2 = callWith callCounter (*@\hlyellow{$[fun x -> 7 * x]$}@*) 3 in
-    let z = 42 + 7 in
+run	let callCounter (*@$\defeq{}$@*) ref 0 in
+    let y1 (*@$\defeq{}$@*) callWith callCounter (*@\hlyellow{$[fun x -> 2 * x]$}@*) 2 in
+    let y2 (*@$\defeq{}$@*) callWith callCounter (*@\hlyellow{$[fun x -> 7 * x]$}@*) 3 in
+    let z (*@$\defeq{}$@*) 42 + 7 in
     return y1 () + y2 () + z
 
 run remote ()
@@ -407,9 +407,9 @@ Sedaj ko imamo dinamične procese, lahko obe evalvaciji funkcije $\mathsf{f}$ v 
 operation call : int * [int -> int] * int
 operation result : int * int
 
-let callWith =
+let callWith (*@$\defeq{}$@*)
 	fun callCounter fBoxed x ->
-		let callNo = !callCounter in
+		let callNo (*@$\defeq{}$@*) !callCounter in
 		send call (callNo, fBoxed, x);
 		callCounter := callNo + 1;
 		promise (result (callNo', y) ->
@@ -418,24 +418,24 @@ let callWith =
 			else
 				r ()
 		) as p in
-		let valueThunk () = awaitValue p in
+		let valueThunk () (*@$\defeq{}$@*) awaitValue p in
 		return valueThunk
 
-let remote () =
+let remote () (*@$\defeq{}$@*)
 	promise (call (callNo, fBoxed, x) r ->
 		(*@\hlyellow{$spawn$}@*)(
 			unbox fBoxed as [f] in
-			let y = f x in
+			let y (*@$\defeq{}$@*) f x in
 			send result (callNo, y)
 		);
 		r ()
 	) as _ in
 	()
 
-run	let callCounter = ref 0 in
-let y1 = callWith callCounter [fun x |-> 2 * x] 2 in
-let y2 = callWith callCounter [fun x |-> 7 * x] 3 in
-let z = 42 + 7 in
+run	let callCounter (*@$\defeq{}$@*) ref 0 in
+let y1 (*@$\defeq{}$@*) callWith callCounter [fun x |-> 2 * x] 2 in
+let y2 (*@$\defeq{}$@*) callWith callCounter [fun x |-> 7 * x] 3 in
+let z (*@$\defeq{}$@*) 42 + 7 in
 return y1 () + y2 () + z
 
 run remote ()

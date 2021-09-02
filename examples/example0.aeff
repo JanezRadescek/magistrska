@@ -1,6 +1,8 @@
 operation call : int * int * int
 operation result : int * int
 
+let nil = []
+
 let callWith callCounter fNo x =
 	let callNo = !callCounter in
 	send call (callNo, fNo, x);
@@ -36,4 +38,4 @@ run	let callCounter = ref 0 in
 	let z = 42 + 7 in
 	return y1 () + y2 () + z
 
-run remote [(fun x -> 2 * x);(fun x -> 7 * x)]
+run remote ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)

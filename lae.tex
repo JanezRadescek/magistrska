@@ -14,9 +14,9 @@ Nenavadna in nova vrednost je \emph{obljuba}. Je vrednost, ki jo je vrnil prestr
 
 Imamo običajne izračune kot so vračanje vrednosti, zaporedje, ujemanje za pare in vsote in aplikacija.
 Poleg teh imamo tudi sledeče.
-\emph{Signal} vsebuje operacijo $\op$, pripadajočo vrednost $V$ imenovano \emph{tovor} in nadaljevanje $M$. Signal se razširi navzgor po izračunih, dokler ne pride na nivo procesov. Nakar se bo razširil v vse druge procese in ob tem spremenil v \emph{prekinitev}. Prekinitev je simetrična signalu, prav tako ima operacijo $\op$, vrednost $V$ in nadaljevanje $M$. Le da prekinitev potuje po izračunih navznoter namesto navzgor. Na ta način smo informacijo iz $V$ prenesli iz enega procesa na vse preostale in tako imamo vzpostavljeno komunikacijo med procesi. Da imamo asinhrono izvajanje lahko, namesto da se signal in prekinitev širita, delamo korake tudi v njunem nadaljevanju $M$.
+\emph{Signal} vsebuje operacijo $\op$, pripadajočo vrednost $V$ imenovano \emph{tovor} in nadaljevanje $M$. Signal se razširi navzgor po izračunih, dokler ne pride na nivo procesov. Nakar se bo razširil v vse druge procese in ob tem spremenil v \emph{prekinitev}. Prekinitev je simetrična signalu, prav tako ima operacijo $\op$, vrednost $V$ in nadaljevanje $M$. Le da prekinitev potuje po izračunih navznoter namesto navzgor. Na ta način smo informacijo $V$ prenesli iz enega procesa na vse preostale in tako imamo vzpostavljeno komunikacijo med procesi. Da imamo asinhrono izvajanje lahko, namesto da se signal in prekinitev širita, delamo korake tudi v njunem nadaljevanju $M$.
 Informacijo v prekinitvi prestrežemo s pomočjo \emph{prestreznika}. Prestreznik je sestavljen iz operacije $\op$, spremenljivke $x$, izračunom $M$ imenovanim \emph{obljuba}, spremenljivko $p$ prav tako imenovano \emph{obljuba} in nadaljevanje $N$.\footnote{Izračun obljuba bo vrnil posebno vrednost obljuba, ki jo bomo substituirali v spremenljivko obljuba.}
-Običajno se izvaja nadaljevanje $N$, med tem ko preostali deli čakajo. Ko pride prekinitev z istim imenom operacije se spremenljivka $x$ substituira z tovorom $V$ v obljubi $M$. Nakar se prestreznik spremeni v zaporedje izračuna $M$ in prekinitve, ki ima za kontinuacijo izračun $N$. Rezultat izračuna $M$ bo vezan v spremenljivko $p$ in se ga tako lahko uporabi v $N$. Ko prestreznik ujame ustrezno prekinitev rečemo, da se je izpolnila obljuba $p$.
+Običajno se izvaja nadaljevanje $N$, med tem ko preostali deli čakajo. Ko pride prekinitev z istim imenom operacije se spremenljivka $x$ substituira z tovorom $V$ v obljubi $M$. Nakar se prestreznik spremeni v zaporedje izračuna $M$ in prekinitve, ki ima za nadaljevanje izračun $N$. Rezultat izračuna $M$ bo vezan v spremenljivko $p$ in se ga tako lahko uporabi v $N$. Ko prestreznik ujame ustrezno prekinitev rečemo, da se je izpolnila obljuba $p$.
 Da preprečimo uporabo spremenljivke $p$ preden se je izpolnila, jo lahko uporabi le \emph{blokada}. V primeru da se obljuba $p$ še ni izpolnila, bo blokada preprečevala izvajanje svojega nadaljevanja $N$. Če pa se je izpolnila, se bo pripadajoča vrednost vrednost vezala v novo navadno spremenljivko. Nakar se bo začelo izvajati nadaljevanje.
 
 Osnovni proces je imenovan \emph{Zagon}. Vsebuje izračun $M$, ki se izvaja 
@@ -408,15 +408,15 @@ $$
 $$
 
 %Vsaki operaciji priredimo nek tip, kot vidimo na sliki~\ref{fig:tipi}. 
-Signal ima isti tip kot njegova kontinuacija. Sproti pa preverimo, da je operacija $\op$ v $o$ in da ima tovor tip, ki pripada operaciji.
+Signal ima isti tip kot njegovo nadaljevanje. Sproti pa preverimo, da je operacija $\op$ v $o$ in da ima tovor tip, ki pripada operaciji.
 Ker izračun 
 $$ \tmwith{op}{x}{M}{p}{\tmopout{op'}{V}{N}} $$
 lahko naredi korak v izračun
 $$ \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}}, $$
 je ključno da tovor $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu spremenljivka $p$ v vrednosti $V$ ni več dobro definiran. Da zagotovimo, da vrednost $V$ ne vsebuje spremenljivke $p$, omejimo tipe, ki pripadajo operacijam, na osnovne tipe. Vrednosti, ki imajo osnovni tip, namreč ne morejo vsebovati spremenljivke obljuba.
-Prekinitev ima tip, ki ga dobimo tako, da na tipu kontinuacije uporabimo preslikavo $\opincomp{op}$. Prav tako preverimo, da ima tovor tip, ki pripada operaciji $\op$. 
-Prestreznik ima isti tip kot kontinuacija. Preverimo tudi, da je $\op$ ena izmed operacij, ki jo lahko prestrežemo in da ima izračun obljuba tip obljuba z učinki $\i(\op) = (\o', \i')$.
-Blokada ima isti tip kot njegova kontinuacija. Preverimo tudi da ima vrednost $V$ tip obljuba. 
+Prekinitev ima tip, ki ga dobimo tako, da na tipu nadaljevanja uporabimo preslikavo $\opincomp{op}$. Prav tako preverimo, da ima tovor tip, ki pripada operaciji $\op$. 
+Prestreznik ima isti tip kot njegovo nadaljevanje. Preverimo tudi, da je $\op$ ena izmed operacij, ki jo lahko prestrežemo in da ima izračun obljuba tip obljuba z učinki $\i(\op) = (\o', \i')$.
+Blokada ima isti tip kot njegovo nadaljevanje. Preverimo tudi da ima vrednost $V$ tip obljuba. 
 Preostali izračuni imajo pričakovane tipe.
 
 Na tipih učinkov imamo urejenost. Na $O$ je urejenost dana z relacijo podmnožica $\subset$.
@@ -525,7 +525,7 @@ Pravila za določitev tipa izračunov vidimo na sliki~\ref{fig:computation-typin
 \end{figure}
 
 Tipi procesa zagon je odvisen od tipa pripadajočega izračuna in posledično vsebuje tipe učinkov. 
-Signal procesa ima isti tip, kot njegova kontinuacija. 
+Signal procesa ima isti tip, kot njegovo nadaljevanje. 
 Podobno, kot se spremeni tip prekinitve izračuna, se spremeni tip prekinitve procesa.
 Tip vzporednih procesov preprosto ohrani oba tipa.
 
@@ -683,7 +683,7 @@ Sledi nekaj lem potrebnih za dokaz teh dveh izrekov, ki so dokazane s strukturno
 	\end{itemize}
 \end{proof}
 
-Najprej dokažemo trditev o napredku samo za izračune. Da bomo lahko uporabili indukcijsko predpostavko na kontinuacijah prestreznikov, v kontekstu dovolimo spremenljivke tipa obljuba.
+Najprej dokažemo trditev o napredku samo za izračune. Da bomo lahko uporabili indukcijsko predpostavko na nadaljevanju prestreznika, v kontekstu dovolimo spremenljivke tipa obljuba.
 
 \begin{trditev}[o napredku]\label{trd:gamma-napredek}
 	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$, kjer je $\Gamma = x_1 \of \typromise{A_1}, x_2 \of \typromise{A_2},..., x_i \of \typromise{A_i}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\CompResult{\Gamma}{M}$.
