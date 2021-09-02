@@ -15,17 +15,17 @@ nadaljevanje2(x)
 Ta primer ima dve težavi, ki sta posledici sekvenčnega sinhronega izvajanja. Prvi problem je da, ker je program sekvenčni, ne moremo računati točne funkcije hkrati z približkom in posledično se program izvaja dlje časa. Drugi problem pa je, da dokler se bo računala točna funkcija, ne moremo izvajati prvega nadaljevanja, čeprav je neodvisen od točnega rezultata. Posledično se program ne more odzvati na potencialen uporabnikov vhod ali kak drug učinek.  
 
 Obema težavama se lahko izognemo, če program napišemo v jeziku \aeff, kot vidimo v programu~\ref{prog:primer-1}. Celoten program razdelimo v dva procesa. Posamezen proces se začne z besedo $\tmkw{run}$. Različni procesi se lahko izvajajo vzporedno.
-Najprej s pomočjo učinka signal $\tmkw{\uparrow}\, \text{klic}\,42;$ v drug proces pošljemo število $42$. Signal se bo razširil navzgor po procesu. Ko bo prišel na nivo procesov, se bo razširil v drug proces in spremenil v prekinitev, ki bo potovala po procesu navznoter. V drugem procesu prestrežemo prekinitev s številko $42$ s pomočjo prestreznika $\tmwith{klic}{a}{M}{\_}{()}$ in jo vežemo v spremenljivko $a$. Nakar začnemo računati točno funkcijo z $\tmkw{let}\ x = \text{funkcija}(a)$. Ko končamo, pošljemo rezultat nazaj v glavni proces z $\tmkw{\uparrow}\, \text{rezultat}\,x$.
-Medtem ko se računa točna vrednost v drugem procesu se bistveno glavni proces ne zaustavi, ampak nadaljuje z izvajanjem. Najprej poračunamo približek $\tmkw{let}\ x' = \text{priblizek}(42)$ in ga prikažemo na zaslon z $\text{zaslon}(x');$. Nato nadaljujemo z izvajanjem prvega nadaljevanja $\text{nadaljevanje}1()$, ki je neodvisen od rezultata točne funkcije. Ko glavni proces prestreže točen rezultat z $$\tmwith{result}{x}{M}{p}{...}$$ ga izpiše na zaslon in veže v spremenljivko p. V primeru, da končamo z aproksimacijo in prvim nadaljevanjem preden dobimo rezultat, ne smemo nadaljevati z drugim nadaljevanjem, saj le ta potrebuje rezultat. Blokada $\tmawait{p}{a}{...}$ blokira nadaljnje izvajanje, dokler se spremenljivka $p$ ne substituira z neko vrednostjo $\tmpromise{V}$. Takrat se bo $a$ v $\text{nadaljevanje}2(a)$ substituiral z vrednostjo $V$ in izvajanje se bo nadaljevalo.
+Najprej s pomočjo učinka signal $\tmkw{\uparrow}\, \text{opravilo}\,42;$ v drug proces pošljemo število $42$. Signal se bo razširil navzgor po procesu. Ko bo prišel na nivo procesov, se bo razširil v drug proces in spremenil v prekinitev, ki bo potovala po procesu navznoter. V drugem procesu prestrežemo prekinitev s številko $42$ s pomočjo prestreznika $\tmwith{opravilo}{a}{M}{\_}{()}$ in jo vežemo v spremenljivko $a$. Nakar začnemo računati točno funkcijo z $\tmkw{let}\ x = \text{funkcija}(a)$. Ko končamo, pošljemo rezultat nazaj v glavni proces z $\tmkw{\uparrow}\, \text{rezultat}\,x$.
+Medtem ko se računa točna vrednost v drugem procesu se bistveno glavni proces ne zaustavi, ampak nadaljuje z izvajanjem. Najprej poračunamo približek $\tmkw{let}\ x' = \text{priblizek}(42)$ in ga prikažemo na zaslon z $\text{zaslon}(x');$. Nato nadaljujemo z izvajanjem prvega nadaljevanja $\text{nadaljevanje}1()$, ki je neodvisen od rezultata točne funkcije. Ko glavni proces prestreže točen rezultat z $$\tmwith{rezultat}{x}{M}{p}{...}$$ ga izpiše na zaslon in veže v spremenljivko p. V primeru, da končamo z aproksimacijo in prvim nadaljevanjem preden dobimo rezultat, ne smemo nadaljevati z drugim nadaljevanjem, saj le ta potrebuje rezultat. Blokada $\tmawait{p}{a}{...}$ blokira nadaljnje izvajanje, dokler se spremenljivka $p$ ne substituira z neko vrednostjo $\tmpromise{V}$. Takrat se bo $a$ v $\text{nadaljevanje}2(a)$ substituiral z vrednostjo $V$ in izvajanje se bo nadaljevalo.
 
 \begin{lstlisting}[caption={Asinhron Vzporeden primer.},label={prog:primer-1},float,floatplacement=H]
-operation klic : int
+operation opravilo : int
 operation rezultat : int
 
-run send klic 42;
+run send opravilo 42;
     let x' (*@$\defeq{}$@*) priblizek(42) in
     zaslon(x');
-    promise (result x ->
+    promise (rezultat x ->
     	zaslon(x);
     	<x>
     ) as p in
@@ -33,9 +33,9 @@ run send klic 42;
     await p until <a> in
     nadaljevanje2(a)
 
-run promise(klic a ->
+run promise(opravilo a ->
     	let x (*@$\defeq{}$@*) funkcija(a) in
-    	send result x;
+    	send rezultat x;
     	<()>
     ) as _ in
     ()

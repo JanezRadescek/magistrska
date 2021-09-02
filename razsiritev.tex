@@ -1,26 +1,28 @@
 \section{Razširjen \lae{}}\label{sec:razsirjen-lae}
 
 Poglejmo si primer~\ref{prog:razsiritev-0}, ki bi ga lahko napisali v \aeff{}, ki pripada osnovni verziji \lae{}\nobreakdash-računa. Primer je nekoliko bolj konkretna verzija primera~\ref{prog:primer-1} iz poglavja~\ref{sec:primeri-aeff}. 
-Imamo dve funkciji, $\mathsf{callWith}$ in $\mathsf{remote}$.
-Funkcija $\mathsf{remote}$ sprejme seznam funkcij. Ko bo prišla prekinitev $\mathsf{call}$, bo iz seznama vzela ustrezno funkcijo, izračunala vrednost te funkcije v dani vrednosti $\mathsf{x}$ in poslala nazaj signal z id-jem klica in rezultatom. Na koncu pa bo s pomočjo rekurzivne pomožne funkcije ponovno namestila prestreznik.
-Funkcija $\mathsf{callWith}$ sprejme referenco (ki bo predstavljala unikatno številko klica), id funkcije (ki jo želimo poračunati) in vrednost (v kateri želimo izračunati funkcijo).
-Nato pošlje signal $\mathsf{call}$ z ustreznimi vrednstmi in poveča številko v referenci. Namesto da sama funkcija čaka na rezultat, bo vrnila pomožno funkcijo, ki bo čakala na rezultat (s pravo številko klica).  
-V prvem procesu ustvarimo referenco in s pomočjo $\mathsf{callWith}$ začnemo računati dve pomožni vrednosti, na kateri pa ne čakamo, da se izračunata, ampak nemudoma začnemo z računanjem vrednosti $\mathsf{z}$. Šele nato začnemo po potrebi čakati na prvi dve vrednosti in končno vse tri vrednosti seštejemo.
-V drugem procesu začnemo funkcijo $\mathsf{remote}$ s seznamom dveh funkcij.
+Imamo dve funkciji, $\mathsf{povezi}$ in $\mathsf{streznik}$.
+Funkcija $\mathsf{streznik}$ sprejme seznam funkcij. Ko bo prišla prekinitev $\mathsf{opravilo}$, bo iz seznama vzela ustrezno funkcijo, izračunala vrednost te funkcije v dani vrednosti $\mathsf{x}$ in poslala nazaj signal z id-jem opravila in rezultatom. Na koncu pa bo s pomočjo rekurzivne pomožne funkcije ponovno namestila prestreznik.
+Funkcija $\mathsf{povezi}$ sprejme referenco (ki bo predstavljala unikatno številko opravila), id funkcije (ki jo želimo poračunati) in vrednost (v kateri želimo izračunati funkcijo).
+Nato pošlje signal $\mathsf{opravilo}$ z ustreznimi vrednostmi in poveča številko v referenci.
+Ni vseeno kateri rezultat prestrežemo, ampak mora biti rezultat z ustreznim id-jem. Zato prestreznik definiramo v pomožni rekurzivni funkciji, ki bo ponovno namestila prestreznik, če bomo ujeli rezultat z napačnim id-jem.
+Namesto da sama funkcija $\mathsf{povezi}$ čaka na rezultat in ga vrne, bo takoj vrnila pomožno funkcijo, le ta pa bo po potrebi čakala na rezultat.  
+V prvem procesu ustvarimo referenco in s pomočjo $\mathsf{povezi}$ začnemo računati dve pomožni vrednosti, na kateri pa ne čakamo, da se izračunata, ampak nemudoma začnemo z računanjem vrednosti $\mathsf{z}$. Nato kličemo pomožni funkciji $\mathsf{y1}$ in $\mathsf{y2}$, ki bosta po potrebi čakali na rezultat in nato vrnili dejanski rezultat. Na koncu tri vrednosti seštejemo.
+V drugem procesu začnemo funkcijo $\mathsf{streznik}$ s seznamom dveh funkcij.
 
 Ta primer ima še zmeraj nekaj problemov, ki jih bomo v nadaljevanju odpravili.
 
 
 \begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-0},float,floatplacement=h]
-operation call : int * int * int
-operation result : int * int
+operation opravilo : int * int * int
+operation rezultat : int * int
 
-let callWith callCounter fNo x (*@$\defeq{}$@*)
+let povezi callCounter fNo x (*@$\defeq{}$@*)
     let callNo (*@$\defeq{}$@*) !callCounter in
-    send call (callNo, fNo, x);
+    send opravilo (callNo, fNo, x);
     callCounter := callNo + 1;
     let rec loop () (*@$\defeq{}$@*)
-    	promise (result (callNo', y) ->
+    	promise (rezultat (callNo', y) ->
     		if callNo = callNo' then
     			return <y>
     		else
@@ -32,12 +34,12 @@ let callWith callCounter fNo x (*@$\defeq{}$@*)
     let valueThunk () (*@$\defeq{}$@*) awaitValue p' in
     return valueThunk
 
-let remote fList (*@$\defeq{}$@*)
+let streznik fList (*@$\defeq{}$@*)
     let rec loop () (*@$\defeq{}$@*)
-    	promise (call (callNo, fNo, x) ->
+    	promise (opravilo (callNo, fNo, x) ->
     		let f (*@$\defeq{}$@*) nth fList fNo in
     		let y (*@$\defeq{}$@*) f x in
-    		send result (callNo, y);
+    		send rezultat (callNo, y);
     		loop ()
     	) as p in
     	return p
@@ -45,12 +47,12 @@ let remote fList (*@$\defeq{}$@*)
     loop ()
 
 run	let callCounter (*@$\defeq{}$@*) ref 0 in
-    let y1 (*@$\defeq{}$@*) callWith callCounter 0 2 in
-    let y2 (*@$\defeq{}$@*) callWith callCounter 1 3 in
+    let y1 (*@$\defeq{}$@*) povezi callCounter 0 2 in
+    let y2 (*@$\defeq{}$@*) povezi callCounter 1 3 in
     let z (*@$\defeq{}$@*) 42 + 7 in
     return y1 () + y2 () + z
 
-run remote ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)
+run streznik ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)
 \end{lstlisting}
 
 
@@ -135,15 +137,15 @@ Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$
 Program~\ref{prog:razsiritev-1} ima isti semantičen pomen kot program~\ref{prog:razsiritev-0}, le da je tokrat napisan z rekurzivno obljubo. Ker nimamo pomožne funkcije je koda nekoliko krajša in tudi lažje berljiva.
 
 \begin{lstlisting}[caption={Primer z rekurzivnim prestreznikom},label={prog:razsiritev-1},float,floatplacement=h]
-operation call : int * int * int
-operation result : int * int
+operation opravilo : int * int * int
+operation rezultat : int * int
 
-let callWith (*@$\defeq{}$@*)
+let povezi (*@$\defeq{}$@*)
 	fun callCounter fBoxed x ->
 		let callNo (*@$\defeq{}$@*) !callCounter in
-		send call (callNo, fBoxed, x);
+		send opravilo (callNo, fBoxed, x);
 		callCounter := callNo + 1;
-		promise (result (callNo', y) (*@\hlyellow{$r$}@*) ->
+		promise (rezultat (callNo', y) (*@\hlyellow{$r$}@*) ->
 			if callNo = callNo' then
 				return <y>
 			else
@@ -152,22 +154,22 @@ let callWith (*@$\defeq{}$@*)
 		let valueThunk () (*@$\defeq{}$@*) awaitValue p in
 		return valueThunk
 
-let remote fList (*@$\defeq{}$@*)
-	promise (call (callNo, fNo, x) (*@\hlyellow{$r$}@*) ->
+let streznik fList (*@$\defeq{}$@*)
+	promise (opravilo (callNo, fNo, x) (*@\hlyellow{$r$}@*) ->
 		let f (*@$\defeq{}$@*) nth fList fNo in
 		let y (*@$\defeq{}$@*) f x in
-		send result (callNo, y);
+		send rezultat (callNo, y);
 		(*@\hlyellow{$r$}@*)()
 	) as _ in
 	()
 
 run	let callCounter (*@$\defeq{}$@*) ref 0 in
-	let y1 (*@$\defeq{}$@*) callWith callCounter 0 2 in
-	let y2 (*@$\defeq{}$@*) callWith callCounter 1 3 in
+	let y1 (*@$\defeq{}$@*) povezi callCounter 0 2 in
+	let y2 (*@$\defeq{}$@*) povezi callCounter 1 3 in
 	let z (*@$\defeq{}$@*) 42 + 7 in
 	return y1 () + y2 () + z
 
-run remote ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)
+run streznik ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)
 \end{lstlisting}
 
 
@@ -285,18 +287,18 @@ Okolje je imelo že od začetka določen vrstni red, vendar šele sedaj to posta
 	\label{fig:tipi-pravila-prenosljivi}
 \end{figure} 
 
-Sedaj lahko program~\ref{prog:razsiritev-1} spremenimo v program~\ref{prog:razsiritev-2}. Namesto, da ima \emph{remote} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora. Na ta način smo bolj fleksibilni pri pisanju kode, hkrati pa je tudi bolj jasno kot prej katera funkcija se bo poračunala.
+Sedaj lahko program~\ref{prog:razsiritev-1} spremenimo v program~\ref{prog:razsiritev-2}. Namesto, da ima \emph{streznik} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora. Na ta način smo bolj fleksibilni pri pisanju kode, hkrati pa je tudi bolj jasno kot prej katera funkcija se bo poračunala.
 
 \begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-2},float,floatplacement=h]
-operation call : int * (*@\hlyellow{$[int -> int]$}@*) * int
-operation result : int * int
+operation opravilo : int * (*@\hlyellow{$[int -> int]$}@*) * int
+operation rezultat : int * int
 
-let callWith (*@$\defeq{}$@*)
+let povezi (*@$\defeq{}$@*)
     fun callCounter fBoxed x ->
     	let callNo (*@$\defeq{}$@*) !callCounter in
-    	send call (callNo, fBoxed, x);
+    	send opravilo (callNo, fBoxed, x);
     	callCounter := callNo + 1;
-    	promise (result (callNo', y) ->
+    	promise (rezultat (callNo', y) ->
     		if callNo = callNo' then
     			return <y>
     		else
@@ -305,30 +307,30 @@ let callWith (*@$\defeq{}$@*)
     	let valueThunk () (*@$\defeq{}$@*) awaitValue p in
     	return valueThunk
 
-let remote () (*@$\defeq{}$@*)
-    promise (call (callNo, fBoxed, x) r ->
+let streznik () (*@$\defeq{}$@*)
+    promise (opravilo (callNo, fBoxed, x) r ->
     	(*@\hlyellow{$unbox fBoxed as [f] in$}@*)
     	let y (*@$\defeq{}$@*) f x in
-    	send result (callNo, y);
+    	send rezultat (callNo, y);
     	r ()
     ) as _ in
     ()
 
 run	let callCounter (*@$\defeq{}$@*) ref 0 in
-    let y1 (*@$\defeq{}$@*) callWith callCounter (*@\hlyellow{$[fun x -> 2 * x]$}@*) 2 in
-    let y2 (*@$\defeq{}$@*) callWith callCounter (*@\hlyellow{$[fun x -> 7 * x]$}@*) 3 in
+    let y1 (*@$\defeq{}$@*) povezi callCounter (*@\hlyellow{$[fun x -> 2 * x]$}@*) 2 in
+    let y2 (*@$\defeq{}$@*) povezi callCounter (*@\hlyellow{$[fun x -> 7 * x]$}@*) 3 in
     let z (*@$\defeq{}$@*) 42 + 7 in
     return y1 () + y2 () + z
 
-run remote ()
+run streznik ()
 	
 \end{lstlisting}
 
 \subsection{Dinamični procesi}
 
-Funkcija $f$ v oddaljenem klicu se potencialno izvaja zelo počasi. Zato si želimo, da bi vsak oddaljen klic lahko opravili v svojem procesu, da lahko izvajamo vzporedno namesto zaporedno. 
+Funkcija $f$ v $\mathsf{streznik}$ se potencialno izvaja zelo počasi. Med ko jo računamo lahko dobimo novo opravilo, ki pa bo moralo čakati. Zato si želimo, da bi vsako opravilo lahko opravili v svojem procesu, da lahko izvajamo vzporedno namesto zaporedno. 
 Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti na začetku.
-Posledično bi morali vnaprej vedeti, koliko klicev bo oddaljeni klic hkrati dobil, da bi imeli temu primerno pripravljenih procesov.
+Posledično bi morali vnaprej vedeti, koliko opravil bo $\mathsf{streznik}$ hkrati dobil, da bi imeli temu primerno pripravljenih procesov.
 
 Da rešimo ta problem, dodamo dinamično ustvarjanje novih procesov s pomočjo izračuna $\tmspawn{M}{N}$. 
 
@@ -401,18 +403,18 @@ Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo 
 \end{figure}
 
 
-Sedaj ko imamo dinamične procese, lahko obe evalvaciji funkcije $\mathsf{f}$ v $\mathsf{remote}$ opravimo hkrati v svojem procesu, kar potencialno pohitri izvajanje programa. Primer~\ref{prog:razsiritev-2} lahko sedaj spremenimo v~\ref{prog:razsiritev-3}. 
+Sedaj ko imamo dinamične procese, lahko obe evalvaciji funkcije $\mathsf{f}$ v $\mathsf{streznik}$ opravimo hkrati v svojem procesu, kar potencialno pohitri izvajanje programa. Primer~\ref{prog:razsiritev-2} lahko sedaj spremenimo v~\ref{prog:razsiritev-3}. 
 
 \begin{lstlisting}[caption={Primer z dinamičnimi procesi},label={prog:razsiritev-3},float,floatplacement=H]
-operation call : int * [int -> int] * int
-operation result : int * int
+operation opravilo : int * [int -> int] * int
+operation rezultat : int * int
 
-let callWith (*@$\defeq{}$@*)
+let povezi (*@$\defeq{}$@*)
 	fun callCounter fBoxed x ->
 		let callNo (*@$\defeq{}$@*) !callCounter in
-		send call (callNo, fBoxed, x);
+		send opravilo (callNo, fBoxed, x);
 		callCounter := callNo + 1;
-		promise (result (callNo', y) ->
+		promise (rezultat (callNo', y) ->
 			if callNo = callNo' then
 				return <y>
 			else
@@ -421,24 +423,24 @@ let callWith (*@$\defeq{}$@*)
 		let valueThunk () (*@$\defeq{}$@*) awaitValue p in
 		return valueThunk
 
-let remote () (*@$\defeq{}$@*)
-	promise (call (callNo, fBoxed, x) r ->
+let streznik () (*@$\defeq{}$@*)
+	promise (opravilo (callNo, fBoxed, x) r ->
 		(*@\hlyellow{$spawn$}@*)(
 			unbox fBoxed as [f] in
 			let y (*@$\defeq{}$@*) f x in
-			send result (callNo, y)
+			send rezultat (callNo, y)
 		);
 		r ()
 	) as _ in
 	()
 
 run	let callCounter (*@$\defeq{}$@*) ref 0 in
-let y1 (*@$\defeq{}$@*) callWith callCounter [fun x |-> 2 * x] 2 in
-let y2 (*@$\defeq{}$@*) callWith callCounter [fun x |-> 7 * x] 3 in
+let y1 (*@$\defeq{}$@*) povezi callCounter [fun x |-> 2 * x] 2 in
+let y2 (*@$\defeq{}$@*) povezi callCounter [fun x |-> 7 * x] 3 in
 let z (*@$\defeq{}$@*) 42 + 7 in
 return y1 () + y2 () + z
 
-run remote ()
+run streznik ()
 \end{lstlisting}
 
 
