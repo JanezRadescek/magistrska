@@ -1,59 +1,65 @@
 \section{Razširjen \lae{}}\label{sec:razsirjen-lae}
 
+Čeprav lahko v jeziku \aeff{} napišemo že veliko zanimivih primerov\footnote{Članek~\cite{aeff} omeni kar nekaj primerov.}, se še zmeraj pojavijo določeni problemi.
 Poglejmo si primer~\ref{prog:razsiritev-0}, ki bi ga lahko napisali v \aeff{}, ki pripada osnovni verziji \lae{}\nobreakdash-računa. Primer je nekoliko bolj konkretna verzija primera~\ref{prog:primer-1} iz poglavja~\ref{sec:primeri-aeff}. 
 Imamo dve funkciji, $\mathsf{povezi}$ in $\mathsf{streznik}$.
-Funkcija $\mathsf{streznik}$ sprejme seznam funkcij. Ko bo prišla prekinitev $\mathsf{opravilo}$, bo iz seznama vzela ustrezno funkcijo, izračunala vrednost te funkcije v dani vrednosti $\mathsf{x}$ in poslala nazaj signal z id-jem opravila in rezultatom. Na koncu pa bo s pomočjo rekurzivne pomožne funkcije ponovno namestila prestreznik.
-Funkcija $\mathsf{povezi}$ sprejme referenco (ki bo predstavljala unikatno številko opravila), id funkcije (ki jo želimo poračunati) in vrednost (v kateri želimo izračunati funkcijo).
+Funkcija $\mathsf{streznik}$ sprejme seznam funkcij. Ko bo prišla prekinitev $\mathsf{opravilo}$, bo iz seznama vzela ustrezno funkcijo\footnote{$\mathsf{nth}$ je funkcija ki sprejme seznam $\mathsf{s}$ in število $\mathsf{n}$ in vrne n-ti element seznama.}, izračunala vrednost te funkcije v dani vrednosti $\mathsf{x}$ in poslala nazaj signal z id-jem opravila in rezultatom. Na koncu pa bo s pomočjo rekurzivne pomožne funkcije ponovno namestila prestreznik.
+Funkcija $\mathsf{povezi}$ sprejme referenco (ki bo predstavljala id opravila), id funkcije (ki jo želimo poračunati) in vrednost (v kateri želimo izračunati funkcijo).
 Nato pošlje signal $\mathsf{opravilo}$ z ustreznimi vrednostmi in poveča številko v referenci.
 Ni vseeno kateri rezultat prestrežemo, ampak mora biti rezultat z ustreznim id-jem. Zato prestreznik definiramo v pomožni rekurzivni funkciji, ki bo ponovno namestila prestreznik, če bomo ujeli rezultat z napačnim id-jem.
 Namesto da sama funkcija $\mathsf{povezi}$ čaka na rezultat in ga vrne, bo takoj vrnila pomožno funkcijo, le ta pa bo po potrebi čakala na rezultat.  
 V prvem procesu ustvarimo referenco in s pomočjo $\mathsf{povezi}$ začnemo računati dve pomožni vrednosti, na kateri pa ne čakamo, da se izračunata, ampak nemudoma začnemo z računanjem vrednosti $\mathsf{z}$. Nato kličemo pomožni funkciji $\mathsf{y1}$ in $\mathsf{y2}$, ki bosta po potrebi čakali na rezultat in nato vrnili dejanski rezultat. Na koncu tri vrednosti seštejemo.
 V drugem procesu začnemo funkcijo $\mathsf{streznik}$ s seznamom dveh funkcij.
 
-Ta primer ima še zmeraj nekaj problemov, ki jih bomo v nadaljevanju odpravili.
-
 
 \begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-0},float,floatplacement=h]
 operation opravilo : int * int * int
 operation rezultat : int * int
 
-let povezi callCounter fNo x (*@$\defeq{}$@*)
-    let callNo (*@$\defeq{}$@*) !callCounter in
-    send opravilo (callNo, fNo, x);
-    callCounter := callNo + 1;
-    let rec loop () (*@$\defeq{}$@*)
-    	promise (rezultat (callNo', y) ->
-    		if callNo = callNo' then
+let povezi stevecOpravila fID x (*@$\defeq{}$@*)
+    let opraviloID (*@$\defeq{}$@*) !stevecOpravila in
+    send opravilo (opraviloID, fID, x);
+    stevecOpravila := opraviloID + 1;
+    let rec pomozna () (*@$\defeq{}$@*)
+    	promise (rezultat (opraviloID', y) ->
+    		if opraviloID = opraviloID' then
     			return <y>
     		else
-    			loop ()
+    			pomozna ()
     	) as p in
     	return p
     in
-    let p' (*@$\defeq{}$@*) loop () in
-    let valueThunk () (*@$\defeq{}$@*) awaitValue p' in
-    return valueThunk
+    let p' (*@$\defeq{}$@*) pomozna () in
+    let pridobiVrednost () (*@$\defeq{}$@*)
+    	await p' until <r> in
+    	return r'
+    in
+    return pridobiVrednost
 
-let streznik fList (*@$\defeq{}$@*)
-    let rec loop () (*@$\defeq{}$@*)
-    	promise (opravilo (callNo, fNo, x) ->
-    		let f (*@$\defeq{}$@*) nth fList fNo in
+let streznik fSeznam (*@$\defeq{}$@*)
+    let rec pomozna () (*@$\defeq{}$@*)
+    	promise (opravilo (opraviloID, fID, x) ->
+    		let f (*@$\defeq{}$@*) nth fSeznam fID in
     		let y (*@$\defeq{}$@*) f x in
-    		send rezultat (callNo, y);
-    		loop ()
+    		send rezultat (opraviloID, y);
+    		pomozna ()
     	) as p in
     	return p
     in
-    loop ()
+    pomozna ()
 
-run	let callCounter (*@$\defeq{}$@*) ref 0 in
-    let y1 (*@$\defeq{}$@*) povezi callCounter 0 2 in
-    let y2 (*@$\defeq{}$@*) povezi callCounter 1 3 in
+run	let stevecOpravila (*@$\defeq{}$@*) ref 0 in
+    let y1 (*@$\defeq{}$@*) povezi stevecOpravila 0 2 in
+    let y2 (*@$\defeq{}$@*) povezi stevecOpravila 1 3 in
     let z (*@$\defeq{}$@*) 42 + 7 in
     return y1 () + y2 () + z
 
 run streznik ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)
 \end{lstlisting}
+
+
+Ta primer ima tri glavne primanjkljaje. Pogosto si moramo pomagati z pomožno rekurzivno funkcijo v navezi s prestreznikom, da slednjega ponovno namestimo. Operacije so omejene na osnovne tipe, zaradi česar ne moremo pošiljati funkcij. In ne moremo po potrebi ustvarjati novih procesov.
+Te tri probleme bomo sedaj enega za drugim razrešili.
 
 
 \subsection{Rekurzivni prestreznik}
@@ -105,7 +111,7 @@ Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verzij
 		\tmwithrec{op}{x}{r}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}}
 		\\
 		\tmopin{op}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, R/r]}{\tmopin{op}{V}{N}} \\
-		R = \;& \tmfunano{y}{(\tmwithrec{op}{r}{x}{M}{p}{\tmreturn{p}})} \\
+		\text{kjer je }R = \;& \tmfunano{y}{(\tmwithrec{op}{r}{x}{M}{p}{\tmreturn{p}})} \\
 		\tmopin{op'}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmwithrec{op}{x}{r}{M}{p}{\tmopin{op'}{V}{N}} \\
 		&\qquad {\color{rulenameColor}(\op \neq \op')}
 	\end{align*}
@@ -141,31 +147,34 @@ operation opravilo : int * int * int
 operation rezultat : int * int
 
 let povezi (*@$\defeq{}$@*)
-	fun callCounter fBoxed x ->
-		let callNo (*@$\defeq{}$@*) !callCounter in
-		send opravilo (callNo, fBoxed, x);
-		callCounter := callNo + 1;
-		promise (rezultat (callNo', y) (*@\hlyellow{$r$}@*) ->
-			if callNo = callNo' then
+	fun stevecOpravila fID x ->
+		let opraviloID (*@$\defeq{}$@*) !stevecOpravila in
+		send opravilo (opraviloID, fID, x);
+		stevecOpravila := opraviloID + 1;
+		promise (rezultat (opraviloID', y) (*@\hlyellow{$r$}@*) ->
+			if opraviloID = opraviloID' then
 				return <y>
 			else
 				(*@\hlyellow{$r$}@*) ()
 		) as p in
-		let valueThunk () (*@$\defeq{}$@*) awaitValue p in
-		return valueThunk
+		let pridobiVrednost () (*@$\defeq{}$@*) 
+			await p until <r> in
+			return r
+		in
+		return pridobiVrednost
 
-let streznik fList (*@$\defeq{}$@*)
-	promise (opravilo (callNo, fNo, x) (*@\hlyellow{$r$}@*) ->
-		let f (*@$\defeq{}$@*) nth fList fNo in
+let streznik fSeznam (*@$\defeq{}$@*)
+	promise (opravilo (opraviloID, fID, x) (*@\hlyellow{$r$}@*) ->
+		let f (*@$\defeq{}$@*) nth fSeznam fID in
 		let y (*@$\defeq{}$@*) f x in
-		send rezultat (callNo, y);
+		send rezultat (opraviloID, y);
 		(*@\hlyellow{$r$}@*)()
 	) as _ in
 	()
 
-run	let callCounter (*@$\defeq{}$@*) ref 0 in
-	let y1 (*@$\defeq{}$@*) povezi callCounter 0 2 in
-	let y2 (*@$\defeq{}$@*) povezi callCounter 1 3 in
+run	let stevecOpravila (*@$\defeq{}$@*) ref 0 in
+	let y1 (*@$\defeq{}$@*) povezi stevecOpravila 0 2 in
+	let y2 (*@$\defeq{}$@*) povezi stevecOpravila 1 3 in
 	let z (*@$\defeq{}$@*) 42 + 7 in
 	return y1 () + y2 () + z
 
@@ -175,7 +184,7 @@ run streznik ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)
 
 \subsection{Prenosljivi tipi}
 
-Ko imamo nek signal, je ključno, da tovor ne vsebuje vrednosti obljub, kar smo do sedaj rešili tako, da smo omejili signale na osnovne tipe. Glavni problem tega pristopa je, da funkcijski tip ni med osnovnimi tipi in posledično ne moremo poslati funkcij. Ta problem rešimo z uvedbo \emph{zavitih vrednosti} in \emph{zavitih tipop}. Zavite vrednosti bodo lahko tudi lambda funkcije, ki ne bodo vsebovale zunanjih obljub. Posledično jih bo varno poslati. Osnovne tipe skupaj z zavitim tipom imenujemo \emph{prenosljivi tipi}. Da bomo lahko zavito vrednost tudi uporabili, dodamo izračun \emph{odvijanje}, ki iz zavite vrednosti odvije pripadajočo vrednost in jo veže na spremenljivko.
+Ko imamo nek signal, je ključno, da tovor ne vsebuje vrednosti obljub, kar smo do sedaj rešili tako, da smo omejili signale na osnovne tipe. Glavni problem tega pristopa je, da funkcijski tip ni med osnovnimi tipi in posledično ne moremo poslati funkcij. Ta problem rešimo z uvedbo \emph{zavitih vrednosti} in \emph{zavitih tipov}. Slednji sledijo tipom iz članka~\cite{fitch}.Zavite vrednosti bodo lahko tudi lambda funkcije, ki ne bodo vsebovale zunanjih obljub. Posledično jih bo varno poslati. Osnovne tipe skupaj z zavitim tipom imenujemo \emph{prenosljivi tipi}. Da bomo lahko zavito vrednost tudi uporabili, dodamo izračun \emph{odvijanje}, ki iz zavite vrednosti odvije pripadajočo vrednost in jo veže na spremenljivko.
 
 Tipi za izračune in procese ostanejo enaki.
 
@@ -243,7 +252,7 @@ Obstoječim substitucijam dodamo dve novi za nova izraza, kot vidimo na sliki~\r
 	\label{fig:substitucija-box}
 \end{figure}
 
-Izračun odvijanje veže vrednost znotraj zavite vrednosti $\tmboxed{V}$ na spremenljivko $x$, ki jo lahko uporabimo v nadaljevanju $M$.
+Kot vidimo na sliki~\ref{fig:semantika-odvijanje} izračun odvijanje veže vrednost znotraj zavite vrednosti $\tmboxed{V}$ na spremenljivko $x$, ki jo lahko uporabimo v nadaljevanju $M$.
 
 \begin{figure}[h]
 	\centering
@@ -256,8 +265,8 @@ Izračun odvijanje veže vrednost znotraj zavite vrednosti $\tmboxed{V}$ na spre
 	\label{fig:semantika-odvijanje}
 \end{figure}
 
-Da zagotovimo, da ne bi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodelili zavit tip, nekoliko spremenimo pravilo za izračun tipa spremenljivke in dodamo pravili za zavito vrednost in izračun odvijanje.
-Okolje je imelo že od začetka določen vrstni red, vendar šele sedaj to postane zares pomembno. Ko določamo tip zavite vrednosti, v okolje dodamo $\bb$. S tem za v bodoče označimo katere spremenljivke so zunanje ali notranje glede na zavito vrednost. 
+Da zagotovimo, da ne bi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodelili zavit tip, nekoliko spremenimo pravilo za izračun tipa spremenljivke in dodamo pravili za zavito vrednost in izračun odvijanje. Spremebe prikaže slika~\ref{fig:tipi-pravila-prenosljivi}.
+Okolje je imelo že od začetka določen vrstni red, vendar šele sedaj to postane zares pomembno. Ko določamo tip zavite vrednosti, v okolje dodamo $\bb$. S tem za v bodoče označimo katere spremenljivke so zunanje ali notranje glede na zavito vrednost. Kadar ima vrednost kontekst $\Gamma_1, \bb, \Gamma_2$ pravimo, da ima vrednost \emph{prenosljiv pogled} na kontekst $\Gamma_1$. 
 Če je spremenljivka notranja, torej od kar smo jo dodali v okolje, nismo dodali nobenega $\bb$, je pravilo standardno. Če je spremenljivka zunanja, torej od kar je bila dodana v okolje, je bil v okolje dodan tudi $\bb$, mora biti pripadajoči tip v okolju prenosljiv.
 
 \begin{figure}[H]
@@ -287,38 +296,41 @@ Okolje je imelo že od začetka določen vrstni red, vendar šele sedaj to posta
 	\label{fig:tipi-pravila-prenosljivi}
 \end{figure} 
 
-Sedaj lahko program~\ref{prog:razsiritev-1} spremenimo v program~\ref{prog:razsiritev-2}. Namesto, da ima \emph{streznik} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora. Na ta način smo bolj fleksibilni pri pisanju kode, hkrati pa je tudi bolj jasno kot prej katera funkcija se bo poračunala.
+Sedaj lahko program~\ref{prog:razsiritev-1} spremenimo v program~\ref{prog:razsiritev-2}. Namesto, da ima \emph{streznik} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora. Na ta način smo bolj fleksibilni pri pisanju kode, hkrati pa je tudi bolj jasno kot prej, katera funkcija se bo poračunala.
 
 \begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-2},float,floatplacement=h]
 operation opravilo : int * (*@\hlyellow{$[int -> int]$}@*) * int
 operation rezultat : int * int
 
 let povezi (*@$\defeq{}$@*)
-    fun callCounter fBoxed x ->
-    	let callNo (*@$\defeq{}$@*) !callCounter in
-    	send opravilo (callNo, fBoxed, x);
-    	callCounter := callNo + 1;
-    	promise (rezultat (callNo', y) ->
-    		if callNo = callNo' then
+    fun stevecOpravila fZavita x ->
+    	let opraviloID (*@$\defeq{}$@*) !stevecOpravila in
+    	send opravilo (opraviloID, fZavita, x);
+    	stevecOpravila := opraviloID + 1;
+    	promise (rezultat (opraviloID', y) ->
+    		if opraviloID = opraviloID' then
     			return <y>
     		else
     			r ()
     	) as p in
-    	let valueThunk () (*@$\defeq{}$@*) awaitValue p in
-    	return valueThunk
+    	let pridobiVrednost () (*@$\defeq{}$@*) 
+    		await p until <r> in
+    		return r
+    	in
+    	return pridobiVrednost
 
 let streznik () (*@$\defeq{}$@*)
-    promise (opravilo (callNo, fBoxed, x) r ->
-    	(*@\hlyellow{$unbox fBoxed as [f] in$}@*)
+    promise (opravilo (opraviloID, fZavita, x) r ->
+    	(*@\hlyellow{$unbox fZavita as [f] in$}@*)
     	let y (*@$\defeq{}$@*) f x in
-    	send rezultat (callNo, y);
+    	send rezultat (opraviloID, y);
     	r ()
     ) as _ in
     ()
 
-run	let callCounter (*@$\defeq{}$@*) ref 0 in
-    let y1 (*@$\defeq{}$@*) povezi callCounter (*@\hlyellow{$[fun x -> 2 * x]$}@*) 2 in
-    let y2 (*@$\defeq{}$@*) povezi callCounter (*@\hlyellow{$[fun x -> 7 * x]$}@*) 3 in
+run	let stevecOpravila (*@$\defeq{}$@*) ref 0 in
+    let y1 (*@$\defeq{}$@*) povezi stevecOpravila (*@\hlyellow{$[fun x -> 2 * x]$}@*) 2 in
+    let y2 (*@$\defeq{}$@*) povezi stevecOpravila (*@\hlyellow{$[fun x -> 7 * x]$}@*) 3 in
     let z (*@$\defeq{}$@*) 42 + 7 in
     return y1 () + y2 () + z
 
@@ -328,7 +340,7 @@ run streznik ()
 
 \subsection{Dinamični procesi}
 
-Funkcija $f$ v $\mathsf{streznik}$ se potencialno izvaja zelo počasi. Med ko jo računamo lahko dobimo novo opravilo, ki pa bo moralo čakati. Zato si želimo, da bi vsako opravilo lahko opravili v svojem procesu, da lahko izvajamo vzporedno namesto zaporedno. 
+Funkcija $\mathsf{f}$ v $\mathsf{streznik}$ na sliki~\ref{prog:razsiritev-2} se potencialno izvaja zelo počasi. Med ko jo računamo lahko dobimo novo opravilo, ki pa bo moralo čakati. Zato si želimo, da bi vsako opravilo lahko opravili v svojem procesu, da lahko izvajamo vzporedno namesto zaporedno. 
 Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti na začetku.
 Posledično bi morali vnaprej vedeti, koliko opravil bo $\mathsf{streznik}$ hkrati dobil, da bi imeli temu primerno pripravljenih procesov.
 
@@ -385,7 +397,7 @@ Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
 	\label{fig:semantika-spawn}
 \end{figure}
 
-Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo paziti, da ima $M$ prenosljiv tip in je posledično varen.   
+Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo paziti, da ima $M$ prenosljiv pogled in je posledično varen.   
 
 \begin{figure}[H]
 	\centering
@@ -403,40 +415,45 @@ Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo 
 \end{figure}
 
 
-Sedaj ko imamo dinamične procese, lahko obe evalvaciji funkcije $\mathsf{f}$ v $\mathsf{streznik}$ opravimo hkrati v svojem procesu, kar potencialno pohitri izvajanje programa. Primer~\ref{prog:razsiritev-2} lahko sedaj spremenimo v~\ref{prog:razsiritev-3}. 
+Sedaj ko imamo dinamične procese, lahko obe evalvaciji funkcije $\mathsf{f}$ v $\mathsf{streznik}$ opravimo hkrati v svojem procesu, kar potencialno pohitri izvajanje programa. 
+Tu bi opozorili da ne smemo odviti funkcije $\mathsf{fZavita}$ in nato podati novemu procesu odvito funkcijo $\mathsf{f}$, ampak moramo novemu procesu podati zavito funkcijo, ki si jo mora nov proces sam odviti. 
+Primer~\ref{prog:razsiritev-2} lahko sedaj spremenimo v~\ref{prog:razsiritev-3}. 
 
 \begin{lstlisting}[caption={Primer z dinamičnimi procesi},label={prog:razsiritev-3},float,floatplacement=H]
 operation opravilo : int * [int -> int] * int
 operation rezultat : int * int
 
 let povezi (*@$\defeq{}$@*)
-	fun callCounter fBoxed x ->
-		let callNo (*@$\defeq{}$@*) !callCounter in
-		send opravilo (callNo, fBoxed, x);
-		callCounter := callNo + 1;
-		promise (rezultat (callNo', y) ->
-			if callNo = callNo' then
+	fun stevecOpravila fZavita x ->
+		let opraviloID (*@$\defeq{}$@*) !stevecOpravila in
+		send opravilo (opraviloID, fZavita, x);
+		stevecOpravila := opraviloID + 1;
+		promise (rezultat (opraviloID', y) ->
+			if opraviloID = opraviloID' then
 				return <y>
 			else
 				r ()
 		) as p in
-		let valueThunk () (*@$\defeq{}$@*) awaitValue p in
-		return valueThunk
+		let pridobiVrednost () (*@$\defeq{}$@*)
+			await p until <r> in
+			return r
+		in
+		return pridobiVrednost
 
 let streznik () (*@$\defeq{}$@*)
-	promise (opravilo (callNo, fBoxed, x) r ->
+	promise (opravilo (opraviloID, fZavita, x) r ->
 		(*@\hlyellow{$spawn$}@*)(
-			unbox fBoxed as [f] in
+			unbox fZavita as [f] in
 			let y (*@$\defeq{}$@*) f x in
-			send rezultat (callNo, y)
+			send rezultat (opraviloID, y)
 		);
 		r ()
 	) as _ in
 	()
 
-run	let callCounter (*@$\defeq{}$@*) ref 0 in
-let y1 (*@$\defeq{}$@*) povezi callCounter [fun x |-> 2 * x] 2 in
-let y2 (*@$\defeq{}$@*) povezi callCounter [fun x |-> 7 * x] 3 in
+run	let stevecOpravila (*@$\defeq{}$@*) ref 0 in
+let y1 (*@$\defeq{}$@*) povezi stevecOpravila [fun x |-> 2 * x] 2 in
+let y2 (*@$\defeq{}$@*) povezi stevecOpravila [fun x |-> 7 * x] 3 in
 let z (*@$\defeq{}$@*) 42 + 7 in
 return y1 () + y2 () + z
 

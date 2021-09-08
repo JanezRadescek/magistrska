@@ -422,7 +422,9 @@ $$
 	&& \exists\, (\o''' \in O) \, (\i''' \in I) .\, \i'\, (\op) = ({\o'''} , {\i'''}) \wedge \o'' \order O \o''' \wedge \i'' \order I \i'''
 \end{array}
 $$
-Za tip $\tycomp{A}{\o, \i}$ rečemo, da je pod tip tipa $\tycomp{A}{\o', \i'}$, če velja $\o \order{O} o'$ in $\i \order{I} i'$. Če lahko izračunu določimo nek podtip tipa $\tycomp{A}{\o, \i}$, potem ima izračun tudi tip $\tycomp{A}{\o', \i'}$.
+Delno urejenost na produktu definiramo po komponentah.
+$$(\o, \i) \order{O \times I} (\o', \i') \defiff \o \order{O} \o' \wedge \i \order{I} \i'$$
+Za tip $\tycomp{A}{\o, \i}$ rečemo, da je pod tip tipa $\tycomp{A}{\o', \i'}$, če velja $(\o, \i) \order{O \times I} (\o', \i')$. Če lahko izračunu določimo nek podtip tipa $\tycomp{A}{\o, \i}$, potem ima izračun tudi tip $\tycomp{A}{\o', \i'}$.
 
 %Vsaki operaciji priredimo nek tip, kot vidimo na sliki~\ref{fig:tipi}.
 Sedaj si poglejmo še standardni del tipa izračunov.

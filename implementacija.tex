@@ -7,13 +7,15 @@ Parserja, ki prevede tekst v abstraktno sintaktično drevo (AST) in preveri ustr
 Pregledovalnika tipov, ki preveri, da ima dani program tip.
 In tolmača, ki izvaja korake, dokler ne pride do rezultata.
 
-\subsection{Dodatni izrazi}
+\subsection{Izrazi}
 
 Da \aeff{} postane bolj uporaben so mu dodane konstantni vrednosti $\true$ in $\false$, funkcije kot so $+, -, *, / ...$, reference in globalne spremenljivke.
 
 Izračun $\tmkw{if}\ V\ \tmkw{then}\ M\ \tmkw{else}\ N$ je sintaktičen sladkor za $\tmmatch{V}{\true \mapsto M, \false \mapsto N}$.
 
-Izračun $M;N$ je sintaktičen sladkor za $\tmlet{\_}{M}{N}$, ki ga lahko uporabimo kadar rezultat izračuna $M$ ni uporabljen v $N$.
+Izračun $\uparrow\hspace{-1ex}\op (V);M$ je sintaktičen sladkor za $\tmlet{\_}{\tmopout{op}{V}{return ()}}{M}$.
+Podobno je $\tmkw{spawn}(M);N$ sintaktičen sladkor za $\tmlet{\_}{\tmspawn{M}{return ()}}{N}$. 
+%Izračun $M;N$ je sintaktičen sladkor za $\tmlet{\_}{M}{N}$, ki ga lahko uporabimo kadar rezultat izračuna $M$ ni uporabljen v $N$.
 
 Varovan prestreznik $$\tmwithrecgu{op}{x}{r}{P(x)}{M}{p}{N},$$ je sintaktičen sladkor za $$\tmwithrec{op}{x}{r}{\tmif{P(x)}{M}{r()}}{p}{N}.$$
 Nanj lahko gledamo kot na prestreznik, ki se sproži, le kadar je poleg pravega imena operacije tudi pravi tovor.
