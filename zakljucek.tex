@@ -1,0 +1,57 @@
+\section{Zaključek}
+
+Pokazali smo kako združiti asinhrono izvajanje programa v navezi z učinki in prestrezniki. Namesto da čakamo na odgovor v obliki prekinitve, izvajamo nadaljevanje. Šele ko pride ustrezna prekinitev pa nanjo reagiramo. Glavne ideje so formalizirane v \lae-računu. Rešili smo tri primanjkljaje osnovne verzije. Dodali smo rekurzivne prestreznike, da nimamo potrebe po prekomerni uporabi pomožnih rekurzivnih funkcij. Kadar je smiselno dovolimo uporabo tovorov višjega rega. Pri tem bistveno dovolimo uporabo funkcij v tovoru. Dodali smo tudi ustvarjanje novih procesov, s čimer lahko program naredimo še bolj asinhron in vzporeden. Pokazali smo izreka o napredku in ohranitvi za osnovno in razširjeno verzijo \lae-računa.
+
+Še zmeraj so določene stvari nenarejene ali pa bi jih lahko izboljšali.
+
+V implementaciji manjka preverjanje tipov učinkov. Posledično nimamo koristi, ki jih tipi učinkov prinesejo. Ena izmed koristi učinkov je sledeča optimizacija. Če imamo $\tmopin{op}{V}{M}$, kjer $\Gamma \types M \of \tycomp{A}{\o, \i}$ in $\i(\op) = \bot$, potem lahko naredimo korak direktno v $M$. 
+
+Naslednja optimizacija bi bila da, namesto da se signali počasi širijo navzven do nivoja procesov korak za korakom, bi se lahko razširili v enem samem velikem koraku.
+
+Sedaj ko imamo dinamično ustvarjanje procesov, lahko to potencialno ustvari zelo veliko novih procesov. Tej novo ustvarjeni procesi se običajno izvedejo relativno hitro v primerjavi z ročno ustvarjenimi. Prav tako se običajno bistvene informacije prenesejo v druge procese z učinki in nas njihov rezultat ne zanima. Posledično imamo potencialno veliko procesov, ki bodo prejemali prekinitve, kar lahko drastično upočasni izvajanje. Potencialna rešitev bi bila možnost odstranitve posameznega procesa.
+
+\section*{Slovar strokovnih izrazov}
+
+
+
+\geslo{await}{blokada}
+\geslo{bidirectional type system}{dvosmerni sistem tipov}
+\geslo{boxed type}{zavit tip}
+\geslo{ground type}{osnovni tip}
+\geslo{handler}{prestreznik}
+\geslo{interrupt}{prekinitev}
+\geslo{mobile type}{prenosljiv tip}
+\geslo{promise}{obljuba}
+\geslo{signal}{signal}
+\geslo{spawn}{dinamični proces}
+\geslo{unbox}{odvijanje}
+
+
+%guarded promise = varovana obljuba
+%abstraction = abstrakcija
+%spawn =  ustvaritev novega procesa
+%interpreter = tolmač
+%type sistem = sistem tipov
+%computation = izračun
+%calculus = račun
+%unit = enota
+%Syntactic sugar = sintaktičen sladkor
+%black box in types = kocka 
+%recursion = rekurzija
+%bidirectional = dvosmerni?
+%small step semantics = op. sem. malih korakov
+%pattern matching = ujemanje vzorca
+%substitution = substitucija
+%substitute = substituirati
+%source code = izvorna koda
+%machine code = strojna koda
+%shared memory = skupni spomin
+%context = kontekst
+%true/false = resnica/neresnica
+%runtime error = napaka ob izvajanju
+%typing rules = pravila za tipe
+%interupt propagation = širitev prekinitve
+%signal hoisting = dvig signala
+%broadcasting = oddajanje signala
+%evaluation context rule = Vrednotenje v kontekstu
+%turing complete = turingovo poln

@@ -1,4 +1,4 @@
-\section{Zaključek}\label{sec:konec}
+\section{Implementacija}\label{sec:implementacija}
 
 Medtem ko je cilj \lae-računa, da pokaže pravilnost asinhronih konceptov prikazanih v prejšnjih poglavjih, je cilj jezika \aeff{}, da te koncepte lahko tudi preizkusimo in uporabimo. Zato ima jezik \aeff{} določene stvari, ki jih \lae-račun nima.
 
@@ -31,54 +31,13 @@ Nasprotno v dejanski implementaciji \aeff{} raje ohranimo [] za prazen seznam in
 Prvotna implementacija jezika \aeff{} izračuna tip programa z Hindley–Milnerjevim algoritmom. 
 Kasneje je bil typechecker spremenjen, da je uporabljal dvosmerni sistem tipov (bidirectional typing), ki temelji na algoritmu iz članka~\cite{bidirectional}.
 Glavna ideja dvosmernega sistema tipov je, da lahko dinamično izmenjuje med preverjanjem in računanjem tipa. Kadar so tipi pripisani izrazom, tip le preverimo, kar je enostavneje, kot ga izračunati in v primeru napake lahko izpiše boljše poročilo o napaki. Vendar pa pripisovanje tipov ni obvezno in ga v tem primeru lahko izračunamo. Posledično lahko uporabnik, poda tip le nekaterim delom programa, preostalim pa ne.
+Tako prva kot druga verzija ne preverjata tipe učinkov, ampak le standardni tip.
 
 \subsection{Tolmač}\label{sec:interpreter}
 
 Čeprav ima \aeff{} možnost vzporednega izvajanja in smo to do sedaj v primerih programov predpostavljali, sama implementacije zaenkrat le simulira vzporedno izvajanje.
 
 
-\section*{Slovar strokovnih izrazov}
+\subsection{Standardna knjižnica}\label{sec:std}
 
-
-
-\geslo{await}{blokada}
-\geslo{bidirectional type system}{dvosmerni sistem tipov}
-\geslo{boxed type}{zavit tip}
-\geslo{ground type}{osnovni tip}
-\geslo{handler}{prestreznik}
-\geslo{interrupt}{prekinitev}
-\geslo{mobile type}{prenosljiv tip}
-\geslo{promise}{obljuba}
-\geslo{signal}{signal}
-\geslo{spawn}{dinamični proces}
-\geslo{unbox}{odvijanje}
-
-
-%guarded promise = varovana obljuba
-%abstraction = abstrakcija
-%spawn =  ustvaritev novega procesa
-%interpreter = tolmač
-%type sistem = sistem tipov
-%computation = izračun
-%calculus = račun
-%unit = enota
-%Syntactic sugar = sintaktičen sladkor
-%black box in types = kocka 
-%recursion = rekurzija
-%bidirectional = dvosmerni?
-%small step semantics = op. sem. malih korakov
-%pattern matching = ujemanje vzorca
-%substitution = substitucija
-%substitute = substituirati
-%source code = izvorna koda
-%machine code = strojna koda
-%shared memory = skupni spomin
-%context = kontekst
-%true/false = resnica/neresnica
-%runtime error = napaka ob izvajanju
-%typing rules = pravila za tipe
-%interupt propagation = širitev prekinitve
-%signal hoisting = dvig signala
-%broadcasting = oddajanje signala
-%evaluation context rule = Vrednotenje v kontekstu
-%turing complete = turingovo poln
+Dodana je kratka standardna knjižnica v kateri lahko najdemo osnovne funkcije kot so $\mathsf{nth}$, $\mathsf{map}$, $\mathsf{filter}$, $\mathsf{min}$, $\mathsf{max}$, $\mathsf{length}$, $\mathsf{fold\_left}$, $\mathsf{fold\_right}$...

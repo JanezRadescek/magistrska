@@ -12,20 +12,8 @@ Na programerju je, da se pri delitvi in označevanju ne zmoti. Zato je želeno o
 Kljub temu, da sedaj načeloma lahko procese izvajamo hkrati, se mora izvajanje kakšnega procesa včasih začasno ustaviti, ker je nek korak v procesu odvisen od nekega drugega koraka v drugem procesu. Le to ima lahko dve negativni posledici. Lahko sproži verižno reakcijo, ki ustavi še več procesov. Lahko pa se je ustavil kritičen proces, za katerega si iz različni razlogov želimo, da se nebi ustavil ali pa vsaj le za zelo kratek čas.
 Ta problem lahko deloma rešimo tako, da sprostimo predpostavko, da so vsi koraki znotraj procesa odvisni med sabo. Kadar bi se zaradi trenutnega koraka moral proces ustaviti, poskusimo izvajati preostale korake v procesu, kadar je to mogoče. Problematičen korak pa izvedemo šele ko so se izvedli vsi koraki od katerih je odvisen. Takemu izvajanju, kjer medtem, ko čakamo na nek dogodek, izvajamo nek drug del, pravimo asinhrono izvajanje. 
 
-
-%Nekateri programski jeziki, predvsem starejše verzije, nimajo direktno podpore za vzporedno izvajanje programa. 
-%Veliko modernih jezikov, če ne drugega omogočajo tako imenovan POSIX. POSIX je aplikacijski vmesnik, ki na operacijskih sistemih, ki ga podpirajo, omogoča uporabo niti~\cite{posix}.
-%Drugi programski jeziki kot so C++, Java... imajo kot del standardne knjižnice konstrukte, ki jim omogočajo vzporedno izvajanje programa. Čeprav v ozadju mnogi jeziki uporabljajo POSIX, so detajli skriti in zato bolj naravni za programerja. 
-%Nekateri programski jeziki omogočajo mnoge konstrukte, ki jih povezujemo s vzporednim programiranjem, vendar direktno ne omogočajo vzporednega izvajanja. Na primer CPython ima tako imenovan GIL (global  interpreter lock)~\cite{gil}, ki preprečuje tolmaču, da bi izvajal korake iz več kot ene nit na enkrat.
-%Le redki programski jeziki, recimo Go, pa so bili zasnovani z vzporednim programiranjem v mislih in imajo zato konstrukte potrebne za vzporedno izvajanje vgrajene v jezik.
-%
-%Asinhrono izvajanje programa podpirajo mnogi programski jeziki namenjeni izdelovanje spletnih aplikacij. Povezovanje z neko drugo napravo preko interneta je relativno počasno in zato je pomembno, da namesto, da čakamo, opravljamo medtem nekaj drugega. JavaScript je primer takega jezika. 
-
-
-
 Eden izmed jezikov, ki podpira asinhrono izvajanje, je jezik \aeff{}. Jezik \aeff{} je statično tipiziran tolmačen funkcijski jezik. Program napisan v jeziku \aeff{} je razdeljen v procese, kar je osnova za potencialno vzporedno izvajanje. Procesi lahko med sabo komunicirajo s pomočjo učinkov. Prestrezanje učinkov je izvedeno asinhrono.
 Jezik \aeff{} sloni na \lae{}-računu~\cite{aeff}. Namen \lae{}-računa je pokazati, da v ozadju kombiniranja asinhronega vzporednega izvajanja z učinki stoji lepa teorija in so posledično koncepti uporabljeni v jeziku \aeff{} smiselni.
 
-
 Najprej si bomo v poglavju \ref{sec:primeri-aeff} pogledali primer, na katerem bomo pokazali, kako nam asinhrono vzporedno izvajanje lahko izboljša program v primerjavi z sinhronim zaporednim izvajanjem.
-Nato si bomo v poglavju \ref{sec:lae} pogledali osnovno verzijo \lae{}-računa in dokazali izreka o napredku in ohranitvi. V poglavju \ref{sec:razsirjen-lae} bomo osnovno verzijo \lae{}-računa razširili z rekurzivnimi obljubami, prenosljivimi tipi in dinamičnimi procesi in ponovno dokazali izreka o napredku in ohranitvi. Na koncu v poglavju \ref{sec:konec} si bomo pogledali nekatere razlike med \aeff{} in \lae{}-računom.
+Nato si bomo v poglavju \ref{sec:lae} pogledali osnovno verzijo \lae{}-računa in dokazali izreka o napredku in ohranitvi. V poglavju \ref{sec:razsirjen-lae} bomo osnovno verzijo \lae{}-računa razširili z rekurzivnimi obljubami, tovori višjega reda in dinamičnimi procesi. Nakar bomo dokazali izreka o napredku in ohranitvi za razširjeno verzijo računa. V poglavju \ref{sec:implementacija} si bomo pogledali nekatere razlike med jezikom \aeff{} in \lae{}-računom.

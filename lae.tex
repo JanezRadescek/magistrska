@@ -8,7 +8,6 @@ Račun \lae{} je razširitev $\lambda$-računa. Računu \lae{} dodamo izraze, ki
 
 Izraze v \lae{}-računu razdelimo na vrednosti, izračune in procese. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 
-
 Imamo običajne vrednosti kot so spremenljivke, naravna števila, enote, pari, leve in desne inkluzije, funkcije in rekurzivne funkcije.
 Nova vrednost je \emph{obljuba}. Je vrednost, ki jo je vrnil prestreznik in jo posebej označimo, da ji lažje pravilno določimo tip.
 
@@ -21,7 +20,7 @@ Da preprečimo uporabo spremenljivke $p$ preden se je izpolnila, jo lahko uporab
 
 Osnovni proces je imenovan \emph{Zagon}. Vsebuje izračun $M$, ki se izvaja.
 \emph{Vzporeden proces} vsebuje dva procesa. Vzporedne procese lahko gnezdimo in tako dobimo drevo procesov, katerega listi so zagoni. Na ta način imamo lahko kot del programa več procesov, ki se potencialno izvajajo hkrati.
-\emph{Signal procesa} in \emph{prekinitev procesa} delujeta enako kot signal izračuna in prekinitev izračuna, le da delujeta na procesih. Njuna naloga je, da preneseta učinke iz enega procesa na ostale.
+\emph{Signal procesa} in \emph{prekinitev procesa} delujeta enako kot signal izračuna in prekinitev izračuna, le da delujeta na procesih. Njuna naloga je, da preneseta učinke iz enega procesa na preostale.
 
 
 \begin{figure}[H]
@@ -203,7 +202,7 @@ Rezultati ostanejo enaki kot v originalnem članku.
 	\label{fig:operacijska-semantika-poenostavitev}
 \end{figure}
 
-Zagon dela korake tako da dela korake na pripadajočem izračunu. Signal in prekinitev na procesih se obnašata enako kot na izračunih. Par procesov lahko naredi korak, če lahko eden izmed procesov naredi korak. Koraki za procese so podani na sliki~\ref{fig:small-step-semantics-of-processes}.
+Zagon dela korake tako, da dela korake na pripadajočem izračunu. Signal in prekinitev na procesih se obnašata enako kot na izračunih. Par procesov lahko naredi korak, če lahko eden izmed procesov naredi korak. Koraki za procese so podani na sliki~\ref{fig:small-step-semantics-of-processes}.
 
 \begin{figure}[H]
     \centering
@@ -581,8 +580,8 @@ Tip vzporednih procesov preprosto ohrani oba tipa.
 
 Kdaj točno je končan program v zadovoljivi obliki, nam povejo pravila na sliki~\ref{fig:results-rules}.
 Kadar se program ustavi si želimo, da bi se ustavil v neki dokončni obliki s katero bomo zadovoljni. 
-Za procese si želimo, da so se vsi dosegljivi signali razširili do vrha. Preostanek so pari procesov ali zagoni. Izračun v zagonu mora biti ali vračanje vrednosti ali pa izračun, ki ne more narediti nobenega koraka več, dokler ne prispe ustrezna prekinitev, se izpolni obljuba in blokada dovoli nadaljnje izvajanje. Čakati na obljubo, ki ne pripada nobenemu prestrezniku in se torej nikoli ne more izpolniti, nima smisla. Ko preverjamo delni rezultat izračunov si v $\Psi$ beležimo obljube, ki pripadajo prestreznikom. Ko pridemo do blokade preverimo da smo na pripadajočo obljubo nekje prej že naleteli.
-Ker bomo za izračune posebej dokazali trditev o napredku, dodamo tudi, da je izračun, kot samostojna enota, v zaključeni obliki, ko so vsi dosegljivi signali priplavali do vrha preostanek pa je ali vračanje vrednosti ali izračun, ki čaka na prekinitev.
+Za procese si želimo, da so se vsi dosegljivi signali razširili do vrha. Preostanek so pari procesov ali zagoni. Izračun v zagonu mora biti ali vračanje vrednosti ali pa izračun, ki ne more narediti nobenega koraka več, dokler ne prispe ustrezna prekinitev, se izpolni obljuba in blokada dovoli nadaljnje izvajanje. Čakati na obljubo, ki ne pripada nobenemu prestrezniku in se torej nikoli ne more izpolniti, nima smisla. Ko preverjamo delni rezultat izračunov, si v $\Psi$ beležimo obljube, ki pripadajo prestreznikom. Ko pridemo do blokade preverimo, da smo na pripadajočo obljubo nekje prej že naleteli.
+Ker bomo za izračune posebej dokazali trditev o napredku, dodamo tudi, da je izračun kot samostojna enota v zaključeni obliki, ko so vsi dosegljivi signali priplavali do vrha preostanek pa je ali vračanje vrednosti ali izračun, ki čaka na prekinitev.
 
 \begin{figure}[H]
 	\centering

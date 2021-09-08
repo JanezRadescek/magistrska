@@ -59,7 +59,7 @@ run streznik ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)
 
 
 Ta primer ima tri glavne primanjkljaje. Pogosto si moramo pomagati z pomožno rekurzivno funkcijo v navezi s prestreznikom, da slednjega ponovno namestimo. Operacije so omejene na osnovne tipe, zaradi česar ne moremo pošiljati funkcij. In ne moremo po potrebi ustvarjati novih procesov.
-Te tri probleme bomo sedaj enega za drugim razrešili.
+Te tri probleme bomo sedaj enega za drugim razrešili, tako da bomo razširili \lae{}-račun in posledično jezik \aeff{}.
 
 
 \subsection{Rekurzivni prestreznik}
@@ -97,7 +97,7 @@ Substitucijo prestreznika popravimo, kot vidimo na sliki~\ref{fig:substitucija-p
 	\label{fig:substitucija-prestreznik}
 \end{figure}
 
-Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. S to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira z funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik. 
+Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. S to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira z funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik. Spremembe vidimo na sliki~\ref{fig:semantika-prestreznik}.
 
 \begin{figure}[H]
 	\centering
@@ -120,7 +120,7 @@ Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verzij
 	\label{fig:semantika-prestreznik}
 \end{figure}
 
-Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrezniku. Spremenljivka $r$ dobi tip $\tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \op \mapsto (\o', \i')}}$, ki lepo predstavlja izračun, ki ne sproži nobenega signala in prestreže le operacijo $\op$.
+Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrezniku. Vidimo ga na sliki~\ref{fig:tipi-pravila-rekurzivni-prestreznik}. Spremenljivka $r$ dobi tip $\tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \op \mapsto (\o', \i')}}$, ki lepo predstavlja izračun, ki ne sproži nobenega signala in prestreže le operacijo $\op$.
 Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$ red namesto enakosti. Ker sedaj v kontekst dodamo tip $\tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \op \mapsto (\o', \i')}}$ moramo paziti da pripadajoč tip efektov $(\o', \i')$ ni prevelik, saj sicer morda ne bomo mogli določiti tipa za $M$.
 
 \begin{figure}[H]
@@ -184,9 +184,7 @@ run streznik ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)
 
 \subsection{Prenosljivi tipi}
 
-Ko imamo nek signal, je ključno, da tovor ne vsebuje vrednosti obljub, kar smo do sedaj rešili tako, da smo omejili signale na osnovne tipe. Glavni problem tega pristopa je, da funkcijski tip ni med osnovnimi tipi in posledično ne moremo poslati funkcij. Ta problem rešimo z uvedbo \emph{zavitih vrednosti} in \emph{zavitih tipov}. Slednji sledijo tipom iz članka~\cite{fitch}.Zavite vrednosti bodo lahko tudi lambda funkcije, ki ne bodo vsebovale zunanjih obljub. Posledično jih bo varno poslati. Osnovne tipe skupaj z zavitim tipom imenujemo \emph{prenosljivi tipi}. Da bomo lahko zavito vrednost tudi uporabili, dodamo izračun \emph{odvijanje}, ki iz zavite vrednosti odvije pripadajočo vrednost in jo veže na spremenljivko.
-
-Tipi za izračune in procese ostanejo enaki.
+Ko imamo nek signal, je ključno, da tovor ne vsebuje vrednosti obljub, kar smo do sedaj rešili tako, da smo omejili signale na osnovne tipe. Glavni problem tega pristopa je, da funkcijski tip ni med osnovnimi tipi in posledično ne moremo poslati funkcij. Ta problem rešimo z uvedbo \emph{zavitih vrednosti} in izračunov \emph{odvijanje}. Sintakso vidimo na sliki~\ref{fig:izrazi-prenosljivi}. Zavite vrednosti bodo vrednosti, ki jih bo varno poslati zahvaljujoč drugačnemu preverjanju tipa. Bistveno bodo zavite vrednosti lahko tudi funkcije, ki ne bodo vsebovale zunanjih obljub. Da lahko dobimo vrednost v zaviti vrednosti, uporabimo odvijanje, ki iz zavite vrednosti odvije pripadajočo vrednost in jo veže v navadno spremenljivko.
 
 \begin{figure}[H]
 	\centering
@@ -205,6 +203,11 @@ Tipi za izračune in procese ostanejo enaki.
 	\caption{Prenosljivi izrazi.}
 	\label{fig:izrazi-prenosljivi}
 \end{figure}
+
+Zavite vrednosti dobijo \emph{zaviti tip} $[A]$.  
+Osnovne tipe skupaj z zavitim tipom imenujemo \emph{prenosljivi tipi}. 
+Tipi za izračune in procese ostanejo enaki.
+Spremembe vidimo na sliki~\ref{fig:tipi-prenosljivi}
 
 \begin{figure}[H]
 	\centering
@@ -225,7 +228,7 @@ Tipi za izračune in procese ostanejo enaki.
 	\label{fig:tipi-prenosljivi}
 \end{figure}
 
-Sedaj vsaki operaciji namesto osnovnega tipa pripada prenosljiv tip.
+Sedaj vsaki operaciji namesto osnovnega tipa pripada prenosljiv tip, kot vidimo na sliki~\ref{fig:prenosljive-operacije}.
 
 \begin{figure}[H]
 	\centering
@@ -265,9 +268,11 @@ Kot vidimo na sliki~\ref{fig:semantika-odvijanje} izračun odvijanje veže vredn
 	\label{fig:semantika-odvijanje}
 \end{figure}
 
-Da zagotovimo, da ne bi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodelili zavit tip, nekoliko spremenimo pravilo za izračun tipa spremenljivke in dodamo pravili za zavito vrednost in izračun odvijanje. Spremebe prikaže slika~\ref{fig:tipi-pravila-prenosljivi}.
-Okolje je imelo že od začetka določen vrstni red, vendar šele sedaj to postane zares pomembno. Ko določamo tip zavite vrednosti, v okolje dodamo $\bb$. S tem za v bodoče označimo katere spremenljivke so zunanje ali notranje glede na zavito vrednost. Kadar ima vrednost kontekst $\Gamma_1, \bb, \Gamma_2$ pravimo, da ima vrednost \emph{prenosljiv pogled} na kontekst $\Gamma_1$. 
-Če je spremenljivka notranja, torej od kar smo jo dodali v okolje, nismo dodali nobenega $\bb$, je pravilo standardno. Če je spremenljivka zunanja, torej od kar je bila dodana v okolje, je bil v okolje dodan tudi $\bb$, mora biti pripadajoči tip v okolju prenosljiv.
+
+Da zagotovimo, da ne bi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodelili zavit tip, nekoliko spremenimo pravilo za izračun tipa spremenljivke in dodamo pravili za zavito vrednost in izračun odvijanje. Nekoliko spremenimo tudi kontekst. Uporabimo ideje iz članka~\cite{fitch}. Spremembe prikaže slika~\ref{fig:tipi-pravila-prenosljivi}.
+Okolje je imelo že od začetka določen vrstni red, vendar šele sedaj to postane zares pomembno. 
+Ko določamo tip zavite vrednosti $\tmboxed{V}$, v okolje dodamo $\bb$. S tem za v bodoče vse spremenljivke že v kontekstu označimo za zunanje. Spremenljivke, ki jih bomo dodajali v kontekst, ko bomo določali tip $V$ pa bodo notranje glede na zavito vrednost. Ko bomo nekje v vrednosti $V$ naleteli na spremenljivko $x$ bomo imeli dve možnosti. Če je spremenljivka notranja, je lahko tudi tipa obljuba, saj je pripadajoči prestreznik prav tako znotraj vrednosti $V$ in se bo premikal skupaj z spremenljivko $x$. Če pa je spremenljivka zunanja, ne sme biti tipa obljuba, saj obstaja možnost, da se bo vrednost $V$ in z njo spremenljivka $x$ premaknila mimo definicije ustreznega prestreznika.
+Pri izračunu odvijanje le preverimo da je vrednost $V$ zavitega tipa, sam pa ima isti tip kot njegovo nadaljevanje.
 
 \begin{figure}[H]
 	\centering
@@ -344,7 +349,7 @@ Funkcija $\mathsf{f}$ v $\mathsf{streznik}$ na sliki~\ref{prog:razsiritev-2} se 
 Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti na začetku.
 Posledično bi morali vnaprej vedeti, koliko opravil bo $\mathsf{streznik}$ hkrati dobil, da bi imeli temu primerno pripravljenih procesov.
 
-Da rešimo ta problem, dodamo dinamično ustvarjanje novih procesov s pomočjo izračuna $\tmspawn{M}{N}$. 
+Da rešimo ta problem, dodamo dinamično ustvarjanje novih procesov s pomočjo izračuna $\tmspawn{M}{N}$. Sintakso vidimo na sliki~\ref{fig:izračun-spawn}. 
 
 \begin{figure}[H]	
 	\centering
@@ -359,6 +364,7 @@ Da rešimo ta problem, dodamo dinamično ustvarjanje novih procesov s pomočjo i
 	\label{fig:izračun-spawn}
 \end{figure}
 
+Dodamo tudi substitucijo kot na sliki~\ref{fig:substitucija-spawn}.
 
 \begin{figure}[H]
 	\centering
@@ -370,7 +376,7 @@ Da rešimo ta problem, dodamo dinamično ustvarjanje novih procesov s pomočjo i
 	\label{fig:substitucija-spawn}
 \end{figure}
 
-Izračun $\tmkw{spawn}$ se bo pomikal navzven. Ko bo postal zgornji izračun v procesu, se bo ta proces razcepil v dva procesa. 
+Natančno semantiko dinamičnih procesov vidimo na sliki~\ref{fig:semantika-spawn}. Izračun $\tmkw{spawn}$ se bo pomikal navzven. Ko bo postal zgornji izračun v procesu, se bo ta proces razcepil v dva procesa. 
 Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
 
 \begin{figure}[H]
@@ -397,7 +403,7 @@ Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
 	\label{fig:semantika-spawn}
 \end{figure}
 
-Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo paziti, da ima $M$ prenosljiv pogled in je posledično varen.   
+Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo paziti, da $M$ ne vsebuje zunanjih obljub. V kontekst dodamo $\bb$, ko preverjamo izračun $M$. Točno pravilo vidimo na sliki~\ref{fig:tipi-pravila-spawn}.
 
 \begin{figure}[H]
 	\centering
@@ -463,9 +469,9 @@ run streznik ()
 
 \subsection{Varnost}
 
+Sedaj bomo ponovno dokazali izreka o napredku in ohranitvi ter potrebne leme, tokrat za \lae{}-račun razširjen z rekurzivnimi prestrezniki, prenosljivimi tipi, in dinamičnimi procesi. Kadar je dokaz zelo podoben dokazu od prej, bomo dokazali le dele, ki so se spremenili ali so na novo. 
 
-
-Tudi za vse dinamične procese si želimo da se razširijo do vrha. Zato rezultatom za izračune iz slike~\ref{fig:results-rules} dodamo še sledeč rezultat. 
+Tudi za vse dinamične procese si želimo, da se razširijo do vrha. Zato rezultatom za izračune iz slike~\ref{fig:results-rules} dodamo še rezultat na sliki~\ref{fig:results-rules-2}. 
 
 \begin{figure}[H]
 	\centering
@@ -481,7 +487,7 @@ Tudi za vse dinamične procese si želimo da se razširijo do vrha. Zato rezulta
 	\label{fig:results-rules-2}
 \end{figure}
 
-Sedaj bomo ponovno dokazali izreka o napredku in ohranitvi ter potrebne leme, tokrat za \lae{}-račun razširjen z rekurzivnimi prestrezniki, prenosljivimi tipi, in dinamičnimi procesi. Kadar je dokaz zelo podoben dokazu od prej, bomo dokazali le dele, ki so se spremenili ali so na novo. 
+Formulacija trditve o napredku je enaka kot prej.
 
 \begin{trditev}[o napredku]\label{trd:gamma-napredek-2}
 	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$, kjer je $\Gamma = x_1 \of \typromise{A_1}, x_2 \of \typromise{A_2},..., x_i \of \typromise{A_i}$. Potem ali (i) obstaja izračun $M'$, tak da $M \reduces M'$, ali pa (ii) velja $\CompResult{\Gamma}{M}$.
@@ -749,7 +755,7 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 	\end{itemize}
 \end{proof}
 
-Sledeči lemi o substituciji za vrednosti in izračune se nanašata ena na drugo.
+Sledeči lemi o substituciji za vrednosti in izračune se nanašata ena na drugo. Povesta nam, da če v nekem izrazu spremenljivko zamenjamo z neko drugo vrednostjo istega tipa, potem se tip izraza ne spremeni.
 
 \begin{lema}[o substituciji za vrednosti]\label{lem:substitucija-vrednosti-2}
 	Naj za vrednost $V$ velja $\Gamma_1 \types V \of A$ in za vrednost $W$ velja $\Gamma_1, x \of A, \Gamma_2 \types W \of B$. Potem velja $\Gamma_1, \Gamma_2 \types W[V/x] \of B$.
@@ -912,6 +918,7 @@ Sledeči lemi o krepitvi konteksta za vrednosti in izračune se nanašata ena na
 	\end{itemize}
 \end{proof}
 
+Prejšnji dve lemi smo potrebovali, da dokažemo sledečo lemo. Slednjo bomo potrebovali, da v korakih, kjer zamenjamo vrstni red recimo $$\tmwithrec{op}{x}{r}{N_1}{p}{\tmopout{op'}{V}{N_2}} \reduces $$ $$\tmopout{op'}{V}{\tmwithrec{op}{x}{r}{N_1}{p}{N_2}},$$ se tip $V$ ne spremeni in posledično ima tudi nov izračun tip.
 
 \begin{lema}\label{lem:tovor-osnovni-tip-skrcitev-2}
 	Naj za vrednost $V$ velja $\Gamma_1, x \of \typromise{A}, \Gamma_2 \types V \of B$, kjer je $B$ prenosljiv tip. Potem velja $\Gamma_1, \Gamma_2 \types V \of B$.
@@ -956,7 +963,7 @@ Sledeči lemi o krepitvi konteksta za vrednosti in izračune se nanašata ena na
 	\end{itemize}
 \end{proof}
 
-Sledeči lemi o krepitvi konteksta za vrednosti in izračune se nanašata ena na drugo.
+Sledeči lemi o krepitvi konteksta za vrednosti in izračune se nanašata ena na drugo. Če odstranimo $\bb$, ki nas omejuje na mobilni pogled na kontekst $\Gamma_1$, se tip ne spremeni.
 
 \begin{lema}\label{lem:strengthening-values-bb}
 	Naj za vrednost $V$ velja $\Gamma_1, \bb, \Gamma_2 \types V \of A$. Tedaj velja $\Gamma_1, \Gamma_2 \types V \of A$.
