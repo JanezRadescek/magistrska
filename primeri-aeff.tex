@@ -22,23 +22,25 @@ Medtem ko se računa točna vrednost v drugem procesu se bistveno glavni proces 
 operation opravilo : int
 operation rezultat : int
 
-run send opravilo 42;
-    let x' (*@$\defeq{}$@*) priblizek(42) in
-    zaslon(x');
-    promise (rezultat x ->
-    	zaslon(x);
-    	<x>
-    ) as p in
-    nadaljevanje1();
-    await p until <y> in
-    nadaljevanje2(y)
+run 
+	send opravilo 42;
+	let x' (*@$\defeq{}$@*) priblizek(42) in
+	zaslon(x');
+	promise (rezultat x ->
+	   	zaslon(x);
+	   	<x>
+	) as p in
+	nadaljevanje1();
+	await p until <y> in
+	nadaljevanje2(y)
 
-run promise(opravilo y ->
-    	let x (*@$\defeq{}$@*) funkcija(y) in
-    	send rezultat x;
-    	<()>
-    ) as _ in
-    ()
+run 
+	promise(opravilo y ->
+	   	let x (*@$\defeq{}$@*) funkcija(y) in
+	   	send rezultat x;
+	   	<()>
+	) as _ in
+	()
 \end{lstlisting}
 
 Na ta način smo izvajali glavni del programa hkrati z računanjem točne vrednosti. Pri tem pa nismo blokirali glavnega programa razen potencialno v blokadi, ko sicer program nebi bil več varen.

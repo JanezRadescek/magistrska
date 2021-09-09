@@ -9,14 +9,16 @@ Račun \lae{} je razširitev $\lambda$-računa. Računu \lae{} dodamo izraze, ki
 Izraze v \lae{}-računu razdelimo na vrednosti, izračune in procese. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 
 Imamo običajne vrednosti kot so spremenljivke, naravna števila, enote, pari, leve in desne inkluzije, funkcije in rekurzivne funkcije.
-Nova vrednost je \emph{obljuba}. Je vrednost, ki jo je vrnil prestreznik in jo posebej označimo, da ji lažje pravilno določimo tip.
+Nova vrednost je \emph{obljuba}\footnote{Tudi nekateri drugi programski jeziki kot na primer Scala imajo obljube~\cite{scala}. Kljub temu pa običajno ne v navezi z učinki.}. Je vrednost, ki jo je vrnil prestreznik in jo posebej označimo, da ji lažje pravilno določimo tip.
 
 Imamo običajne izračune kot so vračanje vrednosti, zaporedje, ujemanje za pare in vsote in aplikacija.
 Poleg teh imamo tudi sledeče.
-\emph{Signal} vsebuje operacijo $\op$, pripadajočo vrednost $V$ imenovano \emph{tovor} in nadaljevanje $M$. Signal se razširi navzgor po izračunih, dokler ne pride na nivo procesov. Nakar se bo razširil v vse druge procese in ob tem spremenil v \emph{prekinitev}. Prekinitev je simetrična signalu, prav tako ima operacijo $\op$, vrednost $V$ in nadaljevanje $M$. Le da prekinitev potuje po izračunih navznoter namesto navzgor. Na ta način smo informacijo $V$ prenesli iz enega procesa na vse preostale in tako imamo vzpostavljeno komunikacijo med procesi. Da imamo asinhrono izvajanje lahko, namesto da se signal in prekinitev širita, delamo korake tudi v njunem nadaljevanju $M$.
-Informacijo v prekinitvi prestrežemo s pomočjo \emph{prestreznika}. Prestreznik je sestavljen iz operacije $\op$, spremenljivke $x$, izračunom $M$ imenovanim \emph{obljuba}, spremenljivko $p$ prav tako imenovano \emph{obljuba} in nadaljevanje $N$.\footnote{Izračun obljuba bo vrnil posebno vrednost obljuba, ki jo bomo substituirali v spremenljivko obljuba.}
-Običajno se izvaja nadaljevanje $N$, med tem ko preostali deli čakajo. Ko pride prekinitev z istim imenom operacije se spremenljivka $x$ substituira z tovorom $V$ v obljubi $M$. Nakar se prestreznik spremeni v zaporedje izračuna $M$ in prekinitve, ki ima za nadaljevanje izračun $N$. Rezultat izračuna $M$ bo vezan v spremenljivko $p$ in se ga tako lahko uporabi v $N$. Ko prestreznik ujame ustrezno prekinitev rečemo, da se je izpolnila obljuba $p$.
-Da preprečimo uporabo spremenljivke $p$ preden se je izpolnila, jo lahko uporabi le \emph{blokada}. V primeru da se obljuba $p$ še ni izpolnila, bo blokada preprečevala izvajanje svojega nadaljevanja $N$. Če pa se je izpolnila, se bo pripadajoča vrednost vrednost vezala v novo navadno spremenljivko. Nakar se bo začelo izvajati nadaljevanje.
+
+\emph{Signal} $\tmopout{op}{V}{M}$ vsebuje operacijo $\op$, pripadajočo vrednost $V$ imenovano \emph{tovor} in nadaljevanje $M$. Signal se razširi navzgor po izračunih, dokler ne pride na nivo procesov. Nakar se bo razširil v vse druge procese in ob tem spremenil v \emph{prekinitev} $\tmopin{op}{V}{M}$. Prekinitev je simetrična signalu, prav tako ima operacijo $\op$, vrednost $V$ in nadaljevanje $M$. Le da prekinitev potuje po izračunih navznoter namesto navzgor. Na ta način smo informacijo $V$ prenesli iz enega procesa na vse preostale in tako imamo vzpostavljeno komunikacijo med procesi. Da imamo asinhrono izvajanje lahko, namesto da se signal in prekinitev širita, delamo korake tudi v njunem nadaljevanju $M$.
+
+S pomočjo \emph{prestreznika} $\tmwith{op}{x}{M}{p}{N}$ prestrežemo tovor v prekinitvi. Prestreznik je sestavljen iz operacije $\op$, spremenljivke $x$, izračunom $M$ imenovanim \emph{obljuba}, spremenljivko $p$ prav tako imenovano \emph{obljuba} in nadaljevanje $N$.\footnote{Izračun obljuba bo vrnil posebno vrednost obljuba, ki jo bomo substituirali v spremenljivko obljuba.}
+Običajno se izvaja nadaljevanje $N$, med tem ko preostali deli čakajo. Ko pride prekinitev z istim imenom operacije se spremenljivka $x$ substituira z tovorom $V$ v obljubi $M$. Nakar se prestreznik spremeni v zaporedje $\tmlet{p}{M}{\tmopin{op}{V}{N}}$. Čeprav je prestreznik ujel prekinitev, se slednja vseeno naprej širi navznoter na nadaljevanju $N$. Ko prestreznik ujame ustrezno prekinitev rečemo, da se je izpolnila obljuba $p$.
+Da preprečimo uporabo spremenljivke $p$ preden se je izpolnila, jo lahko uporabi le \emph{blokada} $\tmawait{V}{x}{M}$. V primeru da se obljuba $p$ še ni izpolnila in je vrednost $V$ v blokadi le $p$, bo blokada preprečevala izvajanje svojega nadaljevanja $M$. Če pa se je izpolnila, se bo pripadajoča vrednost vezala v novo navadno spremenljivko $x$. Nakar se bo izvajanje nadaljevalo.
 
 Osnovni proces je imenovan \emph{Zagon}. Vsebuje izračun $M$, ki se izvaja.
 \emph{Vzporeden proces} vsebuje dva procesa. Vzporedne procese lahko gnezdimo in tako dobimo drevo procesov, katerega listi so zagoni. Na ta način imamo lahko kot del programa več procesov, ki se potencialno izvajajo hkrati.
@@ -33,9 +35,9 @@ Osnovni proces je imenovan \emph{Zagon}. Vsebuje izračun $M$, ki se izvaja.
 	\bnfis& x                                       & &\text{spremenljivka} \\
 	\bnfor& n    							        & &\text{naravno število} \\
 	\bnfor& \tmunit \bnfor\! \tmpair{V}{W}          & &\text{enota in par} \\
-	\bnfor& \tminl[Y]{V} \bnfor\! \tminr[X]{V}      & &\text{leva in desna inkluzija} \\
-	\bnfor& \tmfun{x \of X}{M}                      & &\text{funkcija} \\
-	\bnfor& \tmfunrec{f}{x : X}{M}                  & &\text{rekurzivna funkcija} \\
+	\bnfor& \tminl[B]{V} \bnfor\! \tminr[A]{V}      & &\text{leva in desna inkluzija} \\
+	\bnfor& \tmfun{x \of A}{M}                      & &\text{funkcija} \\
+	\bnfor& \tmfunrec{f}{x \of A}{M}                  & &\text{rekurzivna funkcija} \\
 	\bnfor& \tmpromise V                            & &\text{obljuba}
 	\\[1ex]
 	\intertext{\textbf{Izračuni}}
@@ -93,7 +95,7 @@ V nadaljevanju bomo uporabljali substitucije.  Substitucije na vrednostih in izr
 		(\tmopout{op}{W}{M})[V/x] &= \tmopout{op}{W[V/x]}{M[V/x]} \\
 		(\tmopin{op}{W}{M})[V/x] &= \tmopin{op}{W[V/x]}{M[V/x]} \\
 		(\tmwith{op}{y}{M}{p}{N})[V/x] &= \tmwith{op}{y}{M[V/x]}{p}{N[V/x]} \\
-		(\tmawait{W}{y}{M}) &= \tmawait{W[V/x]}{y}{M[V/x]}
+		(\tmawait{W}{y}{M})[V/x] &= \tmawait{W[V/x]}{y}{M[V/x]}
 	\end{align*}
 	\caption{Substitucije za vrednosti in izračune.}
 	\label{fig:substitucije}
@@ -111,13 +113,13 @@ Račun \lae{} opremimo z operacijsko semantiko malih korakov, ki je definirana z
 	\\
 	\tmmatch{\tmpair{V}{W}}{\tmpair{x}{y} \mapsto M} &\reduces M[V/x, W/y]
 	\\
-	\mathllap{\tmmatch{(\tminl[Y]{V})}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}} &\reduces	M[V/x]
+	\mathllap{\tmmatch{(\tminl[B]{V})}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}} &\reduces	M[V/x]
 	\\
-	\mathllap{\tmmatch{(\tminr[X]{W})}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}} &\reduces	N[W/y]
+	\mathllap{\tmmatch{(\tminr[A]{W})}{\tminl{x} \mapsto M, \tminr{y} \mapsto N}} &\reduces	N[W/y]
 	\\
-	\tmapp{(\tmfun{x \of X}{M})}{V} &\reduces M[V/x]
+	\tmapp{(\tmfun{x \of A}{M})}{V} &\reduces M[V/x]
 	\\
-	\tmapp{(\tmfunrec{f}{x \of X}{M})}{V} &\reduces M[V/x, (\tmfunrec{f}{x \of X}{M})/f]
+	\tmapp{(\tmfunrec{f}{x \of A}{M})}{V} &\reduces M[V/x, (\tmfunrec{f}{x \of A}{M})/f]
 	\\[1ex]
 	\intertext{\textbf{Algebraičnost signala in prestreznika}}
 	\tmlet{x}{(\tmopout{op}{V}{M})}{N} &\reduces \tmopout{op}{V}{\tmlet{x}{M}{N}}
@@ -724,10 +726,10 @@ Najprej dokažemo trditev o napredku samo za izračune. Da bomo lahko uporabili 
 	
 		\item Če je uporabljeno pravilo \rulename{TyComp-Apply}, potem je $M$ enak $$V W.$$
 		Ker ima vrednost $V$ tip $\tyfun{B_1}{B_2}$ in v kontekstu nobena spremenljivka nima tipa $\tyfun{B_1}{B_2}$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $\tmfunano{x}{M}$ ali $\tmfunrecano{f}{x}{M}$.
-		Lahko naredimo korak v $M[W/x]$ ali $M[V/x, (\tmfunrec{f}{x \of X}{M})/f]$.
+		Lahko naredimo korak v $M[W/x]$ ali $M[V/x, (\tmfunrec{f}{x \of A}{M})/f]$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $$\tmmatch{V}{(x,y) \mapsto N}.$$
-		Ker ima vrednost $V$ tip $X \times Y$ in v kontekstu nobena spremenljivka nima tipa $X \times Y$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $(W_1,W_2)$.
+		Ker ima vrednost $V$ tip $A \times B$ in v kontekstu nobena spremenljivka nima tipa $A \times B$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $(W_1,W_2)$.
 		Posledično lahko $M$ naredi korak v izračun $N[W_1/x,W_2/y]$.
 		
 		\item Zadnje pravilo ne more biti \rulename{TyComp-MatchEmpty}.
@@ -737,7 +739,7 @@ Najprej dokažemo trditev o napredku samo za izračune. Da bomo lahko uporabili 
 
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $$\tmmatch{V}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}.$$
-		Ker ima vrednost $V$ tip $X + Y$ in v kontekstu nobena spremenljivka nima tipa $X + Y$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $\tminl{W_1}$ ali $\tminr{W_2}$.
+		Ker ima vrednost $V$ tip $A + B$ in v kontekstu nobena spremenljivka nima tipa $A + B$, je po lemi~\ref{lem:ni-spremenljivka} vrednost $V$ oblike $\tminl{W_1}$ ali $\tminr{W_2}$.
 		\begin{itemize}
 			\item Če je oblike $\tminl{W_1}$ lahko $M$ naredi korak v $N_1[W_1/x]$.
 			\item Sicer je oblike $\tminr{W_2}$ in lahko $M$ naredi korak v $N_2[W_2/y]$.
@@ -1021,23 +1023,22 @@ Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 		Po indukcijski predpostavki velja, da imata $N_1[V/x]$ in $N_2[V/x]$ isti tip.
 		Ker je $M[V/x]$ enak $\tmlet{x}{N_1[V/x]}{N_2[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Let}.
 		
-		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $$W_1 W_2.$$ Vrednost $W_1$ ima tip $\tyfun{C}{\tycomp{B}{\o, \i}}$ in vrednost $W_2$ ima tip $C$.
-		Po lemi~\ref{lem:substitucija-vrednosti} imata $W_1[V/x]$ in $W_2[V/]$ isti tip.
-		Ker je $M[V/x]$ enak $W_1[V/x] W_2[V/x]$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Apply}.
+		\item Zadnje pravilo ne more biti \rulename{TyComp-MatchEmpty}. Če bi bilo, potem bi $M$ bil enak $$\tmmatch{W}{}.$$
+		Vrednost $W$ bi morala imeti tip $\tyempty$, ki pa ga ne more imeti. 
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $$\tmmatch{W}{(y_1,y_2) \mapsto N}.$$ 
-		Ker ima vrednost $W$ tip $X \times Y$, ima tudi $W[V/x]$ tip $X \times Y$ po lemi~\ref{lem:substitucija-vrednosti}.
+		Ker ima vrednost $W$ tip $C_1 \times C_2$, ima tudi $W[V/x]$ tip $C_1 \times C_2$ po lemi~\ref{lem:substitucija-vrednosti}.
 		Ker ima $N$ tip $\tycomp{B}{\o, \i}$, ima tudi $N[V/x]$ tip $\tycomp{B}{\o, \i}$ po indukcijski predpostavki.
 		Ker je $M[V/x]$ enak $\tmmatch{W[V/x]}{(y_1,y_2) \mapsto N[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-MatchPair}. 
 		
-		\item Če je zadnje pravilo \rulename{TyComp-MatchEmpty}, potem je $M$ enak $$\tmmatch{W}{}.$$
-		Ker ima vrednost $W$ tip $X \times Y$, ima tudi $W[V/x]$ tip $X \times Y$ po lemi~\ref{lem:substitucija-vrednosti}.
-		Ker je $M[V/x]$ enak $\tmmatch{W[V/x]}{}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-MatchEmpty}.
-		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $$\tmmatch{W}{\tminl{y_1} \mapsto N_1, \tminr{y_2} \mapsto N_2}.$$
-		Ker ima vrednost $W$ tip $X + Y$, ima tudi $W[V/x]$ tip $X + Y$ po lemi~\ref{lem:substitucija-vrednosti}.
+		Ker ima vrednost $W$ tip $C_1 + C_2$, ima tudi $W[V/x]$ tip $C_1 + C_2$ po lemi~\ref{lem:substitucija-vrednosti}.
 		Ker imata $N_1$ in $N_2$ tip $\tycomp{B}{\o, \i}$, imata tudi $N_1[V/x]$ in $N_2[V/x]$ tip $\tycomp{B}{\o, \i}$ po indukcijski predpostavki.
 		Ker je $M[V/x]$ enak $\tmmatch{W[V/x]}{\tminl{y_1} \mapsto N_1[V/x], \tminr{y_2} \mapsto N_2[V/x]}$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-MatchSum}.
+		
+		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $$W_1 W_2.$$ Vrednost $W_1$ ima tip $\tyfun{C}{\tycomp{B}{\o, \i}}$ in vrednost $W_2$ ima tip $C$.
+		Po lemi~\ref{lem:substitucija-vrednosti} imata $W_1[V/x]$ in $W_2[V/]$ isti tip.
+		Ker je $M[V/x]$ enak $W_1[V/x] W_2[V/x]$, ima izračun $M[V/x]$ tip $\tycomp{B}{\o, \i}$ po pravilu \rulename{TyComp-Apply}.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Signal}, potem je $M$ enak $$\tmopout{op}{W}{N}.$$
 		Ker ima vrednost $W$ tip $C_{op}$, ima tudi $W[V/x]$ tip $C_{op}$ po lemi~\ref{lem:substitucija-vrednosti}.
@@ -1114,11 +1115,11 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 	\begin{itemize}
 		\item Če je $M$ oblike $\tmlet{x}{N_1}{N_2}$, potem velja $\Gamma \types N_1 \of \tycomp{B}{\o', \i'}$, $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$.
 	
-		\item Če je $M$ oblike $\tmmatch{\tmpair{V_1}{W_2}}{N}$, potem velja $\Gamma \types V_1 \of B_1$, $\Gamma \types V_2 \of B_2$ in $\Gamma \types N \of \tycomp{A}{\o', \i'}$.
+		\item Če je $M$ oblike $\tmmatch{\tmpair{V_1}{V_2}}{N}$, potem velja $\Gamma \types V_1 \of B_1$, $\Gamma \types V_2 \of B_2$ in $\Gamma \types N \of \tycomp{A}{\o', \i'}$.
 		
-		\item Če je $M$ oblike $\tmmatch{(\tminl[Y]{V_1})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}$, potem velja $\Gamma \types \tminl[Y]{V_1} \of B_1$, $\Gamma \types N_1 \of \tycomp{A}{\o', \i'}$ in $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$.
+		\item Če je $M$ oblike $\tmmatch{(\tminl[B_2]{V_1})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}$, potem velja $\Gamma \types \tminl[B_2]{V_1} \of B_1 + B_2$, $\Gamma \types N_1 \of \tycomp{A}{\o', \i'}$ in $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$.
 		
-		\item Če je $M$ oblike $\tmmatch{(\tminr[X]{V_2})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}$, potem velja $\Gamma \types \tminl[X]{V_2} \of B_1$, $\Gamma \types N_1 \of \tycomp{A}{\o', \i'}$ in $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$.
+		\item Če je $M$ oblike $\tmmatch{(\tminr[B_1]{V_2})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}$, potem velja $\Gamma \types \tminl[B_1]{V_2} \of B_1 + B_2$, $\Gamma \types N_1 \of \tycomp{A}{\o', \i'}$ in $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$.
 		
 		\item Če je $M$ oblike $\tmapp{V}{W}$, potem velja $\Gamma \types V \of \tyfun{B}{\tycomp{A}{\o', \i'}}$ in $\Gamma \types W \of B$.
 		
@@ -1166,11 +1167,11 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 		\item Če je zadnje pravilo $$\tmmatch{\tmpair{V}{W}}{\tmpair{x}{y} \mapsto N} \reduces N[V/x, W/y],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tmpair{V}{W}$ tip $B_1 \times B_2$, $V$ tip $B_1$, $W$ tip $B_2$ in $N$ tip $\tycomp{A}{\o', \i'}$. Po lemi~\ref{lem:substitucija-izračuni} ima $\widetilde{M} = N[V/x]$ tip $\tycomp{A}{\o', \i'}$ in po isti lemi ima $M' = \widetilde{M}[W/y]$ tip $\tycomp{A}{\o', \i'}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmmatch{(\tminl[Y]{V})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces N_1[V/x],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tminl{V}$ tip $B_1 + B_2$, $V$ tip $B_1$ in $N_1$ tip $\tycomp{A}{\o', \i'}$.
+		\item Če je zadnje pravilo $$\tmmatch{(\tminl[B_2]{V})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces N_1[V/x],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tminl{V}$ tip $B_1 + B_2$, $V$ tip $B_1$ in $N_1$ tip $\tycomp{A}{\o', \i'}$.
 		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N_1[V/x]$ tip $\tycomp{A}{\o', \i'}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmmatch{(\tminr[X]{W})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces N_2[W/y],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tminr{W}$ tip $B_1 + B_2$, $W$ tip $B_2$ in $N_2$ tip $\tycomp{A}{\o', \i'}$.
+		\item Če je zadnje pravilo $$\tmmatch{(\tminr[B_1]{W})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces N_2[W/y],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tminr{W}$ tip $B_1 + B_2$, $W$ tip $B_2$ in $N_2$ tip $\tycomp{A}{\o', \i'}$.
 		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N_2[W/y]$ tip $\tycomp{A}{\o', \i'}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		

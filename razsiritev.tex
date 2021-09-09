@@ -68,7 +68,7 @@ Te tri probleme bomo sedaj enega za drugim razrešili, tako da bomo razširili \
 Kadar pričakujemo več prekinitev z isto operacijo, je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
 To funkcionalnost smo do sedaj dosegli tako, da smo obljubo definirali v pomožni rekurzivni funkciji in po potrebi znotraj obljube ponovno klicali to funkcijo, kot smo videli v programu~\ref{prog:razsiritev-0}.
 
-Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in nadaljevanja $N$ tudi spremenljivko $r$, s pomočjo katere lahko ponovno namestimo isti prestreznik. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
+Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom $\tmwithrec{op}{x}{r}{M}{p}{N}$. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in nadaljevanja $N$ tudi spremenljivko $r$, s pomočjo katere lahko ponovno namestimo isti prestreznik. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
 
 
 \begin{figure}[H]
@@ -111,7 +111,7 @@ Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verzij
 		\tmwithrec{op}{x}{r}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}}
 		\\
 		\tmopin{op}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, R/r]}{\tmopin{op}{V}{N}} \\
-		\text{kjer je }R = \;& \tmfunano{y}{(\tmwithrec{op}{r}{x}{M}{p}{\tmreturn{p}})} \\
+		\text{kjer }R = \;& \tmfunano{y}{(\tmwithrec{op}{r}{x}{M}{p}{\tmreturn{p}})} \\
 		\tmopin{op'}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmwithrec{op}{x}{r}{M}{p}{\tmopin{op'}{V}{N}} \\
 		&\qquad {\color{rulenameColor}(\op \neq \op')}
 	\end{align*}
@@ -184,7 +184,7 @@ run streznik ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)
 
 \subsection{Prenosljivi tipi}
 
-Ko imamo nek signal, je ključno, da tovor ne vsebuje vrednosti obljub, kar smo do sedaj rešili tako, da smo omejili signale na osnovne tipe. Glavni problem tega pristopa je, da funkcijski tip ni med osnovnimi tipi in posledično ne moremo poslati funkcij. Ta problem rešimo z uvedbo \emph{zavitih vrednosti} in izračunov \emph{odvijanje}. Sintakso vidimo na sliki~\ref{fig:izrazi-prenosljivi}. Zavite vrednosti bodo vrednosti, ki jih bo varno poslati zahvaljujoč drugačnemu preverjanju tipa. Bistveno bodo zavite vrednosti lahko tudi funkcije, ki ne bodo vsebovale zunanjih obljub. Da lahko dobimo vrednost v zaviti vrednosti, uporabimo odvijanje, ki iz zavite vrednosti odvije pripadajočo vrednost in jo veže v navadno spremenljivko.
+Ko imamo nek signal, je ključno, da tovor ne vsebuje vrednosti obljub, kar smo do sedaj rešili tako, da smo omejili signale na osnovne tipe. Glavni problem tega pristopa je, da funkcijski tip ni med osnovnimi tipi in posledično ne moremo poslati funkcij. Ta problem rešimo z uvedbo \emph{zavitih vrednosti} $\tmboxed{V}$ in izračunov \emph{odvijanje} $\tmunbox{V}{x}{M}$, kot vidimo na sliki~\ref{fig:izrazi-prenosljivi}. Zavite vrednosti bodo vrednosti, ki jih bo varno poslati zahvaljujoč drugačnemu preverjanju tipa. Bistveno bodo zavite vrednosti lahko vsebovale tudi funkcije, ki pa same ne bodo vsebovale zunanjih obljub. Da lahko dobimo vrednost v zaviti vrednosti, uporabimo odvijanje, ki iz zavite vrednosti odvije pripadajočo vrednost in jo veže v navadno spremenljivko.
 
 \begin{figure}[H]
 	\centering
@@ -772,7 +772,7 @@ Sledeči lemi o substituciji za vrednosti in izračune se nanašata ena na drugo
 		\begin{itemize}
 			\item Če je $y = x$, potem je $A = B$ in $W[V/x] = x[V/x] = V$. Če je $A$ prenosljiv tip ima $W[V/x]$ tip $A$ po lemi~\ref{lem:weakening-values-prenosljiv}. Če $A$ ni prenosljiv tip, potem $\Gamma_2$ ne vsebuje $\bb$ in ima $W[V/x]$ tip $A$ po lemi~\ref{lem:weakening-values-2}.
 			
-			\item Če $Y \neq x$, potem je $W[V/x] = y[V/x] = y = W$. Posledično ima $W[V/x]$ tip $B$.
+			\item Če $y \neq x$, potem je $W[V/x] = y[V/x] = y = W$. Posledično ima $W[V/x]$ tip $B$.
 		\end{itemize}
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Boxed}, potem je $W=\tmboxed{W'}$ in $B=\tyboxed{B'}$. Po indukcijski predpostavki ima $W'[V/x]$ tip $B'$. Ker je $W[V/x] = \tmboxed{W'[V/x]}$, ima $W[V/x]$ tip $B$, po pravilu \rulename{TyVal-Boxed}.
