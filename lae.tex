@@ -436,9 +436,9 @@ Tretja lastnost pravi, da ko operacija sproži vse prestreznike se bodo signali 
 	\begin{enumerate}
 		\item $o \order{O} \pi_1 (\opincomp{op}{(\o, \i)})$
 		\item $i \order{I} (i' \cup i)$
-		\item Če $\i(\op) = (\o', \i')$, potem $(\o', \i') \order{O \times I} \opincomp{\op}{(\o, \i)}$
+		\item\label{lem:eo-3} Če $\i(\op) = (\o', \i')$, potem $(\o', \i') \order{O \times I} \opincomp{\op}{(\o, \i)}$
 		\item Če $\op \neq \op'$ in $\i(\op') = (\o', \i')$, potem $(\o', \i') \order{O \times I} (\pi_2(\opincomp{\op}{(\o, \i)}))(\op')$
-		\item Če $(\o, \i) \order{O \times I} (\o', \i')$, potem $\opincomp{op}{(\o, \i)} \order{O \times I} \opincomp{op}{(\o', \i')}$
+		\item\label{lem:eo-5} Če $(\o, \i) \order{O \times I} (\o', \i')$, potem $\opincomp{op}{(\o, \i)} \order{O \times I} \opincomp{op}{(\o', \i')}$
 	\end{enumerate}
 \end{lema}
 
@@ -454,8 +454,8 @@ Tretja lastnost pravi, da ko operacija sproži vse prestreznike se bodo signali 
 		\item Ločimo dve možnosti.
 		Prva možnost je, da $\i(op) = (\o'', \i'')$. Potem velja $\opincomp{\op}{(\o, \i)} = (\o \cup \o'' , \i[\op \mapsto \bot] \cup \i'')$.
 		Ker $\op \neq \op'$ velja $\i[\op \mapsto \bot](\op') = (\o', \i')$.
-		Posledično velja $(\o', \i') \order{O \times I} (\i[\op \mapsto \bot] \cup \i'')(\op')$, ker je $\i[\op \mapsto \bot] \order{I} \i[\op \mapsto \bot] \cup \i''$ in upoštevajoč definicijo $\order{I}$. Ker $(\i[\op \mapsto \bot] \cup \i'')(\op') = (\pi_2(\opincomp{\op}{(\o, \i)}))(\op')$ je lastnost dokazana.
-		Druga možnost je $\i(op) = \bot$. Tedaj je $\opincomp{op}{(\o, \i)} = (\o, \i)$ in trditev sledi. 
+		Posledično velja $(\o', \i') \order{O \times I} (\i[\op \mapsto \bot] \cup \i'')(\op')$, ker je $\i[\op \mapsto \bot] \order{I} \i[\op \mapsto \bot] \cup \i''$ in upoštevajoč definicijo $\order{I}$. Ker je $(\i[\op \mapsto \bot] \cup \i'')(\op') = (\pi_2(\opincomp{\op}{(\o, \i)}))(\op')$ je lastnost dokazana.
+		Druga možnost je $\i(op) = \bot$. Tedaj je $\opincomp{op}{(\o, \i)} = (\o, \i)$ in lastnost sledi. 
 		\item Ker je $\i \order{I} \i'$, velja $(\_, \i'') = \i(op) \order{O \times I} \i'(op) = (\_, \i''')$. Posledično velja $\pi_2(\opincomp{op}{(\o, \i)}) = \i \cup \i'' \order{I} \i' \cup \i''' = \pi_2(\opincomp{op}{(\o', \i')})$.
 		Urejenost za tipe signalov pokažemo simetrično.
 	\end{enumerate}
@@ -1231,7 +1231,7 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 		Velja $\opincomp{op}{(\o', \i')} \order{O \times I} (\o, \i)$ in $(\o'', \i'') \order{O \times I} (\o', \i')$.
 		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N}$ tip $\opincomp{op}{(\o'', \i'')}$. 
 		Po pravilu \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o'', \i'')}}$.
-		Po lem~\ref{lem:effects-order} velja $\opincomp{op}{(\o'', \i'')} \order{O \times I} \opincomp{op}{(\o', \i')}$.
+		Po lastnosti~\ref{lem:eo-5} iz leme~\ref{lem:effects-order} velja $\opincomp{op}{(\o'', \i'')} \order{O \times I} \opincomp{op}{(\o', \i')}$.
 		Po pravilu \rulename{TyComp-Subsume} in tranzitivnosti $\order{O \times I}$ ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmreturn W} \reduces \tmreturn W,$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $\tmreturn{W}$ tip $\tycomp{A}{\o', \i'}$.
@@ -1241,13 +1241,12 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 		Velja $\opincomp{op}{(\o', \i')} \order{O \times I} (\o, \i)$.
 		Po lemi~\ref{lem:substitucija-izračuni} ima $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\o'', \i''}$.
 		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N_2}$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
-		Ker je $\i'(op) = (\o'', \i'')$, velja $(\o'', \i'') \order{O \times I} \opincomp{op}{(\o', \i')}$ po lemi~\ref{lem:effects-order}.
+		Ker je $\i'(op) = (\o'', \i'')$, velja $(\o'', \i'') \order{O \times I} \opincomp{op}{(\o', \i')}$ po lastnosti~\ref{lem:eo-3} iz leme~\ref{lem:effects-order}.
 		Po pravilu \rulename{TyComp-Subsume} ima izračun $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\opincomp{op}{(\o', \i')}}$.
 		Po pravilu \rulename{TyComp-Let} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmopin{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces$$ $$ \tmwith{op}{x}{N_1}{p}{\tmopin{op'}{V}{N}_2},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $A_{op}$, $N_1$ tip $\tycomp{\typromise{B}}{\o'', \i''}$ in $N_2$ tip $\tycomp{A}{\o', \i'}$.
-		Velja $\opincomp{op}{(\o', \i')} \order{O \times I} (\o, \i)$.
+		\item Če je zadnje pravilo $$\tmopin{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces$$ $$ \tmwith{op}{x}{N_1}{p}{\tmopin{op'}{V}{N}_2},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $A_{op}$, $N_1$ tip $\tycomp{\typromise{B}}{\o'', \i''}$, $N_2$ tip $\tycomp{A}{\o', \i'}$ in velja $\opincomp{op}{(\o', \i')} \order{O \times I} (\o, \i)$.
 		Po lemi~\ref{lem:weakening-values}, ima $V$ isti tip tudi v kontekstu razširjenem z $p$.
 		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op'}{V}{N}_2$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
 		Po pravilu \rulename{TyComp-Promise} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
