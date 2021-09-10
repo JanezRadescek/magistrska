@@ -434,7 +434,7 @@ Tretja lastnost pravi, da ko operacija sproži vse prestreznike se bodo signali 
 
 \begin{lema}\label{lem:effects-order}
 	\begin{enumerate}
-		\item $o \order{O} \pi_1 (\opincomp{op}{(\o, \i)})$
+		\item\label{lem:eo-1} $o \order{O} \pi_1 (\opincomp{op}{(\o, \i)})$
 		\item $i \order{I} (i' \cup i)$
 		\item\label{lem:eo-3} Če $\i(\op) = (\o', \i')$, potem $(\o', \i') \order{O \times I} \opincomp{\op}{(\o, \i)}$
 		\item\label{lem:eo-4} Če $\op \neq \op'$ in $\i(\op') = (\o', \i')$, potem $(\o', \i') \order{O \times I} (\pi_2(\opincomp{\op}{(\o, \i)}))(\op')$
@@ -1161,7 +1161,7 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 		
 		\item Če je $M$ oblike $\tmopout{op}{V}{N}$, potem velja $\Gamma \types V \of B$ in $\Gamma \types N \of \tycomp{A}{\o', \i'}$.
 		
-		\item Če je $M$ oblike $\tmopin{op}{V}{N}$, potem ve1lja $\Gamma \types V \of B$, $\Gamma \types N \of \tycomp{A}{\o'', \i''}$ in $\opincomp{op}{(\o'', \i'')} \order{O, I} (\o, \i)$.
+		\item Če je $M$ oblike $\tmopin{op}{V}{N}$, potem velja $\Gamma \types V \of B$, $\Gamma \types N \of \tycomp{A}{\o'', \i''}$ in $\opincomp{op}{(\o'', \i'')} \order{O, I} (\o, \i)$.
 		
 		\item Če je $M$ oblike $\tmwith{op}{x}{N_1}{p}{N_2}$, potem velja $\Gamma, x \of B_{op} \types N_1 \of \tycomp{\typromise{B}}{\o'', \i''}$ in $\Gamma, p \of \typromise{B} \types N_2 \of \tycomp{A}{\o', \i'}$ in $(\o'', \i'') = i'(op)$.
 		
@@ -1230,7 +1230,7 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmopout{op'}{W}{N}} \reduces \tmopout{op'}{W}{\tmopin{op}{V}{N}},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $A_{op}$, $\tmopout{op'}{W}{N}$ tip $\tycomp{A}{\o', \i'}$, $W$ tip $A_{op'}$ in $N$ tip $\tycomp{A}{\o'', \i''}$.
 		Velja $\opincomp{op}{(\o', \i')} \order{O \times I} (\o, \i)$ in $(\o'', \i'') \order{O \times I} (\o', \i')$.
 		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N}$ tip $\opincomp{op}{(\o'', \i'')}$. 
-		Po pravilu \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o'', \i'')}}$.
+		Po pravilu \rulename{TyComp-Signal} in lastnosti~\ref{lem:eo-1} iz leme~\ref{lem:effects-order} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o'', \i'')}}$.
 		Po lastnosti~\ref{lem:eo-5} iz leme~\ref{lem:effects-order} velja $\opincomp{op}{(\o'', \i'')} \order{O \times I} \opincomp{op}{(\o', \i')}$.
 		Po pravilu \rulename{TyComp-Subsume} in tranzitivnosti $\order{O \times I}$ ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
@@ -1289,6 +1289,7 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 Ko imamo par procesov in eden izmed njiju pošlje signal, se bo ta signal spremenil v prekinitev na drugem procesu.
 Le to bo povzročilo, da se bo tip učinkov spremenil na drugem procesu.
 Potencialno spremembo tipa formaliziramo z pravili za spremembo tipov, ki jih lahko vidimo na sliki~\ref{fig:process-type-reductions}.
+Dodatno definiramo operacijo $\opincompp{ops}{}$. Ker imamo evalvacijo v okolju in se lahko zgodi da nova operacija pride od znotraj.
 
 \begin{figure}[H]
 	\centering
@@ -1298,11 +1299,21 @@ Potencialno spremembo tipa formaliziramo z pravili za spremembo tipov, ki jih la
 			\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\o, \i}
 		}
 		\quad
-		\coopinfer{TyRedu-Change}{
+		\coopinfer{TyRedu-Add}{
 		}{
 			\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\opincomp{op}{(\o, \i)}}
 		}
 		\\
+		\coopinfer{TyRedu-Change}{
+			\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\o', \i'}
+		}{
+			\tyrun{A}{\opincomp{op}{(\o, \i)}} \tyreduces \tyrun{A}{\opincomp{op}{(\o', \i')}}
+		}
+%		\coopinfer{TyRedu-Change}{
+%		}{
+%			\tyrun{A}{\opincompp{ops}{(\o, \i)}} \tyreduces \tyrun{A}{\opincompp{ops}{(\opincomp{op}{(\o, \i)}})}
+%		}
+		\quad
 		\coopinfer{TyRedu-Par}{
 			C \tyreduces C' \\
 			D \tyreduces D'
@@ -1310,6 +1321,8 @@ Potencialno spremembo tipa formaliziramo z pravili za spremembo tipov, ki jih la
 			\typar{C}{D} \tyreduces \typar{C'}{D'}
 		}
 	\end{mathpar}
+%	$$\opincompp{[]}{(\o, \i)} \defeq (\o, \i) \qquad \opincompp{(op::ops)}{(\o, \i)} \defeq \opincomp{op}{(\opincompp{ops}{(\o, \i)})} $$
+	\vspace{-5ex}
 	\caption{Pravila za spremembo tipov.}
 	\label{fig:process-type-reductions}
 \end{figure}
@@ -1355,14 +1368,11 @@ Potencialno spremembo tipa formaliziramo z pravili za spremembo tipov, ki jih la
 		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Par}. Tip $C$ je oblike $\typar{C_1}{C_2}$.
 		Posledično ima $V$ tip $B$, $Q_1$ tip $C_1$ in $Q_2$ tip $C_2$.
 		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{Q_2}$ tip $\opincomp{op}{C_2}$.
-		Po pravilu \rulename{TyProc-Par} ima $P'$ tip $\typar{C_1}{\opincomp{op}{C_2}}$, kjer je $C_2$ naredil korak \rulename{TyRedu-Change} in $C$ naredil korak \rulename{TyRedu-Par}.
+		Po pravilu \rulename{TyProc-Par} ima $P'$ tip $\typar{C_1}{\opincomp{op}{C_2}}$, kjer je $C_1$ naredil korak \rulename{TyRedu-Same}, $C_2$ naredil korak \rulename{TyRedu-Add} in $C$ naredil korak \rulename{TyRedu-Par}.
 
 		\item Če je zadnje uporabljeno pravilo
 		$$\tmpar{Q_1}{\tmopout{op}{V}{Q_2}} \reduces \tmopout{op}{V}{\tmpar{\tmopin{op}{V}{Q_1}}{Q_2}},$$
-		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Par}. Tip $C$ je oblike $\typar{C_1}{C_2}$.
-		Posledično ima $V$ tip $B$, $Q_1$ tip $C_1$ in $Q_2$ tip $C_2$.
-		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{Q_1}$ tip $\opincomp{op}{C_1}$.
-		Po pravilu \rulename{TyProc-Par} ima $P'$ tip $\typar{\opincomp{op}{C_1}}{C_2}$, kjer je $C_1$ naredil korak \rulename{TyRedu-Change} in $C$ naredil korak \rulename{TyRedu-Par}.
+		dokazujemo podobno kot prejšnji primer.
 	
 		\item Če je zadnje uporabljeno pravilo
 		$$\tmopin{op}{V}{\tmpar{Q_1}{Q_2}} \reduces \tmpar {\tmopin{op}{V}{Q_1}} {\tmopin{op}{V}{Q_2}},$$
@@ -1421,7 +1431,7 @@ Potencialno spremembo tipa formaliziramo z pravili za spremembo tipov, ki jih la
 		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Interrupt}.
 		Posledično ima $V$ tip $B$ in $Q$ tip $C''$, kjer je $C = \opincomp{op}{C''}$.
 		Po indukcijski predpostavki ima $Q'$ tip $C'$.
-		Po pravilu \rulename{TyProc-Interrupt} ima $\tmopin{op}{V}{Q'}$ tip $\opincomp{op}{C'}$. Če je $C' = C''$, potem je $C$ naredil korak \rulename{TyRedu-Same}. Če smo $C'$ dobili z \rulename{TyRedu-Change} potem 
+		Po pravilu \rulename{TyProc-Interrupt} ima $\tmopin{op}{V}{Q'}$ tip $\opincomp{op}{C'}$, kjer je $C$ naredil korak \rulename{TyRedu-Change}.
 	\end{itemize}
 
 \end{proof}
