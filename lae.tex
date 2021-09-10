@@ -385,7 +385,7 @@ kjer je $\Rightarrow$ potenciranje, $\times$ je kartezični produkt in $(-)_\bot
 Če izračun za neko operacijo $\op$ ne bo imel prestreznika, se bo to v $i$ izražalo tako, da bo $i$ slikal $\op$ v $\bot$. 
 Sicer bo $i$ slikal $\op$ v par $(\o', \i')$, kjer $o'$ predstavlja nove signale in $i'$ nove prestreznike v izračunih obljuba.
 
-Ko izračun od zunaj dobi novo prekinitev, se mu lahko spremeni tip učinkov.
+Ko izračun od zunaj dobi novo prekinitev z operacijo $\op$, se izračunu lahko spremeni tip učinkov. Pravimo da je operacija $\op$ delovala na tip učinkov.
 Če v izračunu ni ustreznega prestreznika in posledično $i$ slika operacijo v $\bot$, potem prekinitev ne bo vplivala na izračun.
 Če pa imamo ustrezen prestreznik, kar se v tipu vidi tako da $i$ slika v nek $(\o',\i')$, potem nov tip signalov dobimo tako, da preprosto naredimo unijo $\o \cup \o'$. Ker se bo prekinitev razširila čez celotno nadaljevanje, bo sprožila vse ustrezne prestreznike in bo tip prekinitev sedaj kazal na $\bot$.
 Nato naredimo ustrezno unijo $\i \cup \i'$, da dodamo nove učinke iz obljub.
@@ -411,7 +411,7 @@ $$
 $$
 
 Na tipih učinkov imamo urejenost. Na $O$ je urejenost dana z relacijo podmnožica $\subseteq$.
-Na $I$ pa je dana z sledečo relacijo.
+Urejenost na $I$ pa je dana z sledečo relacijo.
 $$
 \begin{array}{l c l}
 	\i \order I \i'
@@ -425,6 +425,42 @@ $$
 $$
 Delno urejenost na produktu definiramo po komponentah.
 $$(\o, \i) \order{O \times I} (\o', \i') \defiff \o \order{O} \o' \wedge \i \order{I} \i'$$
+
+V lemi~\ref{lem:effects-order} navedimo nekaj lastnosti, ki jih bomo potrebovali kasneje v dokazu trditve o ohranitvi.
+Pri tem sta $\pi_1$ in $\pi_2$ prva in druga projekcija.
+Prvi lastnost nam pove, da ko prekinitev sproži vse prestreznike to ne vpliva že obstoječe signale, kvečjemu lahko dobimo kakšen nov signal.
+Tretja lastnost pravi, da ko operacija sproži vse prestreznike se bodo signali in prestrezniki v izračunih obljuba "pridružili" že obstoječim.
+Četrta lastnost pravi, da prekinitev ne vpliva na prestreznike z drugačnim imenom operacije.
+
+\begin{lema}\label{lem:effects-order}
+	\begin{enumerate}
+		\item $o \order{O} \pi_1 (\opincomp{op}{(\o, \i)})$
+		\item $i \order{I} (i' \cup i)$
+		\item Če $\i(\op) = (\o', \i')$, potem $(\o', \i') \order{O \times I} \opincomp{\op}{(\o, \i)}$
+		\item Če $\op \neq \op'$ in $\i(\op') = (\o', \i')$, potem $(\o', \i') \order{O \times I} (\pi_2(\opincomp{\op}{(\o, \i)}))(\op')$
+		\item Če $(\o, \i) \order{O \times I} (\o', \i')$, potem $\opincomp{op}{(\o, \i)} \order{O \times I} \opincomp{op}{(\o', \i')}$
+	\end{enumerate}
+\end{lema}
+
+\begin{proof}
+	\begin{enumerate}
+		\item Ali $\opincomp{op}{(\o, \i)} = (\o \cup \o' , \i[\op \mapsto \bot] \cup \i')$ ali $\opincomp{op}{(\o, \i)} = (\o, \i)$. V obeh primerih lastnost sledi.
+		\item V pogoju definicije urejenosti ločimo dva primera. Za $\op$ za katere velja $i(op) = \bot$, je pogoj na prazno izpolnjen. Poglejmo sedaj tiste $\op$ za katere velja $i(op) = (\o'', \i'')$. 
+		Če $i'(op) = \bot$, tedaj je $(\i' \cup \i)(op) = (\o'', \i'')$ in pogoj iz definicije $\order{I}$ velja.
+		Če $i'(op) = (\o''', \i''')$, tedaj je $(\i' \cup \i)(op) = (\o'' \cup \o''', \i'' \cup i''')$.
+		Po indukcijski predpostavki pogoj iz definicije $\order{I}$ ponovno velja.
+		\item Če $\i(\op) = (\o', \i')$ potem $\opincomp{op}{(\o, \i)} = (\o \cup \o' , \i[\op \mapsto \bot] \cup \i')$. Očitno velja $\o' \order{O} (\o \cup o')$.
+		Prav tako velja $\i' \order{I} (\i[\op \mapsto \bot] \cup \i')$ po drugi točki te leme.
+		\item Ločimo dve možnosti.
+		Prva možnost je, da $\i(op) = (\o'', \i'')$. Potem velja $\opincomp{\op}{(\o, \i)} = (\o \cup \o'' , \i[\op \mapsto \bot] \cup \i'')$.
+		Ker $\op \neq \op'$ velja $\i[\op \mapsto \bot](\op') = (\o', \i')$.
+		Posledično velja $(\o', \i') \order{O \times I} (\i[\op \mapsto \bot] \cup \i'')(\op')$, ker je $\i[\op \mapsto \bot] \order{I} \i[\op \mapsto \bot] \cup \i''$ in upoštevajoč definicijo $\order{I}$. Ker $(\i[\op \mapsto \bot] \cup \i'')(\op') = (\pi_2(\opincomp{\op}{(\o, \i)}))(\op')$ je lastnost dokazana.
+		Druga možnost je $\i(op) = \bot$. Tedaj je $\opincomp{op}{(\o, \i)} = (\o, \i)$ in trditev sledi. 
+		\item Ker je $\i \order{I} \i'$, velja $(\_, \i'') = \i(op) \order{O \times I} \i'(op) = (\_, \i''')$. Posledično velja $\pi_2(\opincomp{op}{(\o, \i)}) = \i \cup \i'' \order{I} \i' \cup \i''' = \pi_2(\opincomp{op}{(\o', \i')})$.
+		Urejenost za tipe signalov pokažemo simetrično.
+	\end{enumerate}
+\end{proof}
+
 Za tip $\tycomp{A}{\o, \i}$ rečemo, da je pod tip tipa $\tycomp{A}{\o', \i'}$, če velja $(\o, \i) \order{O \times I} (\o', \i')$. Če lahko izračunu določimo nek podtip tipa $\tycomp{A}{\o, \i}$, potem ima izračun tudi tip $\tycomp{A}{\o', \i'}$.
 
 %Vsaki operaciji priredimo nek tip, kot vidimo na sliki~\ref{fig:tipi}.
@@ -1125,9 +1161,9 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 		
 		\item Če je $M$ oblike $\tmopout{op}{V}{N}$, potem velja $\Gamma \types V \of B$ in $\Gamma \types N \of \tycomp{A}{\o', \i'}$.
 		
-		\item Če je $M$ oblike $\tmopin{op}{V}{N}$, potem velja $\Gamma \types V \of B$, $\Gamma \types N \of \tycomp{A}{\o'', \i''}$ in $\opincomp{op}{(\o'', \i'')} \order{O, I} (\o, \i)$.
+		\item Če je $M$ oblike $\tmopin{op}{V}{N}$, potem ve1lja $\Gamma \types V \of B$, $\Gamma \types N \of \tycomp{A}{\o'', \i''}$ in $\opincomp{op}{(\o'', \i'')} \order{O, I} (\o, \i)$.
 		
-		\item Če je $M$ oblike $\tmwith{op}{x}{N_1}{p}{N_2}$, potem velja $\Gamma, x \of B_{op} \types N_1 \of \tycomp{\typromise{B}}{\o'', \i''}$ in $\Gamma, p \of \typromise{B} \types N_1 \of \tycomp{A}{\o', \i'}$.
+		\item Če je $M$ oblike $\tmwith{op}{x}{N_1}{p}{N_2}$, potem velja $\Gamma, x \of B_{op} \types N_1 \of \tycomp{\typromise{B}}{\o'', \i''}$ in $\Gamma, p \of \typromise{B} \types N_2 \of \tycomp{A}{\o', \i'}$ in $(\o'', \i'') = i'(op)$.
 		
 	\end{itemize}
 \end{lema}
@@ -1175,8 +1211,10 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N_2[W/y]$ tip $\tycomp{A}{\o', \i'}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmlet{x}{(\tmopout{op}{V}{N_1})}{N_2} \reduces \tmopout{op}{V}{\tmlet{x}{M}{N}},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $B_{op}$, $\tmopout{op}{V}{N_1}$ tip $\tycomp{B}{\o, \i}$, $N_1$ tip $\tycomp{B}{\o'', \i''}$ in $N_2$ tip $\tycomp{A}{\o', \i'}$, kjer je $(\o'', \i'') \order{O, I} (\o', \i')$.
-		Po pravilih \rulename{TyComp-Let} in \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o', \i'}$.
+		\item Če je zadnje pravilo $$\tmlet{x}{(\tmopout{op}{V}{N_1})}{N_2} \reduces \tmopout{op}{V}{\tmlet{x}{N_1}{N_2}},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $B_{op}$, $\tmopout{op}{V}{N_1}$ tip $\tycomp{B}{\o', \i'}$, $N_1$ tip $\tycomp{B}{\o'', \i''}$ in $N_2$ tip $\tycomp{A}{\o', \i'}$, kjer je $(\o'', \i'') \order{O \times I} (\o', \i')$.
+		Po pravilu \rulename{TyComp-Subsume} ima $N_1$ tip $\tycomp{B}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Let} ima $\tmlet{x}{N_1}{N_2}$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o', \i'}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo $$\tmlet{x}{(\tmwith{op}{y}{N_1}{p}{N_2})}{N_3} \reduces$$ $$ \tmwith{op}{y}{N_1}{p}{(\tmlet{x}{N_2}{N_3})},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N_1$ tip $\tycomp{\typromise{A_1}}{\o''', \i'''}$, $N_2$ tip $\tycomp{A_2}{\o'', \i''}$ in $N_3$ tip $\tycomp{A}{\o', \i'}$.
@@ -1185,25 +1223,31 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo $$\tmwith{op}{x}{N_1}{p}{\tmopout{op'}{V}{N_2}} \reduces$$ $$ \tmopout{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N_1$ tip $\tycomp{B}{\o''', \i'''}$, $\tmopout{op'}{V}{N_2}$ tip $\tycomp{A}{\o'', \i''}$, $N_2$ tip $\tycomp{A}{\o', \i'}$ in $V$ tip $A_{op}$.
-		Po pravilih \rulename{TyComp-Promise} ima $\tmwith{op}{x}{N_1}{p}{N_2}$ tip $\tycomp{A}{\o', \i'}$.
+		Po pravilu \rulename{TyComp-Promise} ima $\tmwith{op}{x}{N_1}{p}{N_2}$ tip $\tycomp{A}{\o', \i'}$.
 		Po lemi~\ref{lem:tovor-osnovni-tip-skrcitev} ima $V$ še zmeraj tip $A_{op}$ tudi v manjšem kontekstu. Po pravilu \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\o', \i'}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmopout{op'}{W}{N}} \reduces \tmopout{op'}{W}{\tmopin{op}{V}{N}},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $A_{op}$, $W$ tip $A_{op'}$ in $N$ tip $\tycomp{A}{\o', \i'}$.
-		Po pravilu \rulename{TyComp-Signal} in \rulename{TyComp-Interrupt} ima $M'$ tip $\tycomp{A}{\o', \i'}$.
-		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
+		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmopout{op'}{W}{N}} \reduces \tmopout{op'}{W}{\tmopin{op}{V}{N}},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $A_{op}$, $\tmopout{op'}{W}{N}$ tip $\tycomp{A}{\o', \i'}$, $W$ tip $A_{op'}$ in $N$ tip $\tycomp{A}{\o'', \i''}$.
+		Velja $\opincomp{op}{(\o', \i')} \order{O \times I} (\o, \i)$ in $(\o'', \i'') \order{O \times I} (\o', \i')$.
+		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N}$ tip $\opincomp{op}{(\o'', \i'')}$. 
+		Po pravilu \rulename{TyComp-Signal} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o'', \i'')}}$.
+		Po lem~\ref{lem:effects-order} velja $\opincomp{op}{(\o'', \i'')} \order{O \times I} \opincomp{op}{(\o', \i')}$.
+		Po pravilu \rulename{TyComp-Subsume} in tranzitivnosti $\order{O \times I}$ ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmreturn W} \reduces \tmreturn W,$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $\tmreturn{W}$ tip $\tycomp{A}{\o', \i'}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo $$\tmopin{op}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces \tmlet{p}{N_1[V/x]}{\tmopin{op}{V}{N_2}},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $A_{op}$, $N_1$ tip $\tycomp{\typromise{B}}{\o'', \i''}$ in $N_2$ tip $\tycomp{A}{\o', \i'}$.
+		Velja $\opincomp{op}{(\o', \i')} \order{O \times I} (\o, \i)$.
 		Po lemi~\ref{lem:substitucija-izračuni} ima $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\o'', \i''}$.
 		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N_2}$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
-		Ker velja $\i(op) = (\o'', \i'')$, velja $(\o'', \i'') \order{O \times I} \opincomp{op}{(\o', \i')}$ in posledično ima po pravilu \rulename{TyComp-Subsume} izračun $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\opincomp{op}{(\o', \i')}}$
+		Ker je $\i'(op) = (\o'', \i'')$, velja $(\o'', \i'') \order{O \times I} \opincomp{op}{(\o', \i')}$ po lemi~\ref{lem:effects-order}.
+		Po pravilu \rulename{TyComp-Subsume} ima izračun $N_1[V/x]$ tip $\tycomp{\typromise{B}}{\opincomp{op}{(\o', \i')}}$.
 		Po pravilu \rulename{TyComp-Let} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo $$\tmopin{op'}{V}{\tmwith{op}{x}{N_1}{p}{N_2}} \reduces$$ $$ \tmwith{op}{x}{N_1}{p}{\tmopin{op'}{V}{N}_2},$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $V$ tip $A_{op}$, $N_1$ tip $\tycomp{\typromise{B}}{\o'', \i''}$ in $N_2$ tip $\tycomp{A}{\o', \i'}$.
+		Velja $\opincomp{op}{(\o', \i')} \order{O \times I} (\o, \i)$.
 		Po lemi~\ref{lem:weakening-values}, ima $V$ isti tip tudi v kontekstu razširjenem z $p$.
 		Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op'}{V}{N}_2$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
 		Po pravilu \rulename{TyComp-Promise} ima $M'$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
@@ -1215,7 +1259,7 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 		
 		\item Če je zadnje pravilo evalvacija v okolju ločimo štiri primere glede na obliko $M$.
 		\begin{itemize}
-			\item Če je oblike $$\tmlet{x}{N}{N''},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{B}{\o', \i'}$ in $N''$ tip $\tycomp{A}{\o'', \i''}$.
+			\item Če je oblike $$\tmlet{x}{N}{N''},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{B}{\o', \i'}$ in $N''$ tip $\tycomp{A}{\o', \i'}$.
 			Po indukcijski predpostavki ima $N'$ tip $\tycomp{B}{\o', \i'}$.
 			Po pravilu \rulename{TyComp-Subsume} ima $N'$ tip $\tycomp{A}{\o, \i}$.
 			Po pravilu \rulename{TyComp-Subsume} ima $N''$ tip $\tycomp{A}{\o, \i}$.
@@ -1226,14 +1270,14 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 			Po pravilu \rulename{TyComp-Signal} ima $\tmopout{op}{V}{N'}$ tip $\tycomp{A}{\o', \i'}$.
 			Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 			
-			\item Če je oblike $$\tmopin{op}{V}{N},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{A}{\o'', \i''}$ in velja $\opincomp{op}{(\o'', \i'')} \order{O, I} (\o, \i)$.
-			Po indukcijski predpostavki ima $N'$ tip $\tycomp{A}{\o'', \i''}$.
-			Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N'}$ tip $\tycomp{A}{\opincomp{op}{(\o'', \i'')}}$.
+			\item Če je oblike $$\tmopin{op}{V}{N},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{A}{\o', \i'}$ in velja $\opincomp{op}{(\o', \i')} \order{O, I} (\o, \i)$.
+			Po indukcijski predpostavki ima $N'$ tip $\tycomp{A}{\o', \i'}$.
+			Po pravilu \rulename{TyComp-Interrupt} ima $\tmopin{op}{V}{N'}$ tip $\tycomp{A}{\opincomp{op}{(\o', \i')}}$.
 			Izračun $M'$ ima tip $\tycomp{A}{\o, \i}$ po pravilu \rulename{TyComp-Subsume}.
 			
 			\item Če je oblike $$\tmwith{op}{x}{N''}{N},$$ potem ima po lemi~\ref{lem:inversion-lema} izračun $N$ tip $\tycomp{A}{\o', \i'}$ in $N''$ tip $\tycomp{\typromise{B}}{\o'', \i''}$.
 			Po indukcijski predpostavki ima $N'$ tip $\tycomp{A}{\o', \i'}$.
-			Po pravilu \rulename{TyComp-Promise} ima $\tmwith{op}{x}{N''}{N'}$ tip $\tycomp{A}{\o', \i'}$.
+			Po pravilu \rulename{TyComp-Promise} ima $\tmwith{op}{x}{N''}{p}{N'}$ tip $\tycomp{A}{\o', \i'}$.
 			Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		\end{itemize}
 
