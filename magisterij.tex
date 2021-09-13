@@ -11,10 +11,9 @@
 \newcommand{\imesomentorja}{asist.~raz.~dr.~Danel~Ahman} % akademski naziv in ime somentorja, če ga imate
 \newcommand{\naslovdela}{Asinhroni algebrajski učinki}
 \newcommand{\letnica}{2021} % letnica magistriranja
-\newcommand{\opis}{Delo obravnava integracijo po ω-kompleksih, njene lastnosti in posplošitve
-na Levy-jeve topološke prostore.}  % Opis dela v eni povedi. Ne sme vsebovati matematičnih simbolov v $ $.
-\newcommand{\kljucnebesede}{integracija\sep kompleks} % ključne besede, ločene z \sep, da se PDF metapodatki prav procesirajo
-\newcommand{\keywords}{integration\sep complex} % ključne besede v angleščini
+\newcommand{\opis}{Delo obravnava asinhrono izvajanje v navezi z algebrajskimi učinki.}  % Opis dela v eni povedi. Ne sme vsebovati matematičnih simbolov v $ $.
+\newcommand{\kljucnebesede}{asinhrono izvajanje\sep algebrajski učinki\sep vzporedno izvajanje\sep prestrezniki\sep signali} % ključne besede, ločene z \sep, da se PDF metapodatki prav procesirajo
+\newcommand{\keywords}{asynchronous execution\sep algebraic effects\sep parallel execution\sep handlers\sep signals} % ključne besede v angleščini
 \newcommand{\organization}{Univerza v Ljubljani, Fakulteta za matematiko in fiziko} % fakulteta
 \newcommand{\literatura}{literatura}  % pot do datoteke z literaturo (brez .bib končnice)
 \newcommand{\sep}{, }  % separator med ključnimi besedami v besedilu
@@ -211,9 +210,9 @@ Zahvaljujem se \dots
 \end{center}
 %Tukaj napišemo povzetek vsebine. Sem sodi razlaga vsebine in ne opis tega, kako je delo
 %organizirano.
-V delu si pogledamo programski jezik \aeff{} in \lae{}-račun na katerem temelji. Glavna lastnost \lae{}-računa je možnost asinhronega izvajanja v navezi z vzporednim izvajanjem. To dosežemo tako, da ko prestreznik čaka, da dobi odgovor v obliki efekta iz drugega procesa, naprej izvaja svoje nadaljevanje. Ko prestreže želeni efekt ga primerno obdela in izvajanje se spet nadaljuje. Osnovno verzijo \lae{}-računa razširimo z rekurzivnimi obljubami, mobilnimi tipi in dinamičnimi procesi. Rekurzivne obljube omogočijo, da bo program lahko reagiral na več efektov z istim imenom operacije. Mobilni tipi omogočijo pošiljanje funkcij, ki jih prej nismo mogli. Dinamični procesi pa omogočijo ustvarjanje novih procesov sproti po potrebi. 
+V delu si pogledamo programski jezik \aeff{} in \lae{}-račun na katerem temelji. Glavna lastnost \lae{}-računa je možnost asinhronega izvajanja v navezi z vzporednim izvajanjem. To dosežemo tako, da prestreznik naprej izvaja svoje nadaljevanje, medtem ko čaka, da dobi odgovor v obliki učinka iz drugega procesa. Ko prestreže želeni učinek, ga primerno obdela in izvajanje se spet nadaljuje. Osnovno verzijo \lae{}-računa razširimo z rekurzivnimi obljubami, mobilnimi tipi in dinamičnimi procesi. Rekurzivne obljube omogočijo, da bo program lahko reagiral na več učinkov z istim imenom operacije. Mobilni tipi omogočijo pošiljanje vrednosti višjega reda, predvsem funkcij. Dinamični procesi omogočijo ustvarjanje novih procesov sproti po potrebi. 
 Dokažemo izreka o napredku in ohranitvi za osnovni in razširjen \lae{}-račun.
-Omenimo tudi nekatere razlike med teoretično in implementirano verzijo.
+Omenimo tudi nekatere razlike med \lae{}-računom in dejansko implementacijo jezika \aeff{}.
 
 
 
@@ -222,10 +221,16 @@ Omenimo tudi nekatere razlike med teoretično in implementirano verzijo.
 \textbf{Asynchronous algebraic effects} \\[3mm] % prevod slovenskega naslova dela
 \textsc{Abstract}\\[2mm]
 \end{center}
-
 %An abstract of the work is written here. This includes a short description of
 %the content and not the structure of your work.
-TODO
+We look at programming language \aeff{} and \lae{}-calculus on which \aeff{} is based. The main feature of the \lae-calculus is the ability to run asynchronously in conjunction with parallel execution.
+This is accomplished by continuing to perform handlers continuation while it waits to receive a response in the form of an effect from another process. Once it captures the desired effect, it processes it appropriately and execution resumes.
+We extend the basic version of the \lae{}-calculus with recursive promises, mobile types, and dynamic processes.
+Recursive promises allow the program to be able to respond to multiple effects with the same operation name.
+Mobile types allow you to send higher-order values, especially functions.
+Dynamic processes allow you to create new processes on the fly as needed.
+We prove the progress and preservation theorem for the basic and extended \lae{}-calculus.
+We also mention some differences between the \lae{}-calculus and the actual implementation of the \aeff{} language. 
 
 \vfill\noindent
 \textbf{Math.~Subj.~Class.~(2010):} oznake kot 74B05, 65N99, na voljo so na naslovu

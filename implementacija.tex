@@ -7,11 +7,8 @@ Parserja, ki prevede tekst v abstraktno sintaktično drevo (AST) in preveri ustr
 Pregledovalnika tipov, ki preveri, da ima dani program tip.
 In tolmača, ki izvaja korake, dokler ne pride do rezultata.
 
-\subsection{Izrazi}
 
 Da \aeff{} postane bolj uporaben so mu dodane konstantni vrednosti $\true$ in $\false$, funkcije kot so $+, -, *, / ...$, reference in globalne spremenljivke.
-
-Izračun $\tmkw{if}\ V\ \tmkw{then}\ M\ \tmkw{else}\ N$ je sintaktičen sladkor za $\tmmatch{V}{\true \mapsto M, \false \mapsto N}$.
 
 Izračun $\uparrow\hspace{-1ex}\op (V);M$ je sintaktičen sladkor za $\tmlet{\_}{\tmopout{op}{V}{return ()}}{M}$.
 Podobno je $\tmkw{spawn}(M);N$ sintaktičen sladkor za $\tmlet{\_}{\tmspawn{M}{return ()}}{N}$. 
@@ -25,19 +22,11 @@ Sedaj imamo problem, ker uporabljamo [] tako za sezname kot za zavite vrednosti.
 V poglavju~\ref{sec:razsirjen-lae}, kjer v dveh primerih uporabimo seznam, nadomestimo konstruktor za prazen seznam z $\mathsf{nil}$ in ohranimo [] za zavite vrednosti, ki so bistvene v tem delu.
 Nasprotno v dejanski implementaciji \aeff{} raje ohranimo [] za prazen seznam in spremenimo sintakso zavite vrednosti v $[|V|]$. 
 
-
-\subsection{Sistem tipov}\label{sec:tipi}
-
 Prvotna implementacija jezika \aeff{} izračuna tip programa z Hindley–Milnerjevim algoritmom. 
 Kasneje je bil typechecker spremenjen, da je uporabljal dvosmerni sistem tipov (bidirectional typing), ki temelji na algoritmu iz članka~\cite{bidirectional}.
 Glavna ideja dvosmernega sistema tipov je, da lahko dinamično izmenjuje med preverjanjem in računanjem tipa. Kadar so tipi pripisani izrazom, tip le preverimo, kar je enostavneje, kot ga izračunati in v primeru napake lahko izpiše boljše poročilo o napaki. Vendar pa pripisovanje tipov ni obvezno in ga v tem primeru lahko izračunamo. Posledično lahko uporabnik, poda tip le nekaterim delom programa, preostalim pa ne.
 Tako prva kot druga verzija ne preverjata tipe učinkov, ampak le standardni tip.
 
-\subsection{Tolmač}\label{sec:interpreter}
-
 Čeprav ima \aeff{} možnost vzporednega izvajanja in smo to do sedaj v primerih programov predpostavljali, sama implementacije zaenkrat le simulira vzporedno izvajanje.
-
-
-\subsection{Standardna knjižnica}\label{sec:std}
 
 Dodana je kratka standardna knjižnica v kateri lahko najdemo osnovne funkcije kot so $\mathsf{nth}$, $\mathsf{map}$, $\mathsf{filter}$, $\mathsf{min}$, $\mathsf{max}$, $\mathsf{length}$, $\mathsf{fold\_left}$, $\mathsf{fold\_right}$...

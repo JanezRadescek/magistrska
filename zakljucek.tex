@@ -4,6 +4,8 @@ Pokazali smo kako združiti asinhrono izvajanje programa v navezi z učinki in p
 
 Še zmeraj so določene stvari nenarejene ali pa bi jih lahko izboljšali.
 
+V bodoče bi se lahko tolmač napisalo v razširitvi Multicore OCaml, ki omogoča vzporedno izvajanje, in posledično bi lahko tudi jezik \aeff{} podpiral vzporedno izvajanje. 
+
 V implementaciji manjka preverjanje tipov učinkov. Posledično nimamo koristi, ki jih tipi učinkov prinesejo. Ena izmed koristi učinkov je sledeča optimizacija. Če imamo $\tmopin{op}{V}{M}$, kjer $\Gamma \types M \of \tycomp{A}{\o, \i}$ in $\i(\op) = \bot$, potem lahko naredimo korak direktno v $M$. 
 
 Naslednja optimizacija bi bila da, namesto da se signali počasi širijo navzven do nivoja procesov korak za korakom, bi se lahko razširili v enem samem velikem koraku.
