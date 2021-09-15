@@ -186,13 +186,21 @@ Zahvaljujem se \dots
 %Mentor naj napiše program dela skupaj z osnovno literaturo. Na literaturo se
 %lahko sklicuje kot~\cite{lebedev2009introduction}, \cite{gurtin1982introduction},
 %\cite{zienkiewicz2000finite}, \cite{STtemplate}.
+V današnjem času se vedno več programov na lokalni napravi izvaja usklajeno z oddaljenim strežnikom.
+Sinhrono izvajanje, pri katerem klicoči računalnik počaka na odziv klicanega, je sicer enostavno za implementacijo, vendar je za uporabnika praktično neuporabno, saj bi na primer pametni telefon postal neodziven, dokler bi čakal na zahtevane podatke s strežnika.
+Za dobro uporabniško izkušnjo moramo vložiti veliko dodatnega truda in programe pisati \emph{asinhrono}, pri čemer nam lahko precej pomaga dobro zasnovan programski jezik.
+
+V delu predstavite algebrajski pristop k asinhronemu izvajanju~\cite{aeff} ter prototipni programski jezik Æff~\cite{webaeff}.
+Izpostavite težave, zaradi katerih je treba omejiti vrste podatkov, ki jih lahko prenašamo, ter raziščite razširitev z modalnimi tipi~\cite{fitch}. Razširjeni jezik tudi implementirajte.
 
 \section*{Osnovna literatura}
 %Literatura mora biti tukaj posebej samostojno navedena (po pomembnosti) in ne
 %le citirana. V tem razdelku literature ne oštevilčimo po svoje, ampak uporabljamo
 %okolje itemize in ukaz plancite, saj je celotna literatura oštevilčena na koncu.
 \begin{itemize}
-  \plancite{STtemplate}
+  \plancite{aeff}
+  \plancite{webaeff}
+  \plancite{fitch}
 \end{itemize}
 
 \vspace{2cm}
@@ -233,8 +241,7 @@ We prove the progress and preservation theorem for the basic and extended \lae{}
 We also mention some differences between the \lae{}-calculus and the actual implementation of the \aeff{} language. 
 
 \vfill\noindent
-\textbf{Math.~Subj.~Class.~(2010):} oznake kot 74B05, 65N99, na voljo so na naslovu
-\url{http://www.ams.org/msc/msc2010.html} \\[1mm]
+\textbf{Math.~Subj.~Class.~(2010):} 68M99, 68N15, 68N18, 68N19, 68Q85 \\[1mm]
 \textbf{Ključne besede:} \kljucnebesede \\[1mm]
 \textbf{Keywords:} \keywords
 
@@ -252,7 +259,7 @@ We also mention some differences between the \lae{}-calculus and the actual impl
 
 \include{razsiritev.tex}
 
-\include{implementacija.tex}
+%\include{implementacija.tex}
 
 \include{zakljucek.tex}
 
