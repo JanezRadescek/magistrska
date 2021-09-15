@@ -13,32 +13,27 @@ In tolmača, ki izvaja korake, dokler ne pride do rezultata.
 
 
 Da \aeff{} postane bolj uporaben so mu dodane konstantni vrednosti $\true$ in $\false$, funkcije kot so $+, -, *, / ...$, reference in globalne spremenljivke.
+Dodamo tudi tip seznamov. Za prazen seznam uporabimo konstruktor []. Elementa mu lahko dodajamo z $::$, recimo 1::2::3::[].
+Sedaj imamo problem, ker uporabljamo [] tako za sezname kot za zavite vrednosti.
+V poglavju~\ref{sec:razsirjen-lae}, kjer v dveh primerih uporabimo seznam, nadomestimo konstruktor za prazen seznam z $\mathsf{nil}$ in ohranimo [] za zavite vrednosti, ki so bistvene v tem delu.
+Nasprotno v dejanski implementaciji \aeff{} raje ohranimo [] za prazen seznam in spremenimo sintakso zavite vrednosti v $[|V|]$. 
+Dodana je kratka standardna knjižnica v kateri lahko najdemo osnovne funkcije kot so $\mathsf{nth}$, $\mathsf{map}$, $\mathsf{filter}$, $\mathsf{min}$, $\mathsf{max}$, $\mathsf{length}$, $\mathsf{fold\_left}$, $\mathsf{fold\_right}$...
 
-Izračun $\uparrow\hspace{-1ex}\op (V);M$ je sintaktičen sladkor za $\tmlet{\_}{\tmopout{op}{V}{return ()}}{M}$.
-Podobno je $\tmkw{spawn}(M);N$ sintaktičen sladkor za $\tmlet{\_}{\tmspawn{M}{return ()}}{N}$. 
 %Izračun $M;N$ je sintaktičen sladkor za $\tmlet{\_}{M}{N}$, ki ga lahko uporabimo kadar rezultat izračuna $M$ ni uporabljen v $N$.
 
 Varovan prestreznik $$\tmwithrecgu{op}{x}{r}{P(x)}{M}{p}{N},$$ je sintaktičen sladkor za $$\tmwithrec{op}{x}{r}{\tmif{P(x)}{M}{r()}}{p}{N}.$$
 Nanj lahko gledamo kot na prestreznik, ki se sproži, le kadar je poleg pravega imena operacije tudi pravi tovor.
 
-Dodamo tudi seznam. Za prazen seznam uporabimo konstruktor []. Elementa mu lahko dodajamo z $::$, recimo 1::2::3::[].
-Sedaj imamo problem, ker uporabljamo [] tako za sezname kot za zavite vrednosti.
-V poglavju~\ref{sec:razsirjen-lae}, kjer v dveh primerih uporabimo seznam, nadomestimo konstruktor za prazen seznam z $\mathsf{nil}$ in ohranimo [] za zavite vrednosti, ki so bistvene v tem delu.
-Nasprotno v dejanski implementaciji \aeff{} raje ohranimo [] za prazen seznam in spremenimo sintakso zavite vrednosti v $[|V|]$. 
-
 Prvotna implementacija jezika \aeff{} izračuna tip programa z Hindley–Milnerjevim algoritmom. 
-Kasneje je bil typechecker spremenjen, da je uporabljal dvosmerni sistem tipov (bidirectional typing), ki temelji na algoritmu iz članka~\cite{bidirectional}.
+Kasneje je bil sistem za preverjanje tipov spremenjen, da je uporabljal dvosmerni sistem tipov (bidirectional typing), ki temelji na algoritmu iz članka~\cite{bidirectional}.
 Glavna ideja dvosmernega sistema tipov je, da lahko dinamično izmenjuje med preverjanjem in računanjem tipa. Kadar so tipi pripisani izrazom, tip le preverimo, kar je enostavneje, kot ga izračunati in v primeru napake lahko izpiše boljše poročilo o napaki. Vendar pa pripisovanje tipov ni obvezno in ga v tem primeru lahko izračunamo. Posledično lahko uporabnik, poda tip le nekaterim delom programa, preostalim pa ne.
 Tako prva kot druga verzija ne preverjata tipe učinkov, ampak le standardni tip.
-
-Čeprav ima \aeff{} možnost vzporednega izvajanja in smo to do sedaj v primerih programov predpostavljali, sama implementacije zaenkrat le simulira vzporedno izvajanje.
-
-Dodana je kratka standardna knjižnica v kateri lahko najdemo osnovne funkcije kot so $\mathsf{nth}$, $\mathsf{map}$, $\mathsf{filter}$, $\mathsf{min}$, $\mathsf{max}$, $\mathsf{length}$, $\mathsf{fold\_left}$, $\mathsf{fold\_right}$...
 
 \subsection{Bodoče delo}
 
 Še zmeraj so določene stvari nenarejene ali pa bi jih lahko izboljšali.
 
+Čeprav ima \aeff{} možnost vzporednega izvajanja in smo to do sedaj v primerih programov predpostavljali, sama implementacije zaenkrat le simulira vzporedno izvajanje.
 V bodoče bi se lahko tolmač napisalo v razširitvi Multicore OCaml, ki omogoča vzporedno izvajanje, in posledično bi lahko tudi jezik \aeff{} podpiral vzporedno izvajanje. 
 
 V implementaciji manjka preverjanje tipov učinkov. Posledično nimamo koristi, ki jih tipi učinkov prinesejo. Ena izmed koristi je sledeča optimizacija. Če imamo $\tmopin{op}{V}{M}$, kjer $\Gamma \types M \of \tycomp{A}{\o, \i}$ in $\i(\op) = \bot$, potem lahko naredimo korak direktno v $M$, saj iz $\i(\op) = \bot$ vemo, da $M$ ne vsebuje prestreznika za to prekinitev. 

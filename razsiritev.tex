@@ -10,7 +10,7 @@ Ni vseeno kateri rezultat prestrežemo, ampak mora biti rezultat z ustreznim id-
 Namesto da sama funkcija $\mathsf{povezi}$ čaka na rezultat in ga vrne, bo takoj vrnila pomožno funkcijo, le ta pa bo po potrebi čakala na rezultat.  
 V prvem procesu ustvarimo referenco in s pomočjo $\mathsf{povezi}$ začnemo računati dve pomožni vrednosti, na kateri pa ne čakamo, da se izračunata, ampak nemudoma začnemo z računanjem vrednosti $\mathsf{z}$. Nato kličemo pomožni funkciji $\mathsf{y1}$ in $\mathsf{y2}$, ki bosta po potrebi čakali na rezultat in nato vrnili dejanski rezultat. Na koncu tri vrednosti seštejemo.
 V drugem procesu začnemo funkcijo $\mathsf{streznik}$ s seznamom dveh funkcij.
-
+Omenimo, da v primeru uporabljamo izračun $\uparrow\hspace{-0.5ex}\op (V);M$, ki je sintaktičen sladkor za $\tmlet{\_}{\tmopout{op}{V}{\tmreturn{()}}}{M}$.
 
 \begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-0},float,floatplacement=h]
 operation opravilo : int * int * int
@@ -424,7 +424,8 @@ Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo 
 
 Sedaj ko imamo dinamične procese, lahko obe evalvaciji funkcije $\mathsf{f}$ v $\mathsf{streznik}$ opravimo hkrati v svojem procesu, kar potencialno pohitri izvajanje programa. 
 Tu bi opozorili da ne smemo odviti funkcije $\mathsf{fZavita}$ in nato podati novemu procesu odvito funkcijo $\mathsf{f}$, ampak moramo novemu procesu podati zavito funkcijo, ki si jo mora nov proces sam odviti. 
-Primer~\ref{prog:razsiritev-2} lahko sedaj spremenimo v~\ref{prog:razsiritev-3}. 
+Primer~\ref{prog:razsiritev-2} lahko sedaj spremenimo v~\ref{prog:razsiritev-3}.
+Izračun $\tmkw{spawn}(M);N$ je sintaktičen sladkor za $\tmlet{\_}{\tmspawn{M}{\tmreturn{()}}}{N}$. 
 
 \begin{lstlisting}[caption={Primer z dinamičnimi procesi},label={prog:razsiritev-3},float,floatplacement=H]
 operation opravilo : int * [int -> int] * int
