@@ -106,12 +106,13 @@ Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verzij
 		\tmlet{x}{(\tmwithrec{op}{y}{r}{M}{p}{N_1})}{N_2} \reduces \\
 		\tmwithrec{op}{y}{r}{M}{p}{(\tmlet{x}{N_1}{N_2})}
 	\end{align*}
-	\vspace{-6ex}
+	\vspace{-5ex}
 	\begin{align*}
 		\tmwithrec{op}{x}{r}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}}
-		\\
+		\razmik
 		\tmopin{op}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, R/r]}{\tmopin{op}{V}{N}} \\
-		\text{kjer }R = \;& \tmfunano{y}{(\tmwithrec{op}{r}{x}{M}{p}{\tmreturn{p}})} \\
+		\text{kjer }R = \;& \tmfunano{y}{(\tmwithrec{op}{r}{x}{M}{p}{\tmreturn{p}})}
+		\razmik
 		\tmopin{op'}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmwithrec{op}{x}{r}{M}{p}{\tmopin{op'}{V}{N}} \\
 		&\qquad {\color{rulenameColor}(\op \neq \op')}
 	\end{align*}
@@ -386,17 +387,17 @@ Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
 	\begin{align*}
 	\tmlet{x}{(\tmspawn{M_1}{M_2})}{N} & \reduces \tmspawn{M_1}{\tmlet{x}{M_2}{N}}
 	\end{align*}
-	\vspace{-6ex}
+	\vspace{-5ex}
 	\begin{align*}
 	\tmwithrec{op}{x}{r}{M}{p}{\tmspawn{N_1}{N_2}} \reduces \\
 	\tmspawn{N_1}{\tmwithrec{op}{x}{r}{M}{p}{N_2}}
 	\end{align*}
-	\vspace{-6ex}
+	\vspace{-5ex}
 	\begin{align*}
 	\tmopin{op}{V}{\tmspawn{M}{N}} & \reduces \tmspawn{M}{\tmopin{op}{V}{N}}
-	\\
+	\razmik
 	\tmrun{(\tmspawn{M}{N})} & \reduces \tmpar{\tmrun{M}}{\tmrun{N}}
-	\\
+	\razmik
 	\tmrun{(\tmspawn{M}{N})} & \reduces \tmpar{\tmrun{N}}{\tmrun{M}}
 	\end{align*}
 	

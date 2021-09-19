@@ -87,15 +87,23 @@ V nadaljevanju bomo uporabljali substitucije.  Substitucije na vrednostih in izr
 	\end{mathpar}
 	\textbf{Izračuni}
 	\begin{align*}
-		(\tmreturn{W})[V/x] &= \tmreturn{(W[V/x])} \\
-		(\tmlet{y}{M}{N})[V/x] &= \tmlet{y}{(M[V/x])}{(N[V/x])} \\
-		(\tmmatch{W}{\tmpair{y_1}{y_2} \mapsto M})[V/x] &= \tmmatch{W[V/x]}{\tmpair{y_1}{y_2} \mapsto (M[V/x])} \\
+		(\tmreturn{W})[V/x] &= \tmreturn{(W[V/x])}
+		\razmik
+		(\tmlet{y}{M}{N})[V/x] &= \tmlet{y}{(M[V/x])}{(N[V/x])}
+		\razmik
+		(\tmmatch{W}{\tmpair{y_1}{y_2} \mapsto M})[V/x] &= \tmmatch{W[V/x]}{\tmpair{y_1}{y_2} \mapsto (M[V/x])}
+		\razmik
 		(\tmmatch{W}{\tminl{y_1} \mapsto M_1, \tminr{y_2} \mapsto& M_2})[V/x] = \\  
-		\tmmatch{W[V/x]&}{\tminl{y_1} \mapsto (M_1[V/x]), \tminr{y_2} \mapsto (M_2[V/x])} \\
-		(\tmapp{W_1}{W_2})[V/x] &= \tmapp{(W_1[V/x])}{(W_2[V/x])} \\
-		(\tmopout{op}{W}{M})[V/x] &= \tmopout{op}{W[V/x]}{M[V/x]} \\
-		(\tmopin{op}{W}{M})[V/x] &= \tmopin{op}{W[V/x]}{M[V/x]} \\
-		(\tmwith{op}{y}{M}{p}{N})[V/x] &= \tmwith{op}{y}{M[V/x]}{p}{N[V/x]} \\
+		\tmmatch{W[V/x]&}{\tminl{y_1} \mapsto (M_1[V/x]), \tminr{y_2} \mapsto (M_2[V/x])}
+		\razmik
+		(\tmapp{W_1}{W_2})[V/x] &= \tmapp{(W_1[V/x])}{(W_2[V/x])}
+		\razmik
+		(\tmopout{op}{W}{M})[V/x] &= \tmopout{op}{W[V/x]}{M[V/x]}
+		\razmik
+		(\tmopin{op}{W}{M})[V/x] &= \tmopin{op}{W[V/x]}{M[V/x]}
+		\razmik
+		(\tmwith{op}{y}{M}{p}{N})[V/x] &= \tmwith{op}{y}{M[V/x]}{p}{N[V/x]}
+		\razmik
 		(\tmawait{W}{y}{M})[V/x] &= \tmawait{W[V/x]}{y}{M[V/x]}
 	\end{align*}
 	\caption{Substitucije za vrednosti in izračune.}
