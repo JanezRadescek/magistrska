@@ -43,4 +43,28 @@ run
 	()
 \end{lstlisting}
 
+Na sliki~\ref{fig:async-illustration} lahko vidimo ilustrirano idejo asinhronega izvajanja. Potem ko pošljemo $\mathsf{opravilo} 42$ v drug proces ne čakamo na odgovor, ampak nemudoma nadaljujemo z izvajanjem svojega izračuna. Ko dobimo $\mathsf{rezultat}$ iz drugega procesa ga prestrežemo z prestreznikom in spet nemoteno nadaljujemo izvajanje.
+
+\begin{figure}[H]
+	\centering
+	\small
+	\begin{align*}
+		& \text{Proces 1: }  \tmkw{\uparrow}\, \text{opravilo}\,42;... \reduces \mathsf{priblizek}(42);...  \reduces ... \reduces \tmwith{rezultat}{x}{N}{p}{...}
+		\\
+		&                \hspace{12ex} \downarrow \mathsf{opravilo}\ 42      \hspace{36ex}              \uparrow \mathsf{rezultat}\ X
+		\\
+		& \text{Proces 2: } \tmwith{opravilo}{y}{M}{\_}{()} \reduces M[42/y] \reduces ... \reduces
+		\\
+		\\
+		& \text{Proces 1: }  \reduces \tmlet{p}{N[X/x]}{...} \reduces ...
+		\\
+		&          
+		\\
+		& \text{Proces 2: } \reduces ...
+	\end{align*}
+	
+	\caption{Ilustracija asinhronega izvajanja.}
+	\label{fig:async-illustration}
+\end{figure}
+
 Na ta način smo izvajali glavni del programa hkrati z računanjem točne vrednosti. Pri tem pa nismo blokirali glavnega programa razen potencialno v blokadi, ko sicer program nebi bil več varen.
