@@ -436,16 +436,43 @@ $$
 Delno urejenost na produktu definiramo po komponentah.
 $$(\o, \i) \order{O \times I} (\o', \i') \defiff \o \order{O} \o' \wedge \i \order{I} \i'$$
 
-Sledeča lema pravi da $I$ in $\order{I}$sta uniji defini
+V sledeči lemi~\ref{lem:partial-order} pokažemo, da je $\order{I}$ res delna urejenost in posledično tudi $\order{O \times I}$.
 
-\begin{lema}\label{lem:effects-union}
-	$i \order{I} (i' \cup i)$
+\begin{lema}\label{lem:partial-order}
+	\begin{enumerate}
+		\item Refleksivnost - $\i \order{I} \i$
+		\item Antisimetričnost - $\i \order{I} \i' \wedge \i' \order{I} \i \Rightarrow \i' = \i$
+		\item Tranzitivnost - $\i_1 \order{I} \i_2 \wedge \i_2 \order{I} \i_3 \Rightarrow \i_1 \order{I} \i_3$
+	\end{enumerate}
 \end{lema}
 
 \begin{proof}
-	V pogoju definicije urejenosti ločimo dva primera. Za $\op$ za katere velja $i(op) = \bot$, je pogoj na prazno izpolnjen. Poglejmo sedaj tiste $\op$ za katere velja $i(op) = (\o'', \i'')$. 
-	Če $i'(op) = \bot$, tedaj je $(\i' \cup \i)(op) = (\o'', \i'')$ in pogoj iz definicije $\order{I}$ velja.
-	Če $i'(op) = (\o''', \i''')$, tedaj je $(\i' \cup \i)(op) = (\o'' \cup \o''', \i'' \cup i''')$.
+	Pri vseh treh lastnostih si pomagamo z indukcijo.
+	\begin{enumerate}
+		\item Za $\i(op) = \bot$ je pogoj iz definicije $\order{I}$ na prazno izpolnjen.
+		Naj bo $\i(op) = (\o'',\i'')$. Tedaj sta iskana $\o'''$ in $\i'''$ iz definicije ravno $\o''$ in $\i''$. $\o''\order{O}\o''$ velja, ker je $\order{O}$ delna urejenost. $\i'' \order{I} \i''$ velja po indukcijski predpostavki.
+		
+		\item Naj bo $\i(op) = \bot$. Ker je $\i' \order{I} \i$, mora veljati $\i'(op) = \bot$.
+		Naj bo $\i(op) = (\o'', \i'')$ in $\i'(op) = (\o''',\i''')$. Ker velja $\i \order{I} \i' \wedge \i' \order{I} \i$, velja $\o'' \order{O} \o''' \wedge \o''' \order{O} \o''$. Ker je $\order{O}$ delna urejenost, velja $\o'' = \o'''$. Ker velja $\i'' \order{I} \i''' \wedge \i''' \order{I} \i''$, po indukcijski predpostavki velja $\i'' = \i'''$.
+		Za $\i(op) = (\o'', \i'')$ in $\i'(op) = \bot$ neenakost $\i \order{I} \i'$ ne velja, zato ta možnost ne pride v poštev.
+		
+		\item Za $\i_1(op) = \bot$ je pogoj iz definicije $\order{I}$ na prazno izpolnjen.
+		Naj bo $\i_1(op) = (\o_1', \i_1')$. Ker je $\i_1 \order{I} \i_2$, mora biti $\i_2(op) = (\o_2', \i_2')$. Po istem razmisleku je $\_3(op) = (\o_3', \i_3')$. Ker je $\order{O}$ delna urejenost, velja $\o_1' \order{O} \o_3'$. Po indukcijski predpostavki velja tudi $\i_1' \order{I} \i_3'$.
+		
+	\end{enumerate}
+\end{proof}
+
+
+Sledeča lema pravi da $\cup$ na $I$ spoštuje $\order{I}$.
+
+\begin{lema}\label{lem:effects-union}
+	$\i \order{I} (\i' \cup \i)$
+\end{lema}
+
+\begin{proof}
+	V pogoju definicije urejenosti ločimo dva primera. Za $\op$ za katere velja $i(op) = \bot$, je pogoj na prazno izpolnjen. Poglejmo sedaj tiste $\op$ za katere velja $\i(op) = (\o'', \i'')$. 
+	Če $\i'(op) = \bot$, tedaj je $(\i' \cup \i)(op) = (\o'', \i'')$ in pogoj iz definicije $\order{I}$ velja.
+	Če $\i'(op) = (\o''', \i''')$, tedaj je $(\i' \cup \i)(op) = (\o'' \cup \o''', \i'' \cup i''')$.
 	Po indukcijski predpostavki pogoj iz definicije $\order{I}$ ponovno velja.
 \end{proof}
 
