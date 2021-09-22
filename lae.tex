@@ -420,7 +420,7 @@ $$
 \end{cases}
 $$
 
-Na tipih učinkov imamo urejenost. Na $O$ je urejenost dana z relacijo podmnožica $\subseteq$. Vseeno bomo pisali $\order{O}$.
+Na tipih učinkov imamo urejenost. Na $O$ je urejenost dana z relacijo podmnožica $\subseteq$. Vseeno bomo pisali $\order{O}$. Relacija $\order{O}$ skupaj z $O$ je delna urejenost.
 Urejenost na $I$ pa je dana s sledečo relacijo.
 $$
 \begin{array}{l c l}
@@ -436,7 +436,8 @@ $$
 Delno urejenost na produktu definiramo po komponentah.
 $$(\o, \i) \order{O \times I} (\o', \i') \defiff \o \order{O} \o' \wedge \i \order{I} \i'$$
 
-V sledeči lemi~\ref{lem:partial-order} pokažemo, da je $\order{I}$ res delna urejenost in posledično tudi $\order{O \times I}$.
+V sledeči lemi~\ref{lem:partial-order} pokažemo, da je $I$ skupaj z $\order{I}$ res delna urejenost in posledično tudi $O \times I$ z $\order{O \times I}$.
+Dokazujemo z koindukcijo, ki se jo lahko uporablja za dokazovanje lastnosti neskončnih struktur~\cite{coinduction}. 
 
 \begin{lema}\label{lem:partial-order}
 	\begin{enumerate}
@@ -447,17 +448,16 @@ V sledeči lemi~\ref{lem:partial-order} pokažemo, da je $\order{I}$ res delna u
 \end{lema}
 
 \begin{proof}
-	Pri vseh treh lastnostih si pomagamo z indukcijo.
 	\begin{enumerate}
 		\item Za $\i(\op) = \bot$ je pogoj iz definicije $\order{I}$ na prazno izpolnjen.
-		Naj bo sedaj $\i(\op) = (\o'',\i'')$. Tedaj sta iskana $\o'''$ in $\i'''$ iz definicije ravno $\o''$ in $\i''$. $\o''\order{O}\o''$ velja, ker je $\order{O}$ delna urejenost. $\i'' \order{I} \i''$ velja po indukcijski predpostavki.
+		Naj bo sedaj $\i(\op) = (\o'',\i'')$. Tedaj sta iskana $\o'''$ in $\i'''$ iz definicije ravno $\o''$ in $\i''$. $\o''\order{O}\o''$ velja, ker je $\order{O}$ delna urejenost. $\i'' \order{I} \i''$ velja po koindukcijski predpostavki.
 		
 		\item Naj bo $\i(\op) = \bot$. Ker je $\i' \order{I} \i$, mora veljati $\i'(\op) = \bot$.
-		Naj bo sedaj $\i(\op) = (\o'', \i'')$ in $\i'(\op) = (\o''',\i''')$. Ker velja $\i \order{I} \i' \wedge \i' \order{I} \i$, velja $\o'' \order{O} \o''' \wedge \o''' \order{O} \o''$. Ker je $\order{O}$ delna urejenost, velja $\o'' = \o'''$. Ker velja $\i'' \order{I} \i''' \wedge \i''' \order{I} \i''$, po indukcijski predpostavki velja $\i'' = \i'''$.
+		Naj bo sedaj $\i(\op) = (\o'', \i'')$ in $\i'(\op) = (\o''',\i''')$. Ker velja $\i \order{I} \i' \wedge \i' \order{I} \i$, velja $\o'' \order{O} \o''' \wedge \o''' \order{O} \o''$. Ker je $\order{O}$ delna urejenost, velja $\o'' = \o'''$. Ker velja $\i'' \order{I} \i''' \wedge \i''' \order{I} \i''$, po koindukcijski predpostavki velja $\i'' = \i'''$.
 		Za $\i(\op) = (\o'', \i'')$ in $\i'(\op) = \bot$ neenakost $\i \order{I} \i'$ ne velja, zato ta možnost ne pride v poštev.
 		
 		\item Za $\i_1(\op) = \bot$ je pogoj iz definicije $\order{I}$ na prazno izpolnjen.
-		Naj bo sedaj $\i_1(\op) = (\o_1', \i_1')$. Ker je $\i_1 \order{I} \i_2$, mora biti $\i_2(\op) = (\o_2', \i_2')$. Po istem razmisleku je $\_3(\op) = (\o_3', \i_3')$. Ker je $\order{O}$ delna urejenost, velja $\o_1' \order{O} \o_3'$. Po indukcijski predpostavki velja tudi $\i_1' \order{I} \i_3'$.
+		Naj bo sedaj $\i_1(\op) = (\o_1', \i_1')$. Ker je $\i_1 \order{I} \i_2$, mora biti $\i_2(\op) = (\o_2', \i_2')$. Po istem razmisleku je $\_3(\op) = (\o_3', \i_3')$. Ker je $\order{O}$ delna urejenost, velja $\o_1' \order{O} \o_3'$. Po koindukcijski predpostavki velja tudi $\i_1' \order{I} \i_3'$.
 		
 	\end{enumerate}
 \end{proof}
@@ -475,15 +475,15 @@ Sledeča lema pravi, da $\cup$ na $I$ spoštuje $\order{I}$ in da je $I$ $\sqcup
 
 \begin{proof}
 	\begin{enumerate}
-		\item Za $\op$ za katere velja $\i(op) = \bot$, je pogoj iz definicije $\order{I}$ na prazno izpolnjen.
+		\item Za $\op$ za katere velja $\i(\op) = \bot$, je pogoj iz definicije $\order{I}$ na prazno izpolnjen.
 		Naj bo sedaj $\i(\op) = (\o'', \i'')$. 
 		Če $\i'(\op) = \bot$, tedaj je $(\i' \cup \i)(\op) = (\o'', \i'')$ in pogoj iz definicije $\order{I}$ velja.
 		Če $\i'(\op) = (\o''', \i''')$, tedaj je $(\i' \cup \i)(\op) = (\o'' \cup \o''', \i'' \cup i''')$.
-		Po indukcijski predpostavki velja $(\o'', \i'') \order{O \times I} (\o'' \cup \o''', \i'' \cup i''')$ in je pogoj iz definicije $\order{I}$ ponovno izpolnjen.
+		Po koindukcijski predpostavki velja $(\o'', \i'') \order{O \times I} (\o'' \cup \o''', \i'' \cup i''')$ in je pogoj iz definicije $\order{I}$ ponovno izpolnjen.
 		
 		\item Za $\op$ za katere velja $\i_1(\op) = \bot$, je $(\i_1 \cup \i_2)(\op) = \i_2(\op)$. Ker je $\i_2 \order{I} \i_3$, velja $(\i_1 \cup \i_2)(\op) \order{O \times I} \i_3(\op)$.
 		Simetrično za $\op$ za katere je $\i_2(\op) = \bot$.
-		Naj bo sedaj $\i_1(\op) = (\o_1', \i_1')$ in $\i_2(\op) = (\o_2', \i_2')$ in $\i_3(\op) = (\o_3', \i_3')$. Ker je $O$ z $\order{O}$ $\sqcup$-polmreža velja $(\o_1' \cup \o_2') \order{O} \o_3'$. Ker je $\i_1' \order{I} \i_3'$ in $\i_2' \order{I} \i_3'$ je po indukcijski predpostavki $(\i_1' \cup \i_2') \order{I} \i_3'$.
+		Naj bo sedaj $\i_1(\op) = (\o_1', \i_1')$ in $\i_2(\op) = (\o_2', \i_2')$ in $\i_3(\op) = (\o_3', \i_3')$. Ker je $O$ z $\order{O}$ $\sqcup$-polmreža velja $(\o_1' \cup \o_2') \order{O} \o_3'$. Ker je $\i_1' \order{I} \i_3'$ in $\i_2' \order{I} \i_3'$ je po koindukcijski predpostavki $(\i_1' \cup \i_2') \order{I} \i_3'$.
 	\end{enumerate}
 
 \end{proof}
