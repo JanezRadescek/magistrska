@@ -463,7 +463,7 @@ V sledeči lemi~\ref{lem:partial-order} pokažemo, da je $\order{I}$ res delna u
 \end{proof}
 
 
-Sledeča lema pravi da $\cup$ na $I$ spoštuje $\order{I}$ in $I$ je join-semilattice.
+Sledeča lema pravi, da $\cup$ na $I$ spoštuje $\order{I}$ in da je $I$ $\sqcup$-polmreža.
 
 \begin{lema}\label{lem:effects-union}
 	\begin{enumerate}
@@ -483,7 +483,7 @@ Sledeča lema pravi da $\cup$ na $I$ spoštuje $\order{I}$ in $I$ je join-semila
 		
 		\item Za $\op$ za katere velja $\i_1(\op) = \bot$, je $(\i_1 \cup \i_2)(\op) = \i_2(\op)$. Ker je $\i_2 \order{I} \i_3$, velja $(\i_1 \cup \i_2)(\op) \order{O \times I} \i_3(\op)$.
 		Simetrično za $\op$ za katere je $\i_2(\op) = \bot$.
-		Naj bo sedaj $\i_1(\op) = (\o_1', \i_1')$ in $\i_2(\op) = (\o_2', \i_2')$ in $\i_3(\op) = (\o_3', \i_3')$. Ker je $O$ z $\order{O}$ join-semilattice velja $(\o_1' \cup \o_2') \order{O} \o_3'$. Ker je $\i_1' \order{I} \i_3'$ in $\i_2' \order{I} \i_3'$ je po indukcijski predpostavki $(\i_1' \cup \i_2') \order{I} \i_3'$.
+		Naj bo sedaj $\i_1(\op) = (\o_1', \i_1')$ in $\i_2(\op) = (\o_2', \i_2')$ in $\i_3(\op) = (\o_3', \i_3')$. Ker je $O$ z $\order{O}$ $\sqcup$-polmreža velja $(\o_1' \cup \o_2') \order{O} \o_3'$. Ker je $\i_1' \order{I} \i_3'$ in $\i_2' \order{I} \i_3'$ je po indukcijski predpostavki $(\i_1' \cup \i_2') \order{I} \i_3'$.
 	\end{enumerate}
 
 \end{proof}
