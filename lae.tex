@@ -457,16 +457,19 @@ Dokazujemo z koindukcijo, ki se jo lahko uporablja za dokazovanje lastnosti nesk
 		Za $\i(\op) = (\o'', \i'')$ in $\i'(\op) = \bot$ neenakost $\i \order{I} \i'$ ne velja, zato ta možnost ne pride v poštev.
 		
 		\item Za $\i_1(\op) = \bot$ je pogoj iz definicije $\order{I}$ na prazno izpolnjen.
-		Naj bo sedaj $\i_1(\op) = (\o_1', \i_1')$. Ker je $\i_1 \order{I} \i_2$, mora biti $\i_2(\op) = (\o_2', \i_2')$. Po istem razmisleku je $\_3(\op) = (\o_3', \i_3')$. Ker je $\order{O}$ delna urejenost, velja $\o_1' \order{O} \o_3'$. Po koindukcijski predpostavki velja tudi $\i_1' \order{I} \i_3'$.
+		Naj bo sedaj $\i_1(\op) = (\o_1', \i_1')$. Ker je $\i_1 \order{I} \i_2$, mora biti $\i_2(\op) = (\o_2', \i_2')$.
+		Po istem razmisleku je $\i_3(\op) = (\o_3', \i_3')$. Ker je $\order{O}$ delna urejenost, velja $\o_1' \order{O} \o_3'$.
+		Po koindukcijski predpostavki velja tudi $\i_1' \order{I} \i_3'$.
 		
 	\end{enumerate}
 \end{proof}
 
 
-Sledeča lema pravi, da $\cup$ na $I$ spoštuje $\order{I}$ in da je $I$ $\sqcup$-polmreža.
+Sledeča lema pravi, da je $\cup$ na $I$ simetrična operacija, spoštuje $\order{I}$ in da je $I$ $\sqcup$-polmreža.
 
 \begin{lema}\label{lem:effects-union}
 	\begin{enumerate}
+		\item $\i_1 \cup \i_2 = \i_2 \cup \i_1$
 		\item $\i \order{I} (\i' \cup \i)$
 		\item $\i_1 \order{I} \i_3 \wedge \i_2 \order{I} \i_3 \Rightarrow (\i_1 \cup \i_2) \order{I} \i_3$
 	\end{enumerate}
@@ -475,6 +478,11 @@ Sledeča lema pravi, da $\cup$ na $I$ spoštuje $\order{I}$ in da je $I$ $\sqcup
 
 \begin{proof}
 	\begin{enumerate}
+		\item Za $\op$ za katere velja $\i_1(\op) = \bot$, je $(\i_1 \cup \i_2)(\op) = \i_2(\op) = (\i_2 \cup \i_1)(\op)$.
+		Simetrično za $\op$ za katere je $\i_2(\op) = \bot$.
+		Naj bo sedaj $\i_1(\op) = (\o_1', \i_1')$ in $\i_2(\op) = (\o_2', \i_2')$.
+		Ker je $\cup$ na množicah simetrična in $\i_1' \cup \i_2' = \i_2' \cup \i_1'$ po koindukcijski predpostavki, velja $(\i_1 \cup \i_2)(\op) = (\o_1' \cup \o_2', \i_1' \cup \i_2') = (\o_2' \cup \o_1', \i_2' \cup \i_1') = (\i_2 \cup \i_1)(\op)$.
+		
 		\item Za $\op$ za katere velja $\i(\op) = \bot$, je pogoj iz definicije $\order{I}$ na prazno izpolnjen.
 		Naj bo sedaj $\i(\op) = (\o'', \i'')$. 
 		Če $\i'(\op) = \bot$, tedaj je $(\i' \cup \i)(\op) = (\o'', \i'')$ in pogoj iz definicije $\order{I}$ velja.
