@@ -3,13 +3,13 @@
 Poglejmo si sledeči sekvenčni sinhroni primer, katerega psevdokodo vidimo na programu~\ref{prog:primer-0}. Poračunati moramo zelo zahtevno in počasno točno funkcijo in prikazati njen rezultat na zaslonu. Ker je tako zelo počasna, preden se je dejansko lotimo, poračunamo še hitrejši približek in ga prikazujemo, dokler ga ne bo nadomestila točna vrednost. Nakar bomo nekaj časa računali prvo nadaljevanje neodvisno od točne vrednosti, nato pa še drugo nadaljevanje odvisno od točne vrednosti. 
 
 \begin{lstlisting}[caption={Sinhron sekvečni primer.},label={prog:primer-0},float,floatplacement=H]
-x' (*@$\defeq{}$@*) priblizek(42)
-zaslon(x')
-x (*@$\defeq{}$@*) funkcija(42)
-zaslon(x)
+x' (*@$\defeq{}$@*) priblizek 42
+zaslon x'
+x (*@$\defeq{}$@*) funkcija 42
+zaslon x
 
-nadaljevanje1()
-nadaljevanje2(x)
+nadaljevanje1 ()
+nadaljevanje2 x
 \end{lstlisting}
 
 Ta primer ima dve težavi, ki sta posledici sekvenčnega sinhronega izvajanja. Prvi problem je da, ker je program sekvenčni, ne moremo računati točne funkcije hkrati z približkom in posledično se program izvaja dlje časa. Tudi prikaz na zaslon je lahko iz vidika hitrega procesorja zelo počasno. Drugi problem pa je, da dokler se bo računala točna funkcija, ne moremo izvajati prvega nadaljevanja, čeprav je neodvisen od točnega rezultata. Posledično se program ne more odzvati na potencialen uporabnikov vhod ali kak drug učinek.  
@@ -24,47 +24,120 @@ operation rezultat : int
 
 run 
 	send opravilo 42;
-	let x' (*@$\defeq{}$@*) priblizek(42) in
-	zaslon(x');
+	let x' (*@$\defeq{}$@*) priblizek 42 in
+	zaslon x';
 	promise (rezultat x ->
-	   	zaslon(x);
+	   	zaslon x;
 	   	<x>
 	) as p in
-	nadaljevanje1();
+	nadaljevanje1 ();
 	await p until <y> in
-	nadaljevanje2(y)
+	nadaljevanje2 y
 
 run 
 	promise(opravilo y ->
-	   	let x (*@$\defeq{}$@*) funkcija(y) in
+	   	let x (*@$\defeq{}$@*) funkcija y in
 	   	send rezultat x;
 	   	<()>
 	) as _ in
 	()
 \end{lstlisting}
 
-Na sliki~\ref{fig:async-illustration} lahko vidimo ilustrirano idejo asinhronega izvajanja. Potem ko pošljemo $\mathsf{opravilo} 42$ v drug proces ne čakamo na odgovor, ampak nemudoma nadaljujemo z izvajanjem svojega izračuna. Ko dobimo $\mathsf{rezultat}$ iz drugega procesa ga prestrežemo z prestreznikom in spet nemoteno nadaljujemo izvajanje.
+
+
+%Na sliki~\ref{fig:sync-illustration} in~\ref{fig:async-illustration} vidimo primerjavo sinhronega in asinhronega izvajanja.
+%V sinhronem izvajanju zatem ko pošljemo opravilo v drug proces, moramo čakati, da dobimo nazaj rezultat preden lahko nadaljujemo z izvajanjem izračuna $M_2$. 
+
+Na sliki~\ref{fig:async-illustration} lahko vidimo ilustrirano idejo asinhronega izvajanja programa~\ref{prog:primer-1}. 
+Potem ko pošljemo $\mathsf{opravilo}\ 42$ v drug proces ne čakamo na odgovor, ampak nemudoma nadaljujemo z izvajanjem svojega izračuna. Ko pridemo do prestreznika in še nimamo ustrezne prekinitve, ne čakamo na njo, ampak naprej izvajamo kontinuacijo $M_2$. Ko dobimo $\mathsf{rezultat}$ iz drugega procesa ga prestrežemo in spet nemoteno nadaljujemo izvajanje celotnega izračuna.
+
+%\begin{figure}[H]
+%	\centering
+%	\small
+%	\begin{center}
+%		\begin{tabular}{ c c c }
+%			Proces 1: & Operacija & Proces 2:
+%			\\
+%			\\
+%			$\tmlet{x'}{\mathsf{priblizek}\ 42}{M_1'}$ &  & $\tmwith{opravilo}{y}{N_1}{\_}{()}$
+%			\\
+%			\dreduces && \dreduces
+%			\\
+%			$\mathsf{zaslon}\ x';M_1''$ & & $\tmwith{opravilo}{y}{N_1}{\_}{()}$
+%			\\
+%			\dreduces && \dreduces
+%			\\
+%			$\tmkw{\uparrow}\, \mathsf{opravilo}\,42;M_1$ & $\opright{opravilo}{42}$ & $\tmwith{opravilo}{y}{N_1}{\_}{()}$
+%			\\
+%			\dreduces && \dreduces
+%			\\
+%			$\tmwith{rezultat}{x}{N_2}{p}{M_2}$ &  & $N_1[42/y]$
+%			\\
+%			\dreduces && \dreduces
+%			\\
+%			$\tmwith{rezultat}{x}{N_2}{p}{M_2}$ &  & $N_1'$
+%			\\
+%			\dreduces && \dreduces
+%			\\
+%			$\tmwith{rezultat}{x}{N_2}{p}{M_2}$ &  & $N_1''$
+%			\\
+%			\dreduces && \dreduces
+%			\\
+%			$\tmwith{rezultat}{x}{N_2}{p}{M_2}$ & $\opleft{rezultat}{X}$ & $\tmkw{\uparrow}\, \mathsf{rezultat}\,X;\tmreturn{()}$
+%			\\
+%			\dreduces && \dreduces
+%			\\
+%			$\tmlet{p}{N_2[X/x]}{M_2}$ & & $\tmreturn{()}$
+%			\\
+%			\dreduces && \dreduces
+%			\\
+%			... && ...
+%		\end{tabular}
+%	\end{center}
+%	
+%	\caption{Ilustracija sinhronega izvajanja.}
+%	\label{fig:sync-illustration}
+%\end{figure}
 
 \begin{figure}[H]
 	\centering
 	\small
-	\begin{align*}
-		& \text{Proces 1: }  \tmkw{\uparrow}\, \text{opravilo}\,42;... \reduces \mathsf{priblizek}(42);...  \reduces ... \reduces \tmwith{rezultat}{x}{N}{p}{...}
-		\\
-		&                \hspace{12ex} \downarrow \mathsf{opravilo}\ 42      \hspace{36ex}              \uparrow \mathsf{rezultat}\ X
-		\\
-		& \text{Proces 2: } \tmwith{opravilo}{y}{M}{\_}{()} \reduces M[42/y] \reduces ... \reduces
-		\\
-		\\
-		& \text{Proces 1: }  \reduces \tmlet{p}{N[X/x]}{...} \reduces ...
-		\\
-		&          
-		\\
-		& \text{Proces 2: } \reduces ...
-	\end{align*}
+	\begin{center}
+		\begin{tabular}{ c c c }
+			Proces 1: & & Proces 2:
+			\\
+			\\
+			$\tmkw{\uparrow}\, \mathsf{opravilo}\,42;M_1$ & $\opright{opravilo}{42}$ & $\tmwith{opravilo}{y}{N_1}{\_}{()}$
+			\\
+			\dreduces && \dreduces
+			\\
+			$\tmlet{x'}{\mathsf{priblizek}\ 42}{M_1'}$ & & $N_1[42/y]$
+			\\
+			\dreduces && \dreduces
+			\\
+			$\mathsf{zaslon}\ x';M_1''$ & & $N_1'$
+			\\
+			\dreduces && \dreduces
+			\\
+			$\tmwith{rezultat}{x}{N_2}{p}{M_2}$ &  & $N_1''$
+			\\
+			\dreduces && \dreduces
+			\\
+			$\tmwith{rezultat}{x}{N_2}{p}{\colorbox{kost}{$M_2'$}}$ & $\opleft{rezultat}{X}$ & $\tmkw{\uparrow}\, \mathsf{rezultat}\,X;\tmreturn{()}$
+			\\
+			\dreduces && \dreduces
+			\\
+			$\tmlet{p}{N_2[X/x]}{M_2'}$ & & $\tmreturn{()}$
+			\\
+			\dreduces && \dreduces
+			\\
+			... && ...
+		\end{tabular}
+	\end{center}
 	
 	\caption{Ilustracija asinhronega izvajanja.}
 	\label{fig:async-illustration}
 \end{figure}
+
 
 Na ta način smo izvajali glavni del programa hkrati z računanjem točne vrednosti. Pri tem pa nismo blokirali glavnega programa razen potencialno v blokadi, ko sicer program nebi bil več varen.

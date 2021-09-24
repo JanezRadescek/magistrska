@@ -77,6 +77,7 @@
 
 \usepackage{relsize} % slightly decrease font size to remove black blocks
 
+\usepackage{rotating} % down facing reduction
 
 \input{macros.tex}
 
@@ -230,11 +231,11 @@ Omenimo tudi nekatere razlike med \lae{}-računom in dejansko implementacijo jez
 \end{center}
 %An abstract of the work is written here. This includes a short description of
 %the content and not the structure of your work.
-We look at programming language \aeff{} and \lae{}-calculus on which \aeff{} is based. The main feature of the \lae-calculus is the ability to run asynchronously in conjunction with parallel execution.
-This is accomplished by continuing to perform handlers continuation while it waits to receive a response in the form of an effect from another process. Once it captures the desired effect, it processes it appropriately and execution resumes.
+We take a look at the programming language \aeff{} and \lae{}-calculus on which \aeff{} is based. The main feature of the \lae-calculus is the ability to run asynchronously in conjunction with parallel execution.
+This is accomplished by continuing to perform operation's continuation while it waits to receive a response in the form of an effect from another process. Once it receives the response, it processes it appropriately and execution resumes.
 We extend the basic version of the \lae{}-calculus with recursive promises, mobile types, and dynamic processes.
 Recursive promises allow the program to be able to respond to multiple effects with the same operation name.
-Mobile types allow you to send higher-order values, especially functions.
+Mobile types allow you to send higher-order values between parallel processes, especially functions.
 Dynamic processes allow you to create new processes on the fly as needed.
 We prove the progress and preservation theorem for the basic and extended \lae{}-calculus.
 We also mention some differences between the \lae{}-calculus and the actual implementation of the \aeff{} language. 
