@@ -1,13 +1,15 @@
 \section{Razširjen \lae{}}\label{sec:razsirjen-lae}
 
 Čeprav lahko v jeziku \aeff{} napišemo že veliko zanimivih primerov\footnote{Osnovni članek~\cite{aeff} omeni kar nekaj primerov.}, se še zmeraj pojavijo določeni problemi.
-Poglejmo si primer~\ref{prog:razsiritev-0}, ki bi ga lahko napisali v \aeff{}, ki pripada osnovni verziji \lae{}\nobreakdash-računa. Primer je nekoliko bolj konkretna verzija primera~\ref{prog:primer-1} iz poglavja~\ref{sec:primeri-aeff}. 
+Poglejmo si primer~\ref{prog:razsiritev-0}, ki bi ga lahko napisali v \aeff{}, ki pripada osnovni verziji \lae{}\nobreakdash-računa. Primer je nekoliko bolj konkretna verzija primera~\ref{prog:primer-1} iz poglavja~\ref{sec:primeri-aeff}.
+
 Imamo dve funkciji, $\mathsf{povezi}$ in $\mathsf{streznik}$.
 Funkcija $\mathsf{streznik}$ sprejme seznam funkcij. Ko bo prišla prekinitev $\mathsf{opravilo}$, bo iz seznama vzela ustrezno funkcijo\footnote{$\mathsf{nth}$ je funkcija ki sprejme seznam $\mathsf{s}$ in število $\mathsf{n}$ in vrne n-ti element seznama.}, izračunala vrednost te funkcije v dani vrednosti $\mathsf{x}$ in poslala nazaj signal z id-jem opravila in rezultatom. Na koncu pa bo s pomočjo rekurzivne pomožne funkcije ponovno namestila prestreznik.
 Funkcija $\mathsf{povezi}$ sprejme referenco (ki bo predstavljala id opravila), id funkcije (ki jo želimo poračunati) in vrednost (v kateri želimo izračunati funkcijo).
 Nato pošlje signal $\mathsf{opravilo}$ z ustreznimi vrednostmi in poveča številko v referenci.
 Ni vseeno kateri rezultat prestrežemo, ampak mora biti rezultat z ustreznim id-jem. Zato prestreznik definiramo v pomožni rekurzivni funkciji, ki bo ponovno namestila prestreznik, če bomo ujeli rezultat z napačnim id-jem.
 Namesto da sama funkcija $\mathsf{povezi}$ čaka na rezultat in ga vrne, bo takoj vrnila pomožno funkcijo, le ta pa bo po potrebi čakala na rezultat.  
+
 V prvem procesu ustvarimo referenco in s pomočjo $\mathsf{povezi}$ začnemo računati dve pomožni vrednosti, na kateri pa ne čakamo, da se izračunata, ampak nemudoma začnemo z računanjem vrednosti $\mathsf{z}$. Nato kličemo pomožni funkciji $\mathsf{y1}$ in $\mathsf{y2}$, ki bosta po potrebi čakali na rezultat in nato vrnili dejanski rezultat. Na koncu tri vrednosti seštejemo.
 V drugem procesu začnemo funkcijo $\mathsf{streznik}$ s seznamom dveh funkcij.
 Omenimo, da v primeru uporabljamo izračun $\uparrow\hspace{-0.5ex}\op (V);M$, ki je sintaktičen sladkor za $\tmlet{\_}{\tmopout{op}{V}{\tmreturn{()}}}{M}$.
@@ -68,7 +70,7 @@ Te tri probleme bomo sedaj enega za drugim razrešili, tako da bomo razširili \
 Kadar pričakujemo več prekinitev z isto operacijo, je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
 To funkcionalnost smo do sedaj dosegli tako, da smo obljubo definirali v pomožni rekurzivni funkciji in po potrebi znotraj obljube ponovno klicali to funkcijo, kot smo videli v programu~\ref{prog:razsiritev-0}.
 
-Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom $\tmwithrec{op}{x}{r}{M}{p}{N}$. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in nadaljevanja $N$ tudi spremenljivko $r$, s pomočjo katere lahko ponovno namestimo isti prestreznik. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}.
+Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom $\tmwithrec{op}{x}{r}{M}{p}{N}$. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in nadaljevanja $N$ tudi spremenljivko $r$, s pomočjo katere lahko ponovno namestimo isti prestreznik.  Seveda je stara oblika poseben primer novega prestreznika v katerem ne uporabimo $r$.
 
 
 \begin{figure}[H]
@@ -97,7 +99,7 @@ Substitucijo prestreznika popravimo, kot vidimo na sliki~\ref{fig:substitucija-p
 	\label{fig:substitucija-prestreznik}
 \end{figure}
 
-Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verziji. S to izjemo da, ko ustrezna prekinitev pride do prestreznika, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira z funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik. Spremembe vidimo na sliki~\ref{fig:semantika-prestreznik}.
+Operacijska semantika rekurzivnega prestreznika je podobna prejšnji verziji. S to izjemo da, ko prekinitev $\tmopin{op}{V}{M}$ pride do prestreznika $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira z funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik. Spremembe vidimo na sliki~\ref{fig:semantika-prestreznik}.
 
 \begin{figure}[H]
 	\centering
@@ -111,7 +113,7 @@ Operacijska semantika rekurzivnega prestreznika je zelo podobna prejšnji verzij
 		\tmwithrec{op}{x}{r}{M}{p}{\tmopout{op'}{V}{N}} &\reduces \tmopout{op'}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}}
 		\razmik
 		\tmopin{op}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, R/r]}{\tmopin{op}{V}{N}} \\
-		\text{kjer }R = \;& \tmfunano{y}{(\tmwithrec{op}{r}{x}{M}{p}{\tmreturn{p}})}
+		\text{kjer }R = \;& \tmfunano{\_}{(\tmwithrec{op}{r}{x}{M}{p}{\tmreturn{p}})}
 		\razmik
 		\tmopin{op'}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmwithrec{op}{x}{r}{M}{p}{\tmopin{op'}{V}{N}} \\
 		&\qquad {\color{rulenameColor}(\op \neq \op')}
@@ -130,7 +132,7 @@ Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$
 	\begin{mathpar}
 		\coopinfer{TyComp-RecPromise}{
 			({\o'} , {\i'}) \order{O \times I} \i\, (\op)\\
-			\Gamma, x \of \tymobile{A}_\op, r \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \op \mapsto (\o', \i')}} \types M : \tycomp{\typromise B}{\o',\i'} \\
+			\Gamma, x \of \tymobile{A}_\op, r \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \{\op \mapsto (\o', \i')\}}} \types M : \tycomp{\typromise B}{\o',\i'} \\
 			\Gamma, p \of \typromise B \types N : \tycomp{C}{\o,\i}
 		}{
 			\Gamma \types \tmwithrec{op}{x}{r}{M}{p}{N} \of \tycomp{C}{\o, \i}
@@ -251,10 +253,10 @@ Sedaj vsaki operaciji namesto osnovnega tipa pripada prenosljiv tip, kot vidimo 
 	\centering
 	\small
 	\begin{align*}
-	(op_1, \tymobile{A}_{op_1}),\, (op_2, \tymobile{A}_{op_2}),\, ... ,\, (op_n, \tymobile{A}_{op_k})
+	(op_1, \tymobile{A}_{op_1}),\, (op_2, \tymobile{A}_{op_2}),\, ... ,\, (op_n, \tymobile{A}_{op_n})
 	\end{align*}
 	\vspace{-5ex}
-	\caption{Operacije z pripadajočimi prenosljivimi tipi.}
+	\caption{Operacije s pripadajočimi prenosljivimi tipi.}
 	\label{fig:prenosljive-operacije}
 \end{figure}
 
@@ -489,7 +491,7 @@ run streznik ()
 
 Sedaj bomo ponovno dokazali izreka o napredku in ohranitvi ter potrebne leme, tokrat za \lae{}-račun razširjen z rekurzivnimi prestrezniki, prenosljivimi tipi, in dinamičnimi procesi. Kadar je dokaz zelo podoben dokazu od prej, bomo dokazali le dele, ki so se spremenili ali so na novo. 
 
-Tudi za vse dinamične procese si želimo, da se razširijo do vrha. Zato rezultatom za izračune iz slike~\ref{fig:results-rules} dodamo še rezultat na sliki~\ref{fig:results-rules-2}. 
+Tudi za vse dinamične procese si želimo, da se razširijo do vrha, zato dodamo pravilo podobno kot za signale. Pravilo za prestreznik je praktično nespremenjeno, le da tokrat z rekurzivnimi prestrezniki. Rezultate za izračune iz slike~\ref{fig:results-rules} dopolnimo z rezultatoma na sliki~\ref{fig:results-rules-2}. 
 
 \begin{figure}[H]
 	\centering
@@ -499,9 +501,15 @@ Tudi za vse dinamične procese si želimo, da se razširijo do vrha. Zato rezult
 		}{
 			\CompResult {\Psi} {\tmspawn{M}{N}}
 		}
+		\quad
+		\coopinfer{R-Promise}{
+			\RunResult {\Psi \cup \{p\}} {N}
+		}{
+			\RunResult {\Psi} {\tmwithrec {op} x r M p N}
+		}
 	\end{mathpar}
 	\vspace{-5ex}
-	\caption{Dodaten rezultat za izračune.}
+	\caption{Dodatna rezultata za izračune.}
 	\label{fig:results-rules-2}
 \end{figure}
 
@@ -588,7 +596,7 @@ Lemi~\ref{lem:weakening-values-2} in~\ref{lem:weakening-comp-2} se navezujeta en
 \end{proof}
 
 \begin{lema}\label{lem:weakening-comp-2}
-	Naj za izračun $M$ velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$. Za vsak kontekst $\Gamma_3$, ki vsebuje le sveže spremenljivke glede na $\Gamma_1$ in $\Gamma_2$, velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$
+	Naj za izračun $M$ velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$. Za vsak kontekst $\Gamma_3$, ki vsebuje le sveže spremenljivke glede na $\Gamma_1$ in $\Gamma_2$, velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 \end{lema}
 
 \begin{proof}
@@ -939,7 +947,7 @@ Sledeči lemi o krepitvi konteksta za vrednosti in izračune se nanašata ena na
 Prejšnji dve lemi smo potrebovali, da dokažemo sledečo lemo. Slednjo bomo potrebovali, da v korakih, kjer zamenjamo vrstni red recimo $$\tmwithrec{op}{x}{r}{N_1}{p}{\tmopout{op'}{V}{N_2}} \reduces $$ $$\tmopout{op'}{V}{\tmwithrec{op}{x}{r}{N_1}{p}{N_2}},$$ se tip $V$ ne spremeni in posledično ima tudi nov izračun tip.
 
 \begin{lema}\label{lem:tovor-osnovni-tip-skrcitev-2}
-	Naj za vrednost $V$ velja $\Gamma_1, x \of \typromise{A}, \Gamma_2 \types V \of B$, kjer je $B$ prenosljiv tip. Potem velja $\Gamma_1, \Gamma_2 \types V \of B$.
+	Naj za vrednost $V$ velja $\Gamma_1, p \of \typromise{A}, \Gamma_2 \types V \of B$, kjer je $B$ prenosljiv tip. Potem velja $\Gamma_1, \Gamma_2 \types V \of B$.
 \end{lema}
 
 \begin{proof}
@@ -947,7 +955,7 @@ Prejšnji dve lemi smo potrebovali, da dokažemo sledečo lemo. Slednjo bomo pot
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
-		\item[\sitem] Če je zadnje pravilo \rulename{TyVal-Var'}, potem je $V = y$. Ker $\typromise{A}$ ni prenosljiv tip, velja $y \in \Gamma_1$ ali $y \in \Gamma_2$.
+		\item[\sitem] Če je zadnje pravilo \rulename{TyVal-Var'}, potem je $V = x$. Ker $\typromise{A}$ ni prenosljiv tip, velja $x \in \Gamma_1$ ali $x \in \Gamma_2$.
 		Po pravilu \rulename{TyVal-Var'} velja $\Gamma_1, \Gamma_2, \bb \types V \of B$.
 		
 		\item Če je zadnje pravilo \rulename{TyVal-Cons}, potem je $V = n$. Po pravilu \rulename{TyVal-Cons} velja $\Gamma_1, \Gamma_2 \types V \of B$.
@@ -1126,6 +1134,7 @@ Tudi sedaj bomo potrebovali lemo o inverziji. Vse točke iz leme~\ref{lem:invers
 
 	\begin{itemize}
 		\item Če je zadnje pravilo $$\tmunbox{[V]}{x}{N} \reduces N[V/x],$$ potem ima po lemi~\ref{lem:inversion-lema-2} vrednost $\tmboxed{V}$ tip $\tyboxed{B}$ in $N$ tip $\tycomp{A}{\o', \i'}$.
+		Po lemi~\ref{lem:strengthening-values-bb} ima $V$ tip $B$ tudi v kontekstu brez $\bb$.
 		Po lemi~\ref{lem:substitucija-izračuni-2} ima $M' = N[V/x]$ tip $\tycomp{A}{\o', \i'}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		

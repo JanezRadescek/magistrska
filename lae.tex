@@ -393,7 +393,7 @@ Sledeča notacija $\i = \{\op_1 \mapsto (\o_1,\i_1),...,\op_n \mapsto (\o_n, \i_
 %Preslikava $\Omega$ je endofunktor na kategoriji omega kompletnih delnih ureditvah 
 Če izračun za neko operacijo $\op$ ne bo imel prestreznika, se bo to v $\i$ izražalo tako, da bo $\i$ slikal $\op$ v $\bot$. 
 Sicer bo $\i$ slikal $\op$ v par $(\o', \i')$, kjer $\o'$ predstavlja nove signale in $\i'$ nove prestreznike v sproženih izračunih.
-Recimo izračun $$\tmopout{op}{V}{\tmwith{op'}{x}{\tmopout{op''}{W}{\tmreturn{\tmpromise{()}}}}{p}{\tmreturn{()}}}$$ ima tip učinkov $(\{\op\}, \op' \mapsto (\{\op''\},\{\}))$, saj sproži signal $\op$ in ima prestreznik za $\op'$. Ko bo prestreznik prestregel prekinitev z operacijo $\op'$ se bo od sedaj naprej lahko sprožil tudi signal z operacijo $\op''$, ne bomo pa dodali nobenega novega prestreznika, ki bi lahko prestregel kakšno dodatno operacijo.
+Recimo izračun $$\tmopout{op}{V}{\tmwith{op'}{x}{\tmopout{op''}{W}{\tmreturn{\tmpromise{()}}}}{p}{\tmreturn{()}}}$$ ima tip učinkov $(\{\op\}, \{\op' \mapsto (\{\op''\},\{\})\})$, saj sproži signal $\op$ in ima prestreznik za $\op'$. Ko bo prestreznik prestregel prekinitev z operacijo $\op'$ se bo od sedaj naprej lahko sprožil tudi signal z operacijo $\op''$, ne bomo pa dodali nobenega novega prestreznika, ki bi lahko prestregel kakšno dodatno operacijo.
 
 Ko izračun od zunaj dobi novo prekinitev z operacijo $\op$, se izračunu lahko spremeni tip učinkov. Pravimo da je operacija $\op$ delovala na tip učinkov.
 Če v izračunu ni ustreznega prestreznika in posledično $\i$ slika operacijo v $\bot$, potem prekinitev ne bo vplivala na izračun.
@@ -1226,13 +1226,13 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 \begin{lema}\label{lem:inversion-lema}
 	Naj za izračun $M$ velja $\Gamma \types M \of \tycomp{A}{\o, \i}$. Potem obstaja $(\o', \i') \order{O, I} (\o, \i)$.
 	\begin{itemize}
-		\item Če je $M$ oblike $\tmlet{x}{N_1}{N_2}$, potem velja $\Gamma \types N_1 \of \tycomp{B}{\o', \i'}$, $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$.
+		\item Če je $M$ oblike $\tmlet{x}{N_1}{N_2}$, potem velja $\Gamma \types N_1 \of \tycomp{B}{\o', \i'}$, $\Gamma, x \of B \types N_2 \of \tycomp{A}{\o', \i'}$.
 	
-		\item Če je $M$ oblike $\tmmatch{\tmpair{V_1}{V_2}}{N}$, potem velja $\Gamma \types V_1 \of B_1$, $\Gamma \types V_2 \of B_2$ in $\Gamma \types N \of \tycomp{A}{\o', \i'}$.
+		\item Če je $M$ oblike $\tmmatch{V}{\tmpair{x_1}{x_2} \mapsto N}$, potem velja $V = \tmpair{V_1}{V_2}$, $\Gamma \types V_1 \of B_1$, $\Gamma \types V_2 \of B_2$ in $\Gamma, x_1 \of B_1, x_2 \of B_2 \types N \of \tycomp{A}{\o', \i'}$.
 		
-		\item Če je $M$ oblike $\tmmatch{(\tminl[B_2]{V_1})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}$, potem velja $\Gamma \types \tminl[B_2]{V_1} \of B_1 + B_2$, $\Gamma \types N_1 \of \tycomp{A}{\o', \i'}$ in $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$.
+		\item Če je $M$ oblike $\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}$, potem velja $\Gamma \types V \of B_1 + B_2$, $\Gamma, x_1 \of B_1 \types N_1 \of \tycomp{A}{\o', \i'}$ in $\Gamma, x_2 \of B_2 \types N_2 \of \tycomp{A}{\o', \i'}$. Če je $V = \tminl[B_2]{V'}$, potem je $\Gamma \types V' \of B_1$. Sicer je $V = \tminr[B_1]{V'}$ in velja $\Gamma \types V' \of B_2$
 		
-		\item Če je $M$ oblike $\tmmatch{(\tminr[B_1]{V_2})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2}$, potem velja $\Gamma \types \tminl[B_1]{V_2} \of B_1 + B_2$, $\Gamma \types N_1 \of \tycomp{A}{\o', \i'}$ in $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$.
+%		\item Če je $M$ oblike $\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}$, potem velja $\Gamma \types V \of B_1 + B_2$, $\Gamma \types N_1 \of \tycomp{A}{\o', \i'}$ in $\Gamma \types N_2 \of \tycomp{A}{\o', \i'}$.
 		
 		\item Če je $M$ oblike $\tmapp{V}{W}$, potem velja $\Gamma \types V \of \tyfun{B}{\tycomp{A}{\o', \i'}}$ in $\Gamma \types W \of B$.
 		
@@ -1280,11 +1280,11 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 		\item Če je zadnje pravilo $$\tmmatch{\tmpair{V}{W}}{\tmpair{x}{y} \mapsto N} \reduces N[V/x, W/y],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tmpair{V}{W}$ tip $B_1 \times B_2$, $V$ tip $B_1$, $W$ tip $B_2$ in $N$ tip $\tycomp{A}{\o', \i'}$. Po lemi~\ref{lem:substitucija-izračuni} ima $\widetilde{M} = N[V/x]$ tip $\tycomp{A}{\o', \i'}$ in po isti lemi ima $M' = \widetilde{M}[W/y]$ tip $\tycomp{A}{\o', \i'}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmmatch{(\tminl[B_2]{V})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces N_1[V/x],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tminl{V}$ tip $B_1 + B_2$, $V$ tip $B_1$ in $N_1$ tip $\tycomp{A}{\o', \i'}$.
+		\item Če je zadnje pravilo $$\tmmatch{(\tminl[B_2]{V})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces N_1[V/x],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tminl[B_2]{V}$ tip $B_1 + B_2$, $V$ tip $B_1$ in $N_1$ tip $\tycomp{A}{\o', \i'}$.
 		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N_1[V/x]$ tip $\tycomp{A}{\o', \i'}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
-		\item Če je zadnje pravilo $$\tmmatch{(\tminr[B_1]{W})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces N_2[W/y],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tminr{W}$ tip $B_1 + B_2$, $W$ tip $B_2$ in $N_2$ tip $\tycomp{A}{\o', \i'}$.
+		\item Če je zadnje pravilo $$\tmmatch{(\tminr[B_1]{W})}{\tminl{x} \mapsto N_1, \tminr{y} \mapsto N_2} \reduces N_2[W/y],$$ potem ima po lemi~\ref{lem:inversion-lema} vrednost $\tminr[B_1]{W}$ tip $B_1 + B_2$, $W$ tip $B_2$ in $N_2$ tip $\tycomp{A}{\o', \i'}$.
 		Po lemi~\ref{lem:substitucija-izračuni} ima $M' = N_2[W/y]$ tip $\tycomp{A}{\o', \i'}$.
 		Po pravilu \rulename{TyComp-Subsume} ima $M'$ tip $\tycomp{A}{\o, \i}$.
 		
@@ -1363,11 +1363,38 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 \end{proof}
 
 
-Ko imamo par procesov in eden izmed njiju pošlje signal, se bo ta signal spremenil v prekinitev na drugem procesu.
-Le to bo povzročilo, da se bo tip učinkov spremenil na drugem procesu.
-Potencialno spremembo tipa formaliziramo z pravili za spremembo tipov, ki jih lahko vidimo na sliki~\ref{fig:process-type-reductions}.
+Ko imamo par dveh procesov in eden izmed njiju pošlje signal, se bo ta signal spremenil v prekinitev na drugem procesu.
+Le to bo povzročilo, da se bo tip učinkov spremenil na drugem procesu. Trenutno je prekinitev edini izvor spremembe tipa.
+Najpreprostejši primer je ko imamo dva vzporedna zagona.
+$$\typar{\tyrun{A_1}{\o_1, \i_1}}{\tyrun{A_2}{\o_2, \i_2}} \tyreduces \typar{\tyrun{A_1}{\o_1, \i_1}}{\tyrun{A_2}{\opincomp{op}{(\o_2, \i_2)}}} \quad {\color{rulenameColor}(op \in o_1)}$$
+Potencialno spremembo tipa formaliziramo z pravili za splošen tip procesa, ki jih lahko vidimo na sliki~\ref{fig:process-type-reductions}.
 Kako deluje operacija $\opincomp{op}{}$ na tipih procesov smo definirali že na sliki~\ref{fig:opin-proces}.
 
+%\begin{figure}[H]
+%	\centering
+%	\begin{mathpar}
+%		\coopinfer{TyRedu-Same}{
+%		}{
+%			\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\o, \i}
+%		}
+%		\qquad
+%		\coopinfer{TyRedu-Add/Change}{
+%		}{
+%			\tyrun{A}{\opincomp{ops}{(\o, \i)}} \tyreduces \tyrun{A}{\opincomp{ops}{(\opincomp{op}{(\o, \i)})}}
+%		}
+%		\\
+%		\coopinfer{TyRedu-Par}{
+%			\tyC \tyreduces \tyC' \\
+%			\tyD \tyreduces \tyD'
+%		}{
+%			\typar{\tyC}{\tyD} \tyreduces \typar{\tyC'}{\tyD'}
+%		}
+%	\end{mathpar}
+%		$$\opincompp{[]}{(\o, \i)} \defeq (\o, \i) \qquad \opincompp{(op::ops)}{(\o, \i)} \defeq \opincomp{op}{(\opincompp{ops}{(\o, \i)})} $$
+%	\vspace{-5ex}
+%	\caption{Pravila za spremembo osnovnih tipov.}
+%	\label{fig:process-type-reductions-gener}
+%\end{figure}
 
 \begin{figure}[H]
 	\centering
@@ -1395,8 +1422,8 @@ Kako deluje operacija $\opincomp{op}{}$ na tipih procesov smo definirali že na 
 			\typar{\tyC}{\tyD} \tyreduces \typar{\tyC'}{\tyD'}
 		}
 	\end{mathpar}
-%	$$\opincompp{[]}{(\o, \i)} \defeq (\o, \i) \qquad \opincompp{(op::ops)}{(\o, \i)} \defeq \opincomp{op}{(\opincompp{ops}{(\o, \i)})} $$
-	\vspace{-5ex}
+	
+%	\vspace{-5ex}
 	\caption{Pravila za spremembo tipov.}
 	\label{fig:process-type-reductions}
 \end{figure}
