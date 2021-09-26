@@ -437,7 +437,7 @@ Delno urejenost na produktu definiramo po komponentah.
 $$(\o, \i) \order{O \times I} (\o', \i') \defiff \o \order{O} \o' \wedge \i \order{I} \i'$$
 
 V sledeči lemi~\ref{lem:partial-order} pokažemo, da je $I$ skupaj z $\order{I}$ res delna urejenost in posledično tudi $O \times I$ z $\order{O \times I}$.
-Dokazujemo z koindukcijo, ki se jo lahko uporablja za dokazovanje lastnosti neskončnih struktur~\cite{coinduction}. 
+Dokazujemo s koindukcijo, ki se jo lahko uporablja za dokazovanje lastnosti neskončnih struktur~\cite{coinduction}. 
 
 \begin{lema}\label{lem:partial-order}
 	\begin{enumerate}
@@ -816,7 +816,7 @@ Najprej dokažemo trditev o napredku samo za izračune. Da bomo lahko uporabili 
 \end{trditev}
 
 \begin{proof}
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma \types M \of \tycomp{A}{\o, \i}$.
+	Dokazujemo s strukturno indukcijo na drevo izpeljave za $\Gamma \types M \of \tycomp{A}{\o, \i}$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
@@ -915,7 +915,7 @@ Najprej dokažemo trditev o napredku samo za izračune. Da bomo lahko uporabili 
 \end{izrek}
 
 \begin{proof}
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\emptyset \types P \of C$.
+	Dokazujemo s strukturno indukcijo na drevo izpeljave za $\emptyset \types P \of C$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
@@ -980,7 +980,7 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 \end{lema}
 
 \begin{proof}
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, \Gamma_2 \types V \of A$.
+	Dokazujemo s strukturno indukcijo na drevo izpeljave za $\Gamma_1, \Gamma_2 \types V \of A$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
@@ -1017,7 +1017,7 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 \end{lema}
 
 \begin{proof}
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
+	Dokazujemo s strukturno indukcijo na drevo izpeljave za $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
@@ -1078,7 +1078,7 @@ Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 \end{lema}
 
 \begin{proof}
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, x \of A, \Gamma_2 \types W \of B$.
+	Dokazujemo s strukturno indukcijo na drevo izpeljave za $\Gamma_1, x \of A, \Gamma_2 \types W \of B$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
@@ -1122,7 +1122,7 @@ Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 \end{lema}
 
 \begin{proof}
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, x \of A, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
+	Dokazujemo s strukturno indukcijo na drevo izpeljave za $\Gamma_1, x \of A, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
@@ -1185,7 +1185,7 @@ Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 \end{lema}
 
 \begin{proof}
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma_1, p \of \typromise{A}, \Gamma_2 \types V \of B$.
+	Dokazujemo s strukturno indukcijo na drevo izpeljave za $\Gamma_1, p \of \typromise{A}, \Gamma_2 \types V \of B$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
@@ -1246,7 +1246,7 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 \end{lema}
 
 \begin{proof}
-	Dokazujemo z strukturno indukcijo na drevo izpeljave za $\Gamma \types M \of \tycomp{A}{\o, \i}$.
+	Dokazujemo s strukturno indukcijo na drevo izpeljave za $\Gamma \types M \of \tycomp{A}{\o, \i}$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
@@ -1263,7 +1263,7 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 \end{trditev}
 
 \begin{proof}
-	Dokazujemo z strukturno indukcijo na drevo izpeljave koraka $M \reduces M'$.
+	Dokazujemo s strukturno indukcijo na drevo izpeljave koraka $M \reduces M'$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
@@ -1365,36 +1365,37 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 
 Ko imamo par dveh procesov in eden izmed njiju pošlje signal, se bo ta signal spremenil v prekinitev na drugem procesu.
 Le to bo povzročilo, da se bo tip učinkov spremenil na drugem procesu. Trenutno je prekinitev edini izvor spremembe tipa.
-Najpreprostejši primer je ko imamo dva vzporedna zagona.
-$$\typar{\tyrun{A_1}{\o_1, \i_1}}{\tyrun{A_2}{\o_2, \i_2}} \tyreduces \typar{\tyrun{A_1}{\o_1, \i_1}}{\tyrun{A_2}{\opincomp{op}{(\o_2, \i_2)}}} \quad {\color{rulenameColor}(op \in o_1)}$$
-Potencialno spremembo tipa formaliziramo z pravili za splošen tip procesa, ki jih lahko vidimo na sliki~\ref{fig:process-type-reductions}.
+Najpreprostejši primer je ko imamo vzporedna signal in zagon.
+Ko proces naredi sledeči korak $$\tmpar{\tmopout{op}{V}{\tmrun{M_1}}}{\tmrun{M_2}} \reduces \tmopout{op}{V}{\tmpar{\tmrun{M_1}}{\tmopin{op}{V}{M_2}}}$$ bo pripadajoči tip naredil korak
+$$\typar{\tyrun{A_1}{\o_1, \i_1}}{\tyrun{A_2}{\o_2, \i_2}} \tyreduces \typar{\tyrun{A_1}{\o_1, \i_1}}{\tyrun{A_2}{\opincomp{op}{(\o_2, \i_2)}}} \quad {\color{rulenameColor}(op \in o_1)}.$$
+Potencialno spremembo tipa najprej formaliziramo z pravili na osnovnih tipih, kot jih lahko vidimo na sliki~\ref{fig:process-type-reductions-basic}. Nato jih posplošimo še za splošen tip na sliki~\ref{fig:process-type-reductions}.
 Kako deluje operacija $\opincomp{op}{}$ na tipih procesov smo definirali že na sliki~\ref{fig:opin-proces}.
 
-%\begin{figure}[H]
-%	\centering
-%	\begin{mathpar}
-%		\coopinfer{TyRedu-Same}{
-%		}{
-%			\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\o, \i}
-%		}
-%		\qquad
-%		\coopinfer{TyRedu-Add/Change}{
-%		}{
-%			\tyrun{A}{\opincomp{ops}{(\o, \i)}} \tyreduces \tyrun{A}{\opincomp{ops}{(\opincomp{op}{(\o, \i)})}}
-%		}
-%		\\
-%		\coopinfer{TyRedu-Par}{
-%			\tyC \tyreduces \tyC' \\
-%			\tyD \tyreduces \tyD'
-%		}{
-%			\typar{\tyC}{\tyD} \tyreduces \typar{\tyC'}{\tyD'}
-%		}
-%	\end{mathpar}
-%		$$\opincompp{[]}{(\o, \i)} \defeq (\o, \i) \qquad \opincompp{(op::ops)}{(\o, \i)} \defeq \opincomp{op}{(\opincompp{ops}{(\o, \i)})} $$
-%	\vspace{-5ex}
-%	\caption{Pravila za spremembo osnovnih tipov.}
-%	\label{fig:process-type-reductions-gener}
-%\end{figure}
+\begin{figure}[H]
+	\centering
+	\begin{mathpar}
+		\coopinfer{TyRedu-Same-Basic}{
+		}{
+			\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\o, \i}
+		}
+		\qquad
+		\coopinfer{TyRedu-Add-Basic}{
+		}{
+			\tyrun{A}{\opincomp{ops}{(\o, \i)}} \tyreduces \tyrun{A}{\opincomp{ops}{(\opincomp{op}{(\o, \i)})}}
+		}
+		\\
+		\coopinfer{TyRedu-Par}{
+			\tyC \tyreduces \tyC' \\
+			\tyD \tyreduces \tyD'
+		}{
+			\typar{\tyC}{\tyD} \tyreduces \typar{\tyC'}{\tyD'}
+		}
+	\end{mathpar}
+		$$\opincompp{[]}{(\o, \i)} \defeq (\o, \i) \qquad \opincompp{(op::ops)}{(\o, \i)} \defeq \opincomp{op}{(\opincompp{ops}{(\o, \i)})} $$
+	\vspace{-5ex}
+	\caption{Pravila za spremembo na osnovnih tipih.}
+	\label{fig:process-type-reductions-basic}
+\end{figure}
 
 \begin{figure}[H]
 	\centering
@@ -1408,26 +1409,40 @@ Kako deluje operacija $\opincomp{op}{}$ na tipih procesov smo definirali že na 
 		}{
 			\tyC \tyreduces \opincomp{op}{\tyC}
 		}
-		\\
+		\qquad
 		\coopinfer{TyRedu-Change}{
 			\tyC \tyreduces \tyC'
 		}{
 			\opincomp{op}{\tyC} \tyreduces \opincomp{op}{\tyC'}
 		}
-		\qquad
-		\coopinfer{TyRedu-Par}{
-			\tyC \tyreduces \tyC' \\
-			\tyD \tyreduces \tyD'
-		}{
-			\typar{\tyC}{\tyD} \tyreduces \typar{\tyC'}{\tyD'}
-		}
 	\end{mathpar}
 	
 %	\vspace{-5ex}
-	\caption{Pravila za spremembo tipov.}
+	\caption{Pravila za spremembo splošnih tipov.}
 	\label{fig:process-type-reductions}
 \end{figure}
 
+
+Sledeča lema pove, da se pravila ujemajo.
+
+\begin{lema}
+	Vsak korak iz slike~\ref{fig:process-type-reductions}, lahko predstavimo s koraki iz slike~\ref{fig:process-type-reductions-basic}.
+\end{lema}
+
+\begin{proof}
+	\begin{itemize}
+		\item \rulename{TyRedu-Same} : Če je $\tyC$ oblike $\tyrun{A}{\o,\i}$, potem $\tyC = \tyrun{A}{\o,\i} \tyreduces \tyrun{A}{\o,\i} = \tyC$.
+		Če je $\tyC$ oblike $\typar{D_1}{D_2}$, potem lahko po indukcijski predpostavki $D_1$ in $D_2$ naredita korak v $D_1$ in $D_2$. Torej velja $C = \typar{D_1}{D_2} \reduces \typar{D_1}{D_2} = C$.
+		
+		\item \rulename{TyRedu-Add} : Če je $\tyC$ oblike $\tyrun{A}{\o,\i}$, potem $\tyC = \tyrun{A}{\opincomp{ops}{(\o, \i)}} \tyreduces \tyrun{A}{\opincomp{ops}{(\opincomp{op}{(\o, \i)})}} = \opincomp{op}{\tyC}$ za $\mathsf{ops} = []$.
+		Če je $\tyC$ oblike $\typar{D_1}{D_2}$, potem lahko po indukcijski predpostavki $D_1$ in $D_2$ naredita korak v $D_1' = \opincomp{op}{D_1}$ in $D_2' = \opincomp{op}{D_2}$. Torej velja $C = \typar{D_1}{D_2} \reduces \typar{D_1'}{D_2'} = \opincomp{op}{\typar{D_1}{D_2}} = C$.
+		
+		\item \rulename{TyRedu-Change} : Če je $\tyC$ oblike $\tyrun{A}{\o,\i}$, potem je $\tyC$ lahko naredil le korak v $\tyC$ in torej $\opincomp{op}{\tyC} = \tyrun{A}{\o',\i'} \tyreduces \tyrun{A}{\o',\i'} = \opincomp{op}{\tyC}$.
+		Če je $\tyC$ oblike $\typar{D_1}{D_2}$, potem je $\tyC' = \typar{D_1'}{D_2'}$.
+		Po indukcijski predpostavki lahko $\opincomp{op}{\tyD_1}$ in $\opincomp{op}{\tyD_2}$ naredita korak v $\opincomp{op}{\tyD_1'}$ in $\opincomp{op}{\tyD_2'}$.
+		Torej velja $\opincomp{op}{\tyC} = \opincomp{op}{\typar{D_1}{D_2}} = \typar{\opincomp{op}{\tyD_1}}{\opincomp{op}{\tyD_2}} \reduces \typar{\opincomp{op}{\tyD_1'}}{\opincomp{op}{\tyD_2'}} = \opincomp{op}{\typar{D_1'}{D_2'}} = \opincomp{op}{\tyC'}$.
+	\end{itemize}
+\end{proof}
 
 
 \begin{izrek}[o ohranitvi]\label{izr:ohranitev}
@@ -1435,7 +1450,7 @@ Kako deluje operacija $\opincomp{op}{}$ na tipih procesov smo definirali že na 
 \end{izrek}
 
 \begin{proof}
-	Dokazujemo z strukturno indukcijo na drevo izpeljave koraka $P \reduces P'$.
+	Dokazujemo s strukturno indukcijo na drevo izpeljave koraka $P \reduces P'$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
 	
 	\begin{itemize}
