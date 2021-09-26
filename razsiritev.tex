@@ -618,9 +618,7 @@ Lemi~\ref{lem:weakening-values-2} in~\ref{lem:weakening-comp-2} se navezujeta en
 		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-Spawn} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
-	\end{itemize}potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Run}. Tip $C$ je oblike $\tyrun{A}{\o, \i}$.
-Izračun $M$ ima tip $\tycomp{B}{\o', \i'}$ in $N$ tip $\tycomp{A}{\o, \i}$.
-Po pravilu \rulename{TyProc-Par} ima $P'$ tip $\typar{\tycomp{A}{\o, \i}}{\tycomp{B}{\o', \i'}}$, kjer je $C$ naredil korak \rulename{TyRedu-Spawn-R}.
+	\end{itemize}
 \end{proof}
 
 Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na drugo.
@@ -706,9 +704,7 @@ Sledeči lemi o šibitvi konteksta za vrednosti in izračune se nanašata ena na
 		Po pravilu \rulename{TyComp-MatchPair} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchSum}, potem je $M$ enak $$\tmmatch{V}{\tminl{x_1} \mapsto N_1, \tminr{x_2} \mapsto N_2}.$$
-		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Run}. Tip $C$ je oblike $\tyrun{A}{\o, \i}$.
-		Izračun $M$ ima tip $\tycomp{B}{\o', \i'}$ in $N$ tip $\tycomp{A}{\o, \i}$.
-		Po pravilu \rulename{TyProc-Par} ima $P'$ tip $\typar{\tycomp{A}{\o, \i}}{\tycomp{B}{\o', \i'}}$, kjer je $C$ naredil korak \rulename{TyRedu-Spawn-R}.
+		Po lemi~\ref{lem:weakening-values-bb} ima $V$ isti tip v razširjenem kontekstu.
 		Po indukcijski predpostavki imata $N_1$ in $N_2$ isti tip v razširjenem kontekstu.
 		Po pravilu \rulename{TyComp-MatchSum} velja $\Gamma_1, \Gamma_3, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 		
@@ -901,9 +897,7 @@ Sledeči lemi o krepitvi konteksta za vrednosti in izračune se nanašata ena na
 		Po pravilu \rulename{TyComp-Let} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-Apply}, potem je $M$ enak $$V_1 V_2.$$
-		Po lemi~\ref{lem:strengthening-values-promise} imata $V_1$ in $V_2$ isti tip v skrčenempotem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Run}. Tip $C$ je oblike $\tyrun{A}{\o, \i}$.
-		Izračun $M$ ima tip $\tycomp{B}{\o', \i'}$ in $N$ tip $\tycomp{A}{\o, \i}$.
-		Po pravilu \rulename{TyProc-Par} ima $P'$ tip $\typar{\tycomp{A}{\o, \i}}{\tycomp{B}{\o', \i'}}$, kjer je $C$ naredil korak \rulename{TyRedu-Spawn-R}. kontekstu.
+		Po lemi~\ref{lem:strengthening-values-promise} imata $V_1$ in $V_2$ isti tip v skrčenem kontekstu.
 		Po pravilu \rulename{TyComp-Apply} velja $\Gamma_1, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 		
 		\item Če je zadnje pravilo \rulename{TyComp-MatchPair}, potem je $M$ enak $$\tmmatch{V}{(x_1,x_2) \mapsto N}.$$ 
@@ -1183,8 +1177,8 @@ Tudi sedaj bomo potrebovali lemo o inverziji. Vse točke iz leme~\ref{lem:invers
 
 
 Ko iz enega procesa ustvarimo dva paralelna procesa, se temu primerno tip spremeni v paralelni tip. 
-Pravilom za spremembo tipa na sliki~\ref{fig:process-type-reductions} dodamo pravili na sliki~\ref{fig:process-type-reductions-spawn}.
-V pravilih namenoma ni uporabljen splošen tip procesa, saj le proces $\tmrun{M}$ lahko ustvari nov proces. Prav tako mora novo ustvarjeni proces biti oblike $\tmrun{N}$. 
+Pravilom za spremembo tipa na sliki~\ref{fig:process-type-reductions-basic} dodamo pravili na sliki~\ref{fig:process-type-reductions-spawn}.
+Teh dveh pravil ne moremo posplošiti na tipe poljubnih procesov, saj le proces $\tmrun{M}$ lahko ustvari nov proces. Prav tako mora novo ustvarjeni proces biti oblike $\tmrun{N}$. 
 
 \begin{figure}[H]
 	\centering
@@ -1203,6 +1197,10 @@ V pravilih namenoma ni uporabljen splošen tip procesa, saj le proces $\tmrun{M}
 	\label{fig:process-type-reductions-spawn}
 	
 \end{figure}
+
+
+Pravila za spremembo splošnega tipa iz slike~\ref{fig:process-type-reductions} še zmeraj veljajo. Dokaz da se pravila ujemajo se spremeni minimalno.
+
 
 \begin{izrek}[o ohranitvi]\label{izr:ohranitev-2}
 	Naj za proces $P$ velja $\Gamma \types P \of C$. Če proces $P$ naredi korak $P \reduces P'$, potem obstaja tak $C'$, da velja $C \tyreduces C'$ in $\Gamma \types P' \of C'$.
