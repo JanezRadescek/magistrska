@@ -5,7 +5,7 @@ Poglejmo si primer~\ref{prog:razsiritev-0}, ki bi ga lahko napisali v \aeff{}, k
 
 Imamo dve funkciji, $\mathsf{povezi}$ in $\mathsf{streznik}$.
 Funkcija $\mathsf{streznik}$ sprejme seznam funkcij. Ko bo prišla prekinitev $\mathsf{opravilo}$, bo iz seznama vzela ustrezno funkcijo\footnote{$\mathsf{nth}$ je funkcija ki sprejme seznam $\mathsf{s}$ in število $\mathsf{n}$ in vrne n-ti element seznama.}, izračunala vrednost te funkcije v dani vrednosti $\mathsf{x}$ in poslala nazaj signal z id-jem opravila in rezultatom. Na koncu pa bo s pomočjo rekurzivne pomožne funkcije ponovno namestila prestreznik.
-Funkcija $\mathsf{povezi}$ sprejme referenco (ki bo predstavljala id opravila), id funkcije (ki jo želimo poračunati) in vrednost (v kateri želimo izračunati funkcijo).
+Funkcija $\mathsf{povezi}$ sprejme referenco, ki bo predstavljala id opravila, id funkcije, ki jo želimo poračunati in vrednost, v kateri želimo izračunati funkcijo.
 Nato pošlje signal $\mathsf{opravilo}$ z ustreznimi vrednostmi in poveča številko v referenci.
 Ni vseeno kateri rezultat prestrežemo, ampak mora biti rezultat z ustreznim id-jem. Zato prestreznik definiramo v pomožni rekurzivni funkciji, ki bo ponovno namestila prestreznik, če bomo ujeli rezultat z napačnim id-jem.
 Namesto da sama funkcija $\mathsf{povezi}$ čaka na rezultat in ga vrne, bo takoj vrnila pomožno funkcijo, le ta pa bo po potrebi čakala na rezultat.  
@@ -60,7 +60,7 @@ run streznik ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)
 \end{lstlisting}
 
 
-Ta primer ima tri glavne primanjkljaje. Pogosto si moramo pomagati z pomožno rekurzivno funkcijo v navezi s prestreznikom, da slednjega ponovno namestimo. Operacije so omejene na osnovne tipe, zaradi česar ne moremo pošiljati funkcij. In ne moremo po potrebi ustvarjati novih procesov.
+Ta primer ima tri glavne primanjkljaje. Pogosto si moramo pomagati s pomožno rekurzivno funkcijo v navezi s prestreznikom, da slednjega ponovno namestimo. Operacije so omejene na osnovne tipe, zaradi česar ne moremo pošiljati funkcij. In ne moremo po potrebi ustvarjati novih procesov.
 Te tri probleme bomo sedaj enega za drugim razrešili, tako da bomo razširili \lae{}-račun in posledično jezik \aeff{}.
 
 
@@ -99,7 +99,7 @@ Substitucijo prestreznika popravimo, kot vidimo na sliki~\ref{fig:substitucija-p
 	\label{fig:substitucija-prestreznik}
 \end{figure}
 
-Operacijska semantika rekurzivnega prestreznika je podobna prejšnji verziji. S to izjemo da, ko prekinitev $\tmopin{op}{V}{M}$ pride do prestreznika $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira z funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik. Spremembe vidimo na sliki~\ref{fig:semantika-prestreznik}.
+Operacijska semantika rekurzivnega prestreznika je podobna prejšnji verziji. S to izjemo da, ko prekinitev $\tmopin{op}{V}{M}$ pride do prestreznika $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira s funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik. Spremembe vidimo na sliki~\ref{fig:semantika-prestreznik}.
 
 \begin{figure}[H]
 	\centering
@@ -123,7 +123,7 @@ Operacijska semantika rekurzivnega prestreznika je podobna prejšnji verziji. S 
 	\label{fig:semantika-prestreznik}
 \end{figure}
 
-Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrezniku. Vidimo ga na sliki~\ref{fig:tipi-pravila-rekurzivni-prestreznik}. Spremenljivka $r$ dobi tip $\tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \op \mapsto (\o', \i')}}$, ki lepo predstavlja izračun, ki ne sproži nobenega signala in prestreže le operacijo $\op$.
+Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrezniku. Vidimo ga na sliki~\ref{fig:tipi-pravila-rekurzivni-prestreznik}. Spremenljivka $r$ dobi tip $\tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \op \mapsto (\o', \i')}}$, ki predstavlja izračun, ki ne sproži nobenega signala in prestreže le operacijo $\op$.
 Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$ red namesto enakosti. Ker sedaj v kontekst dodamo tip $\tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \op \mapsto (\o', \i')}}$ moramo paziti da pripadajoč tip efektov $(\o', \i')$ ni prevelik, saj sicer morda ne bomo mogli določiti tipa za $M$.
 
 \begin{figure}[H]
@@ -260,7 +260,7 @@ Sedaj vsaki operaciji namesto osnovnega tipa pripada prenosljiv tip, kot vidimo 
 	\label{fig:prenosljive-operacije}
 \end{figure}
 
-Obstoječim substitucijam dodamo dve novi za nova izraza, kot vidimo na sliki~\ref{fig:substitucija-box}.
+Obstoječim substitucijam dodamo dve novi substituciji za nova izraza, kot vidimo na sliki~\ref{fig:substitucija-box}.
 
 \begin{figure}[H]
 	\centering
@@ -290,8 +290,8 @@ Kot vidimo na sliki~\ref{fig:semantika-odvijanje} izračun odvijanje veže vredn
 
 Da zagotovimo, da ne bi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodelili zavit tip, nekoliko spremenimo pravilo za izračun tipa spremenljivke in dodamo pravili za zavito vrednost in izračun odvijanje. Nekoliko spremenimo tudi kontekst. Uporabimo ideje, ki jih predstavi Clouston~\cite{fitch}. Spremembe prikaže slika~\ref{fig:tipi-pravila-prenosljivi}.
 Okolje je imelo že od začetka določen vrstni red, vendar šele sedaj to postane zares pomembno. 
-Ko določamo tip zavite vrednosti $\tmboxed{V}$, v okolje dodamo $\bb$. S tem za v bodoče vse spremenljivke že v kontekstu označimo za zunanje. Spremenljivke, ki jih bomo dodajali v kontekst, ko bomo določali tip $V$ pa bodo notranje glede na zavito vrednost. Ko bomo nekje v vrednosti $V$ naleteli na spremenljivko $x$ bomo imeli dve možnosti. Če je spremenljivka notranja, je lahko tudi tipa obljuba, saj je pripadajoči prestreznik prav tako znotraj vrednosti $V$ in se bo premikal skupaj z spremenljivko $x$. Če pa je spremenljivka zunanja, ne sme biti tipa obljuba, saj obstaja možnost, da se bo vrednost $V$ in z njo spremenljivka $x$ premaknila mimo definicije ustreznega prestreznika.
-Pri izračunu odvijanje le preverimo da je vrednost $V$ zavitega tipa, sam pa ima isti tip kot njegovo nadaljevanje.
+Ko določamo tip zavite vrednosti $\tmboxed{V}$, v okolje dodamo $\bb$. S tem za v bodoče vse spremenljivke že v kontekstu označimo za zunanje. Spremenljivke, ki jih bomo dodajali v kontekst, ko bomo določali tip $V$ pa bodo notranje glede na zavito vrednost. Ko bomo nekje v vrednosti $V$ naleteli na spremenljivko $x$ bomo imeli dve možnosti. Če je spremenljivka notranja, je lahko tudi tipa obljuba, saj je pripadajoči prestreznik prav tako znotraj vrednosti $V$ in se bo premikal skupaj s spremenljivko $x$. Če pa je spremenljivka zunanja, ne sme biti tipa obljuba, saj obstaja možnost, da se bo vrednost $V$ in z njo spremenljivka $x$ premaknila mimo definicije ustreznega prestreznika.
+Pri izračunu odvijanje preverimo da je vrednost $V$ zavitega tipa, sam pa ima isti tip kot njegovo nadaljevanje.
 
 \begin{figure}[H]
 	\centering
@@ -320,7 +320,7 @@ Pri izračunu odvijanje le preverimo da je vrednost $V$ zavitega tipa, sam pa im
 	\label{fig:tipi-pravila-prenosljivi}
 \end{figure} 
 
-Sedaj lahko program~\ref{prog:razsiritev-1} spremenimo v program~\ref{prog:razsiritev-2}. Namesto, da ima \emph{streznik} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora. Na ta način smo bolj fleksibilni pri pisanju kode, hkrati pa je tudi bolj jasno kot prej, katera funkcija se bo poračunala.
+Sedaj lahko program~\ref{prog:razsiritev-1} spremenimo v program~\ref{prog:razsiritev-2}. Namesto, da ima \emph{streznik} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora. Na ta način smo bolj fleksibilni pri pisanju kode, hkrati pa je tudi bolj jasno kot prej, kaj je funkcija $r$.
 
 \begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-2},float,floatplacement=h]
 operation opravilo : int * (*@\hlyellow{$[int -> int]$}@*) * int
@@ -364,7 +364,7 @@ run streznik ()
 
 \subsection{Dinamični procesi}
 
-Funkcija $\mathsf{f}$ v $\mathsf{streznik}$ na sliki~\ref{prog:razsiritev-2} se potencialno izvaja zelo počasi. Med ko jo računamo lahko dobimo novo opravilo, ki pa bo moralo čakati. Zato si želimo, da bi vsako opravilo lahko opravili v svojem procesu, da lahko izvajamo vzporedno namesto zaporedno. 
+Funkcija $\mathsf{f}$ v $\mathsf{streznik}$ na sliki~\ref{prog:razsiritev-2} se potencialno izvaja zelo počasi. Medtem ko jo računamo, lahko dobimo novo opravilo, ki pa bo moralo čakati. Zato si želimo, da bi lahko vsako opravilo izvajali v svojem procesu. 
 Do sedaj so bili procesi statični v smislu, da smo vse procese morali ustvariti na začetku.
 Posledično bi morali vnaprej vedeti, koliko opravil bo $\mathsf{streznik}$ hkrati dobil, da bi imeli temu primerno pripravljenih procesov.
 
@@ -491,7 +491,7 @@ run streznik ()
 
 Sedaj bomo ponovno dokazali izreka o napredku in ohranitvi ter potrebne leme, tokrat za \lae{}-račun razširjen z rekurzivnimi prestrezniki, prenosljivimi tipi, in dinamičnimi procesi. Kadar je dokaz zelo podoben dokazu od prej, bomo dokazali le dele, ki so se spremenili ali so na novo. 
 
-Tudi za vse dinamične procese si želimo, da se razširijo do vrha, zato dodamo pravilo podobno kot za signale. Pravilo za prestreznik je praktično nespremenjeno, le da tokrat z rekurzivnimi prestrezniki. Rezultate za izračune iz slike~\ref{fig:results-rules} dopolnimo z rezultatoma na sliki~\ref{fig:results-rules-2}. 
+Tudi za vse dinamične procese si želimo, da se razširijo do vrha, zato dodamo pravilo za rezultate podobno pravilu za signale. V pravilo za prestreznik popravimo le sintakso. Rezultate za izračune iz slike~\ref{fig:results-rules} dopolnimo z rezultatoma na sliki~\ref{fig:results-rules-2}. 
 
 \begin{figure}[H]
 	\centering
