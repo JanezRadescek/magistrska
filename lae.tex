@@ -2,23 +2,23 @@
 
 Leta 1930 je Alonzo Chuch z namenom formalizacije koncepta izračunljivosti uvedel preprost teoretičen programski jezik imenovan $\lambda$-račun, ki je tudi Turingovo poln~\cite{rojas2015tutorial}.
 Od takrat je nastalo še mnogo drugih različnih verzij $\lambda$-računa.
-Račun \lae{} je osnovan na Levy $\lambda$-računu iz članka~\cite{levy}. Računu \lae{} dodamo izraze, ki poosebijo bistvo asinhrono vzporednega programiranja z pomočjo učinkov. Da \lae{}-račun nekoliko približamo vsakdanjim programskim jezikom, mu dodamo tudi izraze za  naravna števila, par, ujemanje vzorca... Še vedno pa izpustimo veliko izrazov, ki jih sicer imamo v jeziku \aeff{}.
+Račun \lae{} je osnovan na Levy $\lambda$-računu iz članka~\cite{levy}. Računu \lae{} dodamo izraze, ki poosebijo bistvo asinhrono vzporednega programiranja s pomočjo učinkov. Da \lae{}-račun nekoliko približamo vsakdanjim programskim jezikom, mu dodamo tudi izraze za  naravna števila, par, ujemanje vzorca... Še vedno pa izpustimo veliko izrazov, ki jih sicer imamo v jeziku \aeff{}.
 
 
 \subsection{Izrazi}
 
 Izraze v \lae{}-računu razdelimo na vrednosti, izračune in procese. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi} v Backus-Naurjevi obliki (BNF).
 
-Imamo običajne vrednosti kot so spremenljivke, naravna števila, enote, pari, leve in desne inkluzije, funkcije in rekurzivne funkcije.
+Imamo običajne vrednosti, kot so spremenljivke, naravna števila, enote, pari, leve in desne inkluzije, funkcije in rekurzivne funkcije.
 Nova vrednost je \emph{obljuba}\footnote{Tudi nekateri drugi programski jeziki imajo obljube za namene \emph{asinhronega} izvajanja, kot na primer Scala~\cite{scala} ali Alice~\cite{lambdapf}. Kljub temu pa običajno ne v navezi z učinki.}. Je vrednost, ki jo je vrnil prestreznik in jo posebej označimo, da ji lažje pravilno določimo tip.
 
-Imamo običajne izračune kot so vračanje vrednosti, zaporedje, ujemanje za pare in vsote in aplikacija.
+Imamo običajne izračune, kot so vračanje vrednosti, zaporedje, ujemanje za pare in vsote in aplikacija.
 Poleg teh imamo tudi sledeče.
 
 \emph{Signal} $\tmopout{op}{V}{M}$ vsebuje operacijo $\op$, pripadajočo vrednost $V$ imenovano \emph{tovor} in nadaljevanje $M$\footnote{V \lae{}-računu ima signal eksplicitno kontinuacijo in obliko algebraične operacije. Nasprotno ima signal v jeziku \aeff{} (primer~\ref{prog:primer-1}) kontinuacijo implicitno in obliko generičnega učinka. Predstavitev operacij z učinki upravičita Plotkin in Power~\cite{op-eff}.}. Signal se razširi navzgor po izračunih, dokler ne pride na nivo procesov. Nakar se bo razširil v vse druge procese in ob tem spremenil v \emph{prekinitev} $\tmopin{op}{V}{M}$\footnote{Ni mišljeno da programer eksplicitno uporabi prekinitev, ampak nastane le s pretvorbo iz signala.}. Prekinitev je simetrična signalu, prav tako ima operacijo $\op$, vrednost $V$ in nadaljevanje $M$. Le da prekinitev potuje po izračunih navznoter namesto navzgor. Na ta način smo informacijo $V$ prenesli iz enega procesa na vse preostale in tako imamo vzpostavljeno komunikacijo med procesi. Da imamo asinhrono izvajanje lahko, namesto da se signal in prekinitev širita, delamo korake tudi v njunem nadaljevanju $M$.
 
 S pomočjo \emph{prestreznika} $\tmwith{op}{x}{M}{p}{N}$ prestrežemo tovor v prekinitvi. Prestreznik je sestavljen iz operacije $\op$, spremenljivke $x$, izračunom $M$ imenovanim \emph{sproženi izračun}, spremenljivko $p$ imenovano \emph{obljuba} in nadaljevanje $N$.
-Običajno se izvaja nadaljevanje $N$, med tem ko preostali deli čakajo. Ko pride prekinitev z istim imenom operacije se spremenljivka $x$ substituira z tovorom $V$ v obljubi $M$. Nakar se prestreznik spremeni v zaporedje $\tmlet{p}{M[V/x]}{\tmopin{op}{V}{N}}$. Čeprav je prestreznik ujel prekinitev, se slednja vseeno naprej širi navznoter na nadaljevanju $N$. Ko prestreznik ujame ustrezno prekinitev rečemo, da se je izpolnila obljuba $p$.
+Običajno se izvaja nadaljevanje $N$, med tem ko preostali deli čakajo. Ko pride prekinitev z istim imenom operacije, se spremenljivka $x$ substituira z tovorom $V$ v obljubi $M$. Nakar se prestreznik spremeni v zaporedje $\tmlet{p}{M[V/x]}{\tmopin{op}{V}{N}}$. Čeprav je prestreznik ujel prekinitev, se slednja vseeno naprej širi navznoter na nadaljevanju $N$. Ko prestreznik ujame ustrezno prekinitev rečemo, da se je izpolnila obljuba $p$.
 Da preprečimo uporabo spremenljivke $p$ preden se je izpolnila, jo lahko uporabi le \emph{blokada} $\tmawait{V}{x}{M}$. V primeru da se obljuba $p$ še ni izpolnila in je vrednost $V$ v blokadi le $p$, bo blokada preprečevala izvajanje svojega nadaljevanja $M$. Če pa se je izpolnila, se bo pripadajoča vrednost vezala v novo navadno spremenljivko $x$. Nakar se bo izvajanje nadaljevalo.
 
 Osnovni proces je \emph{zagon} $\tmrun{M}$. Vsebuje le izračun $M$, ki se izvaja.
@@ -72,7 +72,7 @@ Osnovni proces je \emph{zagon} $\tmrun{M}$. Vsebuje le izračun $M$, ki se izvaj
 
 Sedaj ko poznamo izraze v \lae{}-računu si poglejmo kaj z njimi početi. Definirali bomo pravila kako spreminjati izračune, s čimer bomo izvajali program. 
 
-V nadaljevanju bomo uporabljali substitucije.  Substitucije na vrednostih in izračunih definiramo, kot vidimo na sliki~\ref{fig:substitucije}. Sledimo konvenciji, da če se v nekem kontekstu pojavijo vezane spremenljivke jih izberemo drugače od prostih spremenljivk~\cite{barendregt}.
+V nadaljevanju bomo uporabljali substitucije.  Substitucije na vrednostih in izračunih definiramo, kot vidimo na sliki~\ref{fig:substitucije}. Sledimo konvenciji, da če se v nekem kontekstu pojavijo vezane spremenljivke, jih izberemo drugače od prostih spremenljivk~\cite{barendregt}.
 
 \begin{figure}[H]
 	\centering
@@ -185,7 +185,7 @@ Račun \lae{} opremimo z operacijsko semantiko malih korakov, ki je definirana z
 	\coopinfer{}{
 		N \reduces N'
 	}{
-		\tmwith{op}{x}{M}{p}{N} \reduces \tmwith{op}{x}{M'}{p}{N}
+		\tmwith{op}{x}{M}{p}{N} \reduces \tmwith{op}{x}{M}{p}{N'}
 	}
 	\end{align*}
 	
@@ -194,9 +194,8 @@ Račun \lae{} opremimo z operacijsko semantiko malih korakov, ki je definirana z
 \end{figure}
 
 
-Poleg teh pravil, ki so identična pravilom iz članka od Ahmana in Pretnarja~\cite{aeff}, dodamo še dve novi pravili, ki ju lahko vidimo na sliki~\ref{fig:operacijska-semantika-poenostavitev}.
-Prvo pravilo potegne blokado ven iz zaporedja. Drugo pravilo prestavi prekinitev takoj za blokado. Obe pravili skupaj dosežeta dvoje. Malenkost večji del prvotnega izračuna je postal asinhron. Kar nam lahko v primeru, da bo obljuba izpolnjena in bomo nadaljevali z izvajanjem tega dela, nekoliko pohitri izvajanje. Druga prednost pa je, da se izračun, ki je v čakajočem stanju, vedno začne z blokado. Posledično je prepoznati ali je izračun v čakajočem stanju trivialno in se bodo delni rezultati nekoliko poenostavili. 
-Rezultati ostanejo enaki kot v originalnem članku.
+Poleg teh pravil, ki so identična pravilom od Ahmana in Pretnarja~\cite{aeff}, dodamo še dve novi pravili, ki ju lahko vidimo na sliki~\ref{fig:operacijska-semantika-poenostavitev}.
+Prvo pravilo potegne blokado ven iz zaporedja. Drugo pravilo prestavi prekinitev takoj za blokado. Obe pravili skupaj dosežeta dvoje. Malenkost večji del prvotnega izračuna je postal asinhron. Kar nam lahko v primeru, da bo obljuba izpolnjena in bomo nadaljevali z izvajanjem tega dela, nekoliko pohitri izvajanje. Druga prednost pa je, da se izračun, ki je v čakajočem stanju, vedno začne z blokado, kar nam bo prišlo prav kasneje, ko bomo preverjali ali je izračun v obliki rezultata.
 
 
 \begin{figure}[H]
@@ -214,7 +213,11 @@ Rezultati ostanejo enaki kot v originalnem članku.
 	\label{fig:operacijska-semantika-poenostavitev}
 \end{figure}
 
-Zagon dela korake tako, da dela korake na pripadajočem izračunu. Signal in prekinitev na procesih se obnašata enako kot na izračunih. Par procesov lahko naredi korak, če lahko eden izmed procesov naredi korak. Koraki za procese so podani na sliki~\ref{fig:small-step-semantics-of-processes}.
+Zagon dela korake tako, da dela korake na pripadajočem izračunu.
+Ko se signal širi navzgor se kopija pretvori v prekinitev in razširi na vzporedne procese. Lahko se izvaja tudi njegovo nadaljevanje.
+Prekinitev se širi navznoter. Kadar naleti na dva vzporedna procesa se razširi v oba. Lahko se izvaja njeno nadaljevanje. 
+Par procesov lahko naredi korak, če lahko eden izmed procesov naredi korak.
+Koraki za procese so podani na sliki~\ref{fig:small-step-semantics-of-processes}.
 
 \begin{figure}[H]
     \centering
@@ -383,14 +386,15 @@ Pravila za določitev tipa vrednosti vidimo na sliki~\ref{fig:value-typing-rules
 
 Izračunom poleg standardnega tipa dodamo še tipe signalov, ki jih lahko sprožijo, označene z $\o$ in tipe prekinitev, ki jih lahko prestrežejo, označene z $\i$.
 Tipi učinkov $\o$ in $\i$ so elementi množice $O$ oziroma $I$.
-Ko se signal sproži, le to nima direktnega vpliva na nadaljevanje izračuna. Naj bo $\sig$ množica vseh operacij, ki jih imamo na voljo. Potem je množica $O$ preprosto potenčna množica množice $\sig$ in $\o$ predstavlja množico signalov, ki jih izračun lahko sproži. Tu bistveno ne zahtevamo, da izračun tudi dejansko sproži vse signale, ki bi jih lahko glede na $\o$.  
+Ko se signal sproži, le to nima direktnega vpliva na nadaljevanje izračuna. Naj bo $\sig = \{\op_1, ..., \op_n\}$ množica vseh operacij, ki jih imamo na voljo. Potem je množica $O$ preprosto potenčna množica množice $\sig$ in $\o$ predstavlja množico signalov, ki jih izračun lahko sproži. Tu bistveno ne zahtevamo, da izračun tudi dejansko sproži vse signale, ki bi jih lahko glede na $\o$.  
 Množica $I$ je nekoliko bolj zakomplicirana. Ko prestreznik ujame prekinitev, se bo nadaljevanju dodal sproženi izračun iz prestreznika. Slednji lahko vsebuje nove signale in prestreznike. Posledično lahko sedaj spremenjeni izračun začne oddajati nove signale in prestrezati nove prekinitve. Toda tudi novi prestrezniki lahko ponovno namestijo nove signale in nove prestreznike in tako naprej.
 To (potencialno neskončno) rekurzivno ponavljanje prestreznikov želimo prikazati v tipu.
 Množico $I$ definiramo kot največjo fiksno točko preslikave $\Omega$, definirane kot 
 $$\Omega(X) = \sig \Rightarrow (O \times X)_\bot ,$$
 kjer je $\Rightarrow$ potenciranje, $\times$ je kartezični produkt in $(-)_\bot$ je dvig. Dvig je disjunktna unija množice z $\bot$.
-Sledeča notacija $\i = \{\op_1 \mapsto (\o_1,\i_1),...,\op_n \mapsto (\o_n, \i_n)\}$ predstavlja $\i$, ki slika $\op_i$ v $(\o_i, \i_i)$ in vse ostale $\op \in \Sigma$ slika v $\bot$.
+Sledeča notacija $\i = \{\op_1 \mapsto (\o_1,\i_1),...,\op_k \mapsto (\o_k, \i_k)\}$ predstavlja $\i$, ki slika $\op_i$ v $(\o_i, \i_i)$ in vse ostale $\op \in \Sigma$ slika v $\bot$.
 %Preslikava $\Omega$ je endofunktor na kategoriji omega kompletnih delnih ureditvah 
+
 Če izračun za neko operacijo $\op$ ne bo imel prestreznika, se bo to v $\i$ izražalo tako, da bo $\i$ slikal $\op$ v $\bot$. 
 Sicer bo $\i$ slikal $\op$ v par $(\o', \i')$, kjer $\o'$ predstavlja nove signale in $\i'$ nove prestreznike v sproženih izračunih.
 Recimo izračun $$\tmopout{op}{V}{\tmwith{op'}{x}{\tmopout{op''}{W}{\tmreturn{\tmpromise{()}}}}{p}{\tmreturn{()}}}$$ ima tip učinkov $(\{\op\}, \{\op' \mapsto (\{\op''\},\{\})\})$, saj sproži signal $\op$ in ima prestreznik za $\op'$. Ko bo prestreznik prestregel prekinitev z operacijo $\op'$ se bo od sedaj naprej lahko sprožil tudi signal z operacijo $\op''$, ne bomo pa dodali nobenega novega prestreznika, ki bi lahko prestregel kakšno dodatno operacijo.
@@ -528,23 +532,23 @@ Tretja lastnost pravi, da prekinitev ne vpliva na prestreznike z drugačnim imen
 	\end{enumerate}
 \end{proof}
 
-Za tip $\tycomp{A}{\o, \i}$ rečemo, da je pod tip tipa $\tycomp{A}{\o', \i'}$, če velja $(\o, \i) \order{O \times I} (\o', \i')$. Če lahko izračunu določimo nek podtip tipa $\tycomp{A}{\o, \i}$, potem ima izračun tudi tip $\tycomp{A}{\o', \i'}$.
+Za tip $\tycomp{A}{\o, \i}$ rečemo, da je pod tip tipa $\tycomp{A}{\o', \i'}$, če velja $(\o, \i) \order{O \times I} (\o', \i')$. Če lahko izračunu določimo nek podtip $\tycomp{A}{\o, \i}$ tipa $\tycomp{A}{\o', \i'}$, potem ima izračun tudi tip $\tycomp{A}{\o', \i'}$.
 
 %Vsaki operaciji priredimo nek tip, kot vidimo na sliki~\ref{fig:tipi}.
 Sedaj si poglejmo še standardni del tipa izračunov.
+Pravila za določitev tipa izračunov vidimo na sliki~\ref{fig:computation-typing-rules}.
 Signal ima isti tip kot njegovo nadaljevanje. Sproti pa preverimo, da je operacija $\op$ v $\o$ in da ima tovor tip, ki pripada operaciji.
 Ker izračun 
 $$ \tmwith{op}{x}{M}{p}{\tmopout{op'}{V}{N}} $$
 lahko naredi korak v izračun
 $$ \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}}$$
 (glej sliko~\ref{fig:small-step-semantics-of-computations}),
-je ključno da tovor $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu spremenljivka $p$ v vrednosti $V$ ni več dobro definiran. Da zagotovimo, da vrednost $V$ ne vsebuje spremenljivke $p$, omejimo tipe, ki pripadajo operacijam, na osnovne tipe. Vrednosti, ki imajo osnovni tip, namreč ne morejo vsebovati spremenljivke obljuba. To je močna omejitev, funkcijski tip na primer namreč ni osnovni. To omejitev bomo v nadaljevanju spremenili.
+je ključno da tovor $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu spremenljivka $p$ v vrednosti $V$ ni več dobro definiran. Da zagotovimo, da vrednost $V$ ne vsebuje spremenljivke $p$, omejimo tipe, ki pripadajo operacijam, na osnovne tipe. Vrednosti, ki imajo osnovni tip, namreč ne morejo vsebovati spremenljivke obljuba. To je močna omejitev, funkcijski tip na primer namreč ni osnovni. To omejitev bomo v poglavju~\ref{sec:razsirjen-lae} spremenili.
 Prekinitev ima tip, ki ga dobimo tako, da na tipu nadaljevanja uporabimo preslikavo $\opincomp{op}$. Prav tako preverimo, da ima tovor tip, ki pripada operaciji $\op$. 
 Prestreznik ima isti tip kot njegovo nadaljevanje. Preverimo tudi, da je $\op$ ena izmed operacij, ki jo lahko prestrežemo in da ima sproženi izračun tip obljuba z učinki $\i(\op) = (\o', \i')$.
 Blokada ima isti tip kot njegovo nadaljevanje. Preverimo tudi da ima vrednost $V$ tip obljuba. 
 Preostali izračuni imajo pričakovane tipe.
 
-Pravila za določitev tipa izračunov vidimo na sliki~\ref{fig:computation-typing-rules}.
 
 \begin{figure}[H]
 	\centering
@@ -652,7 +656,7 @@ Podobno, kot se spremeni tip prekinitve izračuna, se spremeni tip prekinitve pr
 	\caption{Razširitev operacije na procese.}
 	\label{fig:opin-proces}
 \end{figure}
-Tip vzporednih procesov preprosto ohrani oba tipa.
+Tip vzporednih procesov ohrani oba tipa.
 
 
 \begin{figure}[H]
@@ -700,7 +704,8 @@ Izrek o ohranitvi nam pove da, če izračun, ki ima tip, naredi korak v nek drug
 Kdaj točno je končan program v zadovoljivi obliki, nam povejo pravila na sliki~\ref{fig:results-rules}.
 Kadar se program ustavi si želimo, da bi se ustavil v neki dokončni obliki s katero bomo zadovoljni. 
 Za procese si želimo, da so se vsi dosegljivi signali razširili do vrha. Preostanek so pari procesov ali zagoni. Izračun v zagonu mora biti ali vračanje vrednosti ali pa izračun, ki ne more narediti nobenega koraka več, dokler ne prispe ustrezna prekinitev, se izpolni obljuba in blokada dovoli nadaljnje izvajanje. Čakati na obljubo, ki ne pripada nobenemu prestrezniku in se torej nikoli ne more izpolniti, nima smisla. Ko preverjamo delni rezultat izračunov, si v $\Psi$ beležimo obljube, ki pripadajo prestreznikom. Ko pridemo do blokade preverimo, da smo na pripadajočo obljubo nekje prej že naleteli.
-Ker bomo za izračune posebej dokazali trditev o napredku, dodamo tudi, da je izračun kot samostojna enota v zaključeni obliki, ko so vsi dosegljivi signali priplavali do vrha preostanek pa je ali vračanje vrednosti ali izračun, ki čaka na prekinitev.
+Ker bomo za izračune posebej dokazali trditev o napredku, dodamo tudi, da je izračun kot samostojna enota v zaključeni obliki, ko so vsi dosegljivi signali priplavali do vrha, preostanek pa je ali vračanje vrednosti ali izračun, ki čaka na prekinitev.
+
 
 \begin{figure}[H]
 	\centering
@@ -775,7 +780,7 @@ Ker bomo za izračune posebej dokazali trditev o napredku, dodamo tudi, da je iz
 \end{figure}
 
 
-Sledi nekaj lem potrebnih za dokaz teh dveh izrekov, ki so dokazane s strukturno indukcijo. Kadar je v dokazu zanimiv le posamezen primer, je le ta posebej označen z $\sitem$.
+Sledi nekaj lem potrebnih za dokaz teh dveh izrekov, ki so dokazane s strukturno indukcijo. Kadar je v dokazu zanimiv le posamezen primer, je ta posebej označen z $\sitem$.
 
 
 \begin{lema}\label{lem:ni-spremenljivka}
@@ -1221,7 +1226,7 @@ Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 	\end{itemize}
 \end{proof}
 
-Kadar ne dokazujemo na drevo izpeljave za tip izračuna ne vemo, katero pravilo točno je bilo zadnje uporabljeno. Posledično ne moremo uporabiti uporabiti predpostavk pravila, ki bi nam povedale o tipih komponent, kljub temu, da imamo tip celega izračuna.
+Kadar ne dokazujemo na drevo izpeljave za tip izračuna, ne vemo, katero pravilo točno je bilo zadnje uporabljeno. Posledično ne moremo uporabiti uporabiti predpostavk pravila, ki bi nam povedale o tipih komponent, kljub temu, da imamo tip celega izračuna.
 S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke, čeprav v nekoliko šibkejši obliki.
 
 \begin{lema}\label{lem:inversion-lema}
@@ -1382,7 +1387,7 @@ Kako deluje operacija $\opincomp{op}{}$ na tipih procesov smo definirali že na 
 		\qquad
 		\coopinfer{TyRedu-Add-Basic}{
 		}{
-			\tyrun{A}{\opincomp{ops}{(\o, \i)}} \tyreduces \tyrun{A}{\opincomp{ops}{(\opincomp{op}{(\o, \i)})}}
+			\tyrun{A}{\opincompp{ops}{(\o, \i)}} \tyreduces \tyrun{A}{\opincompp{ops}{(\opincomp{op}{(\o, \i)})}}
 		}
 		\\
 		\coopinfer{TyRedu-Par}{
@@ -1411,7 +1416,7 @@ Kako deluje operacija $\opincomp{op}{}$ na tipih procesov smo definirali že na 
 			\tyC \tyreduces \opincomp{op}{\tyC}
 		}
 		\qquad
-		\coopinfer{TyRedu-Change}{
+		\coopinfer{TyRedu-Congruence}{
 			\tyC \tyreduces \tyC'
 		}{
 			\opincomp{op}{\tyC} \tyreduces \opincomp{op}{\tyC'}
@@ -1426,7 +1431,7 @@ Kako deluje operacija $\opincomp{op}{}$ na tipih procesov smo definirali že na 
 
 Sledeča lema pove, da se pravila ujemajo.
 
-\begin{lema}
+\begin{lema}\label{lem:reductions-rules}
 	Vsak korak iz slike~\ref{fig:process-type-reductions}, lahko predstavimo s koraki iz slike~\ref{fig:process-type-reductions-basic}.
 \end{lema}
 
@@ -1435,13 +1440,17 @@ Sledeča lema pove, da se pravila ujemajo.
 		\item \rulename{TyRedu-Same} : Če je $\tyC$ oblike $\tyrun{A}{\o,\i}$, potem $\tyC = \tyrun{A}{\o,\i} \tyreduces \tyrun{A}{\o,\i} = \tyC$.
 		Če je $\tyC$ oblike $\typar{D_1}{D_2}$, potem lahko po indukcijski predpostavki $D_1$ in $D_2$ naredita korak v $D_1$ in $D_2$. Skupaj s pravilom \rulename{TyRedu-Par} velja $C = \typar{D_1}{D_2} \reduces \typar{D_1}{D_2} = C$.
 		
-		\item \rulename{TyRedu-Add} : Če je $\tyC$ oblike $\tyrun{A}{\o,\i}$, potem $\tyC = \tyrun{A}{\opincomp{ops}{(\o, \i)}} \tyreduces \tyrun{A}{\opincomp{ops}{(\opincomp{op}{(\o, \i)})}} = \opincomp{op}{\tyC}$ za $\mathsf{ops} = []$.
-		Če je $\tyC$ oblike $\typar{D_1}{D_2}$, potem lahko po indukcijski predpostavki $D_1$ in $D_2$ naredita korak v $\opincomp{op}{D_1}$ in $\opincomp{op}{D_2}$. Skupaj s pravilom \rulename{TyRedu-Par} velja $C = \typar{D_1}{D_2} \reduces \typar{\opincomp{op}{D_1}}{\opincomp{op}{D_2}} = \opincomp{op}{\typar{D_1}{D_2}} = C$.
+		\item \rulename{TyRedu-Add} : Če je $\tyC$ oblike $\tyrun{A}{\o,\i}$, potem $\tyC = \tyrun{A}{\opincompp{ops}{(\o, \i)}} \tyreduces \tyrun{A}{\opincompp{ops}{(\opincomp{op}{(\o, \i)})}} = \opincomp{op}{\tyC}$ za $\mathsf{ops} = []$.
+		Če je $\tyC$ oblike $\typar{D_1}{D_2}$, potem lahko po indukcijski predpostavki $D_1$ in $D_2$ naredita korak v $\opincomp{op}{D_1}$ in $\opincomp{op}{D_2}$. Skupaj s pravilom \rulename{TyRedu-Par} velja $C = \typar{D_1}{D_2} \reduces \typar{\opincomp{op}{D_1}}{\opincomp{op}{D_2}} = \opincomp{op}{\typar{D_1}{D_2}} = \opincomp{op}{\tyC}$.
 		
-		\item \rulename{TyRedu-Change} : Če je $\tyC$ oblike $\tyrun{A}{\o,\i}$, potem je $\tyC$ lahko naredil le korak v $\tyC$ in torej $\opincomp{op}{\tyC} = \tyrun{A}{\o',\i'} \tyreduces \tyrun{A}{\o',\i'} = \opincomp{op}{\tyC}$.
-		Če je $\tyC$ oblike $\typar{D_1}{D_2}$, potem je $\tyC' = \typar{D_1'}{D_2'}$.
-		Po indukcijski predpostavki lahko $\opincomp{op}{\tyD_1}$ in $\opincomp{op}{\tyD_2}$ naredita korak v $\opincomp{op}{\tyD_1'}$ in $\opincomp{op}{\tyD_2'}$.
-		Skupaj s pravilom \rulename{TyRedu-Par} velja $\opincomp{op}{\tyC} = \opincomp{op}{\typar{D_1}{D_2}} = \typar{\opincomp{op}{\tyD_1}}{\opincomp{op}{\tyD_2}} \reduces \typar{\opincomp{op}{\tyD_1'}}{\opincomp{op}{\tyD_2'}} = \opincomp{op}{\typar{D_1'}{D_2'}} = \opincomp{op}{\tyC'}$.
+		\item \rulename{TyRedu-Congruence} Dokazujemo s strukturno indukcijo na izpeljavo $\tyC \tyreduces \tyC'$.
+		\begin{itemize}
+			\item Če je zadnji korak $\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\o, \i}$, potem je $\opincomp{op}{\tyC} = \tyrun{A}{\o', \i'} \reduces \tyrun{A}{\o', \i'} = \opincomp{op}{\tyC'}$ in smo torej naredili korak \rulename{TyRedu-Same-Basic}.
+			
+			\item Če je zadnji korak $\tyrun{A}{\opincompp{ops}{(\o, \i)}} \tyreduces \tyrun{A}{\opincompp{ops}{(\opincomp{op'}{(\o, \i)})}}$, potem je $\opincomp{op}{\tyC} = \tyrun{A}{\opincompp{op::ops}{(\o, \i)}} \reduces \tyrun{A}{\opincompp{op::ops}{(\opincomp{op'}{(\o, \i)})}} = \opincomp{op}{\tyC'}$ in smo torej naredili korak \rulename{TyRedu-Add-Basic}.
+			
+			\item Če je zadnji korak $\typar{\tyD_1}{\tyD_2} \tyreduces \typar{\tyD_1'}{\tyD_2'}$, potem lahko po indukcijski predpostavki $\opincomp{op}{\tyD_1}$ in $\opincomp{op}{\tyD_2}$ naredita korak v $\opincomp{op}{\tyD_1'}$ in $\opincomp{op}{\tyD_2'}$. Skupaj s pravilom \rulename{TyRedu-Par} velja $\opincomp{op}{\tyC} = \opincomp{op}{\typar{D_1}{D_2}} = \typar{\opincomp{op}{\tyD_1}}{\opincomp{op}{\tyD_2}} \reduces \typar{\opincomp{op}{\tyD_1'}}{\opincomp{op}{\tyD_2'}} = \opincomp{op}{\typar{D_1'}{D_2'}} = \opincomp{op}{\tyC'}$.
+		\end{itemize}
 	\end{itemize}
 \end{proof}
 
@@ -1548,7 +1557,7 @@ Sledeča lema pove, da se pravila ujemajo.
 		potem je bilo zadnje pravilo za določitev tipa $P$ \rulename{TyProc-Interrupt}.
 		Posledično ima $V$ tip $B$ in $Q$ tip $C''$, kjer je $C = \opincomp{op}{C''}$.
 		Po indukcijski predpostavki je $C''$ naredil korak v $C'$ in $Q'$ ima tip $C'$.
-		Po pravilu \rulename{TyProc-Interrupt} ima $\tmopin{op}{V}{Q'}$ tip $\opincomp{op}{C'}$, tip $C$ pa je naredil korak \rulename{TyRedu-Change}.
+		Po pravilu \rulename{TyProc-Interrupt} ima $\tmopin{op}{V}{Q'}$ tip $\opincomp{op}{C'}$, tip $C$ pa je naredil korak \rulename{TyRedu-Congruence}.
 	\end{itemize}
 
 \end{proof}

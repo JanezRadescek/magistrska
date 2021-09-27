@@ -1198,8 +1198,47 @@ Teh dveh pravil ne moremo posplošiti na tipe poljubnih procesov, saj le proces 
 	
 \end{figure}
 
+\begin{figure}[H]
+	\centering
+	\begin{mathpar}
+		\coopinfer{TyRedu-Same}{
+		}{
+			\tyC \tyreduces \tyC
+		}
+		\qquad
+		\coopinfer{TyRedu-Add}{
+		}{
+			\tyC \tyreduces \opincomp{op}{\tyC}
+		}
+		\qquad
+		\coopinfer{TyRedu-Congruence}{
+			\tyC \tyreduces \tyC'
+		}{
+			\opincomp{op}{\tyC} \tyreduces \opincomp{op}{\tyC'}
+		}
+	\end{mathpar}
+	
+	%	\vspace{-5ex}
+	\caption{Pravila za spremembo splošnih tipov.}
+	\label{fig:process-type-reductions-2}
+\end{figure}
+Pravila za spremembo splošnega tipa še zmeraj veljajo. 
 
-Pravila za spremembo splošnega tipa iz slike~\ref{fig:process-type-reductions} še zmeraj veljajo. Dokaz da se pravila ujemajo se spremeni minimalno.
+\begin{lema}
+	Vsak korak iz slike~\ref{fig:process-type-reductions-2}, lahko predstavimo s koraki iz slike~\ref{fig:process-type-reductions-basic} in slike~\ref{fig:process-type-reductions-spawn}.
+\end{lema}
+
+\begin{proof}
+	Primeri, ki so enaki kot v dokazu~\ref{lem:reductions-rules} so izpuščeni.
+	\begin{itemize}		
+		\item \rulename{TyRedu-Congruence} Dokazujemo s strukturno indukcijo na izpeljavo $\tyC \tyreduces \tyC'$.
+		\begin{itemize}
+			\item Če je zadnji korak $\tyrun{A}{\o, \i} \tyreduces \typar{\tyrun{A'}{\o', \i'}}{\tyrun{A}{\o, \i}}$, potem je $\opincomp{op}{\tyC} = \tyrun{A}{\o'', \i''} \reduces \typar{\tyrun{A'}{\o', \i'}}{\tyrun{A}{\o'', \i''}} = \typar{\tyC_L}{\opincomp{op}{\tyC}} = \opincomp{op}{\typar{\tyC_L'}{\tyC}} = \opincomp{op}{\tyC'}$ in smo torej naredili korak \rulename{TyRedu-Spawn-L}.
+			
+			\item Podobno če je zadnji korak \rulename{TyRedu-Spawn-R}.	
+		\end{itemize}
+	\end{itemize}
+\end{proof}
 
 
 \begin{izrek}[o ohranitvi]\label{izr:ohranitev-2}

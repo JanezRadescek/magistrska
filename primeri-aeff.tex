@@ -1,8 +1,8 @@
 \section{Motivacijski primer} \label{sec:primeri-aeff}
 
-Poglejmo si sledeči sekvenčni sinhroni primer, katerega psevdokodo vidimo na programu~\ref{prog:primer-0}. Poračunati moramo zelo zahtevno in počasno točno funkcijo in prikazati njen rezultat na zaslonu. Ker je tako zelo počasna, preden se je dejansko lotimo, poračunamo še hitrejši približek in ga prikazujemo, dokler ga ne bo nadomestila točna vrednost. Nakar bomo nekaj časa računali prvo nadaljevanje neodvisno od točne vrednosti, nato pa še drugo nadaljevanje odvisno od točne vrednosti. 
+Poglejmo si sledeči sekvenčni sinhroni primer, katerega psevdokodo vidimo na programu~\ref{prog:primer-0}. Poračunati moramo zahtevno in počasno točno funkcijo in prikazati njen rezultat na zaslonu. Ker je počasna, preden se je dejansko lotimo, poračunamo še hitrejši približek in ga prikazujemo, dokler ga ne bo nadomestila točna vrednost. Nakar bomo nekaj časa računali prvo nadaljevanje neodvisno od točne vrednosti, nato pa še drugo nadaljevanje odvisno od točne vrednosti. 
 
-\begin{lstlisting}[caption={Sinhron sekvečni primer.},label={prog:primer-0},float,floatplacement=H]
+\begin{lstlisting}[caption={Sinhron sekvečni primer.},label={prog:primer-0},floatplacement=H]
 x' (*@$\defeq{}$@*) priblizek 42
 zaslon x'
 x (*@$\defeq{}$@*) funkcija 42
@@ -18,7 +18,7 @@ Obema težavama se lahko izognemo, če program napišemo v jeziku \aeff, kot vid
 Najprej s pomočjo učinka signal $\tmkw{\uparrow}\, \text{opravilo}\,42;$ v drug proces pošljemo število $42$. Signal se bo razširil navzgor po procesu. Ko bo prišel na nivo procesov, se bo razširil v drug proces in spremenil v prekinitev, ki bo potovala po procesu navznoter. V drugem procesu prestrežemo prekinitev s številko $42$ s pomočjo prestreznika $\tmwith{opravilo}{y}{M}{\_}{()}$ in jo vežemo v spremenljivko $y$. Nakar začnemo računati točno funkcijo z $\tmkw{let}\ x = \text{funkcija}(y)$. Ko končamo, pošljemo rezultat nazaj v glavni proces z $\tmkw{\uparrow}\, \text{rezultat}\,x$.
 Medtem ko se računa točna vrednost v drugem procesu se bistveno glavni proces ne zaustavi, ampak nadaljuje z izvajanjem. Najprej poračunamo približek $\tmkw{let}\ x' = \text{priblizek}(42)$ in ga prikažemo na zaslon z $\text{zaslon}(x');$. Nato nadaljujemo z izvajanjem prvega nadaljevanja $\text{nadaljevanje}1()$, ki je neodvisen od rezultata točne funkcije. Ko glavni proces prestreže točen rezultat z $$\tmwith{rezultat}{x}{M}{p}{...}$$ ga izpiše na zaslon in veže v spremenljivko p. V primeru, da končamo z aproksimacijo in prvim nadaljevanjem preden dobimo rezultat, ne smemo nadaljevati z drugim nadaljevanjem, saj le ta potrebuje rezultat. Blokada $\tmawait{p}{y}{...}$ blokira nadaljnje izvajanje, dokler se spremenljivka $p$ ne substituira z neko vrednostjo $\tmpromise{V}$. Takrat se bo $y$ v $\text{nadaljevanje}2(y)$ substituiral z vrednostjo $V$ in izvajanje se bo nadaljevalo.
 
-\begin{lstlisting}[caption={Asinhron vzporeden primer.},label={prog:primer-1},float,floatplacement=H]
+\begin{lstlisting}[caption={Asinhron vzporeden primer.},label={prog:primer-1},floatplacement=H]
 operation opravilo : int
 operation rezultat : int
 
@@ -49,7 +49,7 @@ run
 %V sinhronem izvajanju zatem ko pošljemo opravilo v drug proces, moramo čakati, da dobimo nazaj rezultat preden lahko nadaljujemo z izvajanjem izračuna $M_2$. 
 
 Na sliki~\ref{fig:async-illustration} lahko vidimo ilustrirano idejo asinhronega izvajanja programa~\ref{prog:primer-1}. 
-Potem ko pošljemo $\mathsf{opravilo}\ 42$ v drug proces ne čakamo na odgovor, ampak nemudoma nadaljujemo z izvajanjem svojega izračuna. Ko pridemo do prestreznika in še nimamo ustrezne prekinitve, ne čakamo na njo, ampak naprej izvajamo kontinuacijo $M_2$. Ko dobimo $\mathsf{rezultat}$ iz drugega procesa ga prestrežemo in spet nemoteno nadaljujemo izvajanje celotnega izračuna.
+Potem ko prvi proces pošlje $\mathsf{opravilo}\ 42$ v drug proces ne čaka na odgovor, ampak nemudoma nadaljuje z izvajanjem svojega izračuna. Ko pride do prestreznika in še nimamo ustrezne prekinitve, ne čakamo na njo, ampak naprej izvaja kontinuacijo $M_2$. Ko dobi $\mathsf{rezultat}$ iz drugega procesa, ga prestreže in spet nemoteno nadaljuje izvajanje preostalega izračuna.
 
 %\begin{figure}[H]
 %	\centering
@@ -119,7 +119,7 @@ Potem ko pošljemo $\mathsf{opravilo}\ 42$ v drug proces ne čakamo na odgovor, 
 			\\
 			\dreduces && \dreduces
 			\\
-			$\tmwith{rezultat}{x}{N_2}{p}{M_2}$ &  & $N_1''$
+			$\tmwith{rezultat}{x}{N_2}{p}{\colorbox{kost}{$M_2$}}$ &  & $N_1''$
 			\\
 			\dreduces && \dreduces
 			\\
