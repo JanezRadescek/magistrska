@@ -1437,13 +1437,13 @@ Sledeča lema pove, da se pravila ujemajo.
 
 \begin{proof}
 	\begin{itemize}
-		\item \rulename{TyRedu-Same} : Če je $\tyC$ oblike $\tyrun{A}{\o,\i}$, potem $\tyC = \tyrun{A}{\o,\i} \tyreduces \tyrun{A}{\o,\i} = \tyC$.
+		\item \rulename{TyRedu-Same} : Dokazujemo s strukturno indukcijo na obliko tipa $\tyC$. Če je $\tyC$ oblike $\tyrun{A}{\o,\i}$, potem $\tyC = \tyrun{A}{\o,\i} \tyreduces \tyrun{A}{\o,\i} = \tyC$.
 		Če je $\tyC$ oblike $\typar{D_1}{D_2}$, potem lahko po indukcijski predpostavki $D_1$ in $D_2$ naredita korak v $D_1$ in $D_2$. Skupaj s pravilom \rulename{TyRedu-Par} velja $C = \typar{D_1}{D_2} \reduces \typar{D_1}{D_2} = C$.
 		
-		\item \rulename{TyRedu-Add} : Če je $\tyC$ oblike $\tyrun{A}{\o,\i}$, potem $\tyC = \tyrun{A}{\opincompp{ops}{(\o, \i)}} \tyreduces \tyrun{A}{\opincompp{ops}{(\opincomp{op}{(\o, \i)})}} = \opincomp{op}{\tyC}$ za $\mathsf{ops} = []$.
+		\item \rulename{TyRedu-Add} : Dokazujemo s strukturno indukcijo na obliko tipa $\tyC$. Če je $\tyC$ oblike $\tyrun{A}{\o,\i}$, potem $\tyC = \tyrun{A}{\opincompp{ops}{(\o, \i)}} \tyreduces \tyrun{A}{\opincompp{ops}{(\opincomp{op}{(\o, \i)})}} = \opincomp{op}{\tyC}$ za $\mathsf{ops} = []$.
 		Če je $\tyC$ oblike $\typar{D_1}{D_2}$, potem lahko po indukcijski predpostavki $D_1$ in $D_2$ naredita korak v $\opincomp{op}{D_1}$ in $\opincomp{op}{D_2}$. Skupaj s pravilom \rulename{TyRedu-Par} velja $C = \typar{D_1}{D_2} \reduces \typar{\opincomp{op}{D_1}}{\opincomp{op}{D_2}} = \opincomp{op}{\typar{D_1}{D_2}} = \opincomp{op}{\tyC}$.
 		
-		\item \rulename{TyRedu-Congruence} Dokazujemo s strukturno indukcijo na izpeljavo $\tyC \tyreduces \tyC'$.
+		\item \rulename{TyRedu-Congruence} Dokazujemo s strukturno indukcijo na izpeljavo koraka $\tyC \tyreduces \tyC'$.
 		\begin{itemize}
 			\item Če je zadnji korak $\tyrun{A}{\o, \i} \tyreduces \tyrun{A}{\o, \i}$, potem je $\opincomp{op}{\tyC} = \tyrun{A}{\o', \i'} \reduces \tyrun{A}{\o', \i'} = \opincomp{op}{\tyC'}$ in smo torej naredili korak \rulename{TyRedu-Same-Basic}.
 			
