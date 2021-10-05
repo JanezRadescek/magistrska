@@ -5,9 +5,9 @@ Poglejmo si primer~\ref{prog:razsiritev-0}, ki bi ga lahko napisali v \aeff{}, k
 
 Imamo dve funkciji, $\mathsf{povezi}$ in $\mathsf{streznik}$.
 Funkcija $\mathsf{streznik}$ sprejme seznam funkcij. Ko bo prišla prekinitev $\mathsf{opravilo}$, bo iz seznama vzela ustrezno funkcijo\footnote{$\mathsf{nth}$ je funkcija ki sprejme seznam $\mathsf{s}$ in število $\mathsf{n}$ in vrne n-ti element seznama.}, izračunala vrednost te funkcije v dani vrednosti $\mathsf{x}$ in poslala nazaj signal z id-jem opravila in rezultatom. Na koncu pa bo s pomočjo rekurzivne pomožne funkcije ponovno namestila prestreznik.
-Funkcija $\mathsf{povezi}$ sprejme referenco, ki bo predstavljala id opravila, id funkcije, ki jo želimo poračunati in vrednost, v kateri želimo izračunati funkcijo.
+Funkcija $\mathsf{povezi}$ sprejme referenco, ki bo predstavljala id opravila, id funkcije, ki jo želimo poračunati, in vrednost, v kateri želimo izračunati funkcijo.
 Nato pošlje signal $\mathsf{opravilo}$ z ustreznimi vrednostmi in poveča številko v referenci.
-Ni vseeno kateri rezultat prestrežemo, ampak mora biti rezultat z ustreznim id-jem. Zato prestreznik definiramo v pomožni rekurzivni funkciji, ki bo ponovno namestila prestreznik, če bomo ujeli rezultat z napačnim id-jem.
+Ni vseeno, kateri rezultat prestrežemo, ampak mora biti rezultat z ustreznim id-jem. Zato prestreznik definiramo v pomožni rekurzivni funkciji, ki bo ponovno namestila prestreznik, če bomo ujeli rezultat z napačnim id-jem.
 Namesto da sama funkcija $\mathsf{povezi}$ čaka na rezultat in ga vrne, bo takoj vrnila pomožno funkcijo, le ta pa bo po potrebi čakala na rezultat.  
 
 V prvem procesu ustvarimo referenco in s pomočjo $\mathsf{povezi}$ začnemo računati dve pomožni vrednosti, na kateri pa ne čakamo, da se izračunata, ampak nemudoma začnemo z računanjem vrednosti $\mathsf{z}$. Nato kličemo pomožni funkciji $\mathsf{y1}$ in $\mathsf{y2}$, ki bosta po potrebi čakali na rezultat in nato vrnili dejanski rezultat. Na koncu tri vrednosti seštejemo.
@@ -61,7 +61,7 @@ run streznik ((fun x -> 2 * x)::(fun x -> 7 * x)::nil)
 
 
 Ta primer ima tri glavne primanjkljaje. Pogosto si moramo pomagati s pomožno rekurzivno funkcijo v navezi s prestreznikom, da slednjega ponovno namestimo. Operacije so omejene na osnovne tipe, zaradi česar ne moremo pošiljati funkcij. In ne moremo po potrebi ustvarjati novih procesov.
-Te tri probleme bomo sedaj enega za drugim razrešili, tako da bomo razširili \lae{}-račun in posledično jezik \aeff{}.
+Te tri probleme bomo sedaj enega za drugim razrešili tako, da bomo razširili \lae{}-račun in posledično jezik \aeff{}.
 
 
 \subsection{Rekurzivni prestreznik}
@@ -70,7 +70,7 @@ Te tri probleme bomo sedaj enega za drugim razrešili, tako da bomo razširili \
 Kadar pričakujemo več prekinitev z isto operacijo, je lahko iz različnih razlogov za programerja priročno, če ima na voljo prestreznik, ki se po potrebi ponovno namesti. Lahko je namen prestreznika, da na vsako prekinitev odgovori z signalom. Lahko nam prihajajoča prekinitev prinese pravo operacijo, vendar ne pravega pripadajočega tovora, zato obljube še nočemo izpolniti, in čakamo na naslednjo prekinitev.
 To funkcionalnost smo do sedaj dosegli tako, da smo obljubo definirali v pomožni rekurzivni funkciji in po potrebi znotraj obljube ponovno klicali to funkcijo, kot smo videli v programu~\ref{prog:razsiritev-0}.
 
-Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom $\tmwithrec{op}{x}{r}{M}{p}{N}$. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}. Le ta ima poleg imena operacije $op$, tovora $x$, obljube $M$ in nadaljevanja $N$ tudi spremenljivko $r$, s pomočjo katere lahko ponovno namestimo isti prestreznik.  Seveda je stara oblika poseben primer novega prestreznika v katerem ne uporabimo $r$.
+Predvsem z namenom bolj pregledne kode nadomestimo obstoječi prestreznik z rekurzivnim prestreznikom $\tmwithrec{op}{x}{r}{M}{p}{N}$. Pripadajočo sintakso vidimo na sliki~\ref{fig:izrazi-prestreznik}. Le ta ima poleg imena operacije $\op$, tovora $x$, obljube $M$ in nadaljevanja $N$ tudi spremenljivko $r$, s pomočjo katere lahko ponovno namestimo isti prestreznik. Seveda je stara oblika poseben primer novega prestreznika, v katerem ne uporabimo $r$.
 
 
 \begin{figure}[H]
@@ -99,7 +99,7 @@ Substitucijo prestreznika popravimo, kot vidimo na sliki~\ref{fig:substitucija-p
 	\label{fig:substitucija-prestreznik}
 \end{figure}
 
-Operacijska semantika rekurzivnega prestreznika je podobna prejšnji verziji. S to izjemo da, ko prekinitev $\tmopin{op}{V}{M}$ pride do prestreznika $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira s funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik. Spremembe vidimo na sliki~\ref{fig:semantika-prestreznik}.
+Operacijska semantika rekurzivnega prestreznika je podobna prejšnji verziji. S to izjemo, da, ko prekinitev $\tmopin{op}{V}{M}$ pride do prestreznika $\tmwithrec{op}{x}{r}{N_1}{p}{N_2}$, le ta v obljubi $M$ naredi dve substituciji. Tako kot prej spremenljivko $x$ substituira z vrednostjo $V$, dodatno pa spremenljivko $r$ substituira s funkcijo $R$, ki sprejme enoto in vrne svežo kopijo prestreznika. Znotraj $M$ lahko uporabimo funkcijo $R$ in tako ponovno namestimo prestreznik. Spremembe vidimo na sliki~\ref{fig:semantika-prestreznik}.
 
 \begin{figure}[H]
 	\centering
@@ -124,7 +124,7 @@ Operacijska semantika rekurzivnega prestreznika je podobna prejšnji verziji. S 
 \end{figure}
 
 Tudi pravilo za tip rekurzivnega prestreznika je zelo podobno prvotnemu prestrezniku. Vidimo ga na sliki~\ref{fig:tipi-pravila-rekurzivni-prestreznik}. Spremenljivka $r$ dobi tip $\tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \op \mapsto (\o', \i')}}$, ki predstavlja izračun, ki ne sproži nobenega signala in prestreže le operacijo $\op$.
-Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$ red namesto enakosti. Ker sedaj v kontekst dodamo tip $\tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \op \mapsto (\o', \i')}}$ moramo paziti da pripadajoč tip efektov $(\o', \i')$ ni prevelik, saj sicer morda ne bomo mogli določiti tipa za $M$.
+Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$ delno urejenost namesto enakosti. Ker sedaj v kontekst dodamo tip $\tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \op \mapsto (\o', \i')}}$ moramo paziti, da pripadajoč tip učinkov $(\o', \i')$ ni prevelik, saj sicer morda ne bomo mogli določiti tipa za $M$.
 
 \begin{figure}[H]
 	\centering
@@ -144,7 +144,7 @@ Za razliko od prej imamo sedaj v $({\o'} , {\i'}) \order{O \times I} \i\, (\op)$
 \end{figure} 
 
 
-Ker imamo sedaj v pravilu za tip prestreznika neenakost $(\o', \i') \order{O \times I} \i(\op)$ bomo lemo~\ref{lem:effects-order} dopolnili z sledečo lemo.
+Ker imamo sedaj v pravilu za tip prestreznika neenakost $(\o', \i') \order{O \times I} \i(\op)$, bomo lemo~\ref{lem:effects-order} dopolnili s sledečo lemo.
 
 \begin{lema}\label{lem:effects-order-2}
 	\begin{enumerate}
@@ -154,12 +154,12 @@ Ker imamo sedaj v pravilu za tip prestreznika neenakost $(\o', \i') \order{O \ti
 \end{lema}
 
 \begin{proof}
-	Red $\order{O \times I}$ je tranzitivna operacija, zato točki te leme sledita iz ustreznih točk leme~\ref{lem:effects-order}.
+	Relacija $\order{O \times I}$ je tranzitivna, zato točki te leme sledita iz ustreznih točk leme~\ref{lem:effects-order}.
 \end{proof}
 
 
 Program~\ref{prog:razsiritev-1} ima isti semantičen pomen kot program~\ref{prog:razsiritev-0}, le da je tokrat napisan z rekurzivno obljubo.
-Ker nimamo pomožne funkcije je koda nekoliko krajša in tudi lažje berljiva.
+Ker nimamo pomožne funkcije, je koda nekoliko krajša in tudi lažje berljiva.
 
 \begin{lstlisting}[caption={Primer z rekurzivnim prestreznikom},label={prog:razsiritev-1},float,floatplacement=h]
 operation opravilo : int * int * int
@@ -274,7 +274,7 @@ Obstoječim substitucijam dodamo dve novi substituciji za nova izraza, kot vidim
 	\label{fig:substitucija-box}
 \end{figure}
 
-Kot vidimo na sliki~\ref{fig:semantika-odvijanje} izračun odvijanje veže vrednost znotraj zavite vrednosti $\tmboxed{V}$ na spremenljivko $x$, ki jo lahko uporabimo v nadaljevanju $M$.
+Kot vidimo na sliki~\ref{fig:semantika-odvijanje}, izračun odvijanje veže vrednost znotraj zavite vrednosti $\tmboxed{V}$ na spremenljivko $x$, ki jo lahko uporabimo v nadaljevanju $M$.
 
 \begin{figure}[h]
 	\centering
@@ -288,10 +288,10 @@ Kot vidimo na sliki~\ref{fig:semantika-odvijanje} izračun odvijanje veže vredn
 \end{figure}
 
 
-Da zagotovimo, da ne bi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodelili zavit tip, nekoliko spremenimo pravilo za izračun tipa spremenljivke in dodamo pravili za zavito vrednost in izračun odvijanje. Nekoliko spremenimo tudi kontekst. Uporabimo ideje, ki jih predstavi Clouston~\cite{fitch}. Spremembe prikaže slika~\ref{fig:tipi-pravila-prenosljivi}.
+Da zagotovimo, da ne bi kakšni vrednosti, ki vsebuje zunanjo obljubo, dodelili zavitega tipa, nekoliko spremenimo pravilo za izračun tipa spremenljivke in dodamo pravili za zavito vrednost in odvijanje. Nekoliko spremenimo tudi kontekst. Uporabimo ideje, ki jih predstavi Clouston~\cite{fitch}. Spremembe prikaže slika~\ref{fig:tipi-pravila-prenosljivi}.
 Okolje je imelo že od začetka določen vrstni red, vendar šele sedaj to postane zares pomembno. 
-Ko določamo tip zavite vrednosti $\tmboxed{V}$, v okolje dodamo $\bb$. S tem za v bodoče vse spremenljivke že v kontekstu označimo za zunanje. Spremenljivke, ki jih bomo dodajali v kontekst, ko bomo določali tip $V$ pa bodo notranje glede na zavito vrednost. Ko bomo nekje v vrednosti $V$ naleteli na spremenljivko $x$ bomo imeli dve možnosti. Če je spremenljivka notranja, je lahko tudi tipa obljuba, saj je pripadajoči prestreznik prav tako znotraj vrednosti $V$ in se bo premikal skupaj s spremenljivko $x$. Če pa je spremenljivka zunanja, ne sme biti tipa obljuba, saj obstaja možnost, da se bo vrednost $V$ in z njo spremenljivka $x$ premaknila mimo definicije ustreznega prestreznika.
-Pri izračunu odvijanje preverimo da je vrednost $V$ zavitega tipa, sam pa ima isti tip kot njegovo nadaljevanje.
+Ko določamo tip zavite vrednosti $\tmboxed{V}$, v okolje dodamo $\bb$. S tem za v bodoče vse obstoječe spremenljivke v kontekstu označimo za zunanje. Spremenljivke, ki jih bomo dodajali v kontekst, ko bomo določali tip $V$, pa bodo notranje glede na zavito vrednost. Ko bomo nekje v vrednosti $V$ naleteli na spremenljivko $x$, bomo imeli dve možnosti. Če je spremenljivka notranja, je lahko tudi obljuba, saj je pripadajoči prestreznik prav tako znotraj vrednosti $V$ in se bo premikal skupaj s spremenljivko $x$. Če pa je spremenljivka zunanja, ne sme biti obljuba, saj obstaja možnost, da se bo vrednost $V$ in z njo spremenljivka $x$ premaknila mimo definicije ustreznega prestreznika.
+Pri odvijanju preverimo, da je vrednost $V$ zavitega tipa, sam pa ima isti tip kot njegovo nadaljevanje.
 
 \begin{figure}[H]
 	\centering
@@ -320,7 +320,7 @@ Pri izračunu odvijanje preverimo da je vrednost $V$ zavitega tipa, sam pa ima i
 	\label{fig:tipi-pravila-prenosljivi}
 \end{figure} 
 
-Sedaj lahko program~\ref{prog:razsiritev-1} spremenimo v program~\ref{prog:razsiritev-2}. Namesto, da ima \emph{streznik} statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora. Na ta način smo bolj fleksibilni pri pisanju kode, hkrati pa je tudi bolj jasno kot prej, kaj je funkcija $r$.
+Sedaj lahko program~\ref{prog:razsiritev-1} spremenimo v program~\ref{prog:razsiritev-2}. Namesto, da ima $\mathsf{streznik}$ statičen seznam funkcij, ki jih lahko poračuna, preprosto dobi funkcijo, kot del tovora. Na ta način smo bolj fleksibilni pri pisanju kode, hkrati pa je tudi bolj jasno kot prej, kaj je funkcija $r$.
 
 \begin{lstlisting}[caption={Računanje zahtevne funkcije v ozadju.},label={prog:razsiritev-2},float,floatplacement=h]
 operation opravilo : int * (*@\hlyellow{$[int -> int]$}@*) * int
@@ -422,7 +422,7 @@ Prvi proces bo izvajal izračun $M$, drugi pa bo izvajal nadaljevanje $N$.
 	\label{fig:semantika-spawn}
 \end{figure}
 
-Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo paziti, da $M$ ne vsebuje zunanjih obljub. V kontekst dodamo $\bb$, ko preverjamo izračun $M$. Točno pravilo vidimo na sliki~\ref{fig:tipi-pravila-spawn}.
+Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov, moramo paziti, da $M$ ne vsebuje zunanjih obljub. V kontekst dodamo $\bb$, ko preverjamo izračun $M$. Točno pravilo vidimo na sliki~\ref{fig:tipi-pravila-spawn}.
 
 \begin{figure}[H]
 	\centering
@@ -440,8 +440,8 @@ Ker se izračun $M$ v $\tmspawn{M}{N}$ lahko razširi mimo prestreznikov moramo 
 \end{figure}
 
 
-Sedaj ko imamo dinamične procese, lahko obe evalvaciji funkcije $\mathsf{f}$ v $\mathsf{streznik}$ opravimo hkrati v svojem procesu, kar potencialno pohitri izvajanje programa. 
-Tu bi opozorili da ne smemo odviti funkcije $\mathsf{fZavita}$ in nato podati novemu procesu odvito funkcijo $\mathsf{f}$, ampak moramo novemu procesu podati zavito funkcijo, ki si jo mora nov proces sam odviti. 
+Sedaj, ko imamo dinamične procese, lahko obe evalvaciji funkcije $\mathsf{f}$ v $\mathsf{streznik}$ opravimo hkrati v svojem procesu, kar potencialno pohitri izvajanje programa. 
+Tu bi opozorili, da ne smemo odviti funkcije $\mathsf{fZavita}$ in nato podati novemu procesu odvite funkcije $\mathsf{f}$, ampak moramo novemu procesu podati zavito funkcijo, ki si jo mora nov proces sam odviti. 
 Primer~\ref{prog:razsiritev-2} lahko sedaj spremenimo v~\ref{prog:razsiritev-3}.
 Izračun $\tmkw{spawn}(M);N$ je sintaktičen sladkor za $\tmlet{\_}{\tmspawn{M}{\tmreturn{()}}}{N}$. 
 
@@ -491,7 +491,7 @@ run streznik ()
 
 Sedaj bomo ponovno dokazali izreka o napredku in ohranitvi ter potrebne leme, tokrat za \lae{}-račun razširjen z rekurzivnimi prestrezniki, prenosljivimi tipi, in dinamičnimi procesi. Kadar je dokaz zelo podoben dokazu od prej, bomo dokazali le dele, ki so se spremenili ali so na novo. 
 
-Tudi za vse dinamične procese si želimo, da se razširijo do vrha, zato dodamo pravilo za rezultate podobno pravilu za signale. V pravilo za prestreznik popravimo le sintakso. Rezultate za izračune iz slike~\ref{fig:results-rules} dopolnimo z rezultatoma na sliki~\ref{fig:results-rules-2}. 
+Tudi za vse dinamične procese si želimo, da se razširijo do vrha, zato dodamo pravilo za rezultate, podobno pravilu za signale. V pravilu za prestreznik popravimo le sintakso. Rezultate za izračune iz slike~\ref{fig:results-rules} dopolnimo z rezultatoma na sliki~\ref{fig:results-rules-2}. 
 
 \begin{figure}[H]
 	\centering
@@ -563,7 +563,7 @@ Formulacija trditve o napredku je enaka kot prej.
 \begin{proof}
 	Dokazujemo s strukturno indukcijo na drevo izpeljave za $\emptyset \types P \of C$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
-	Primeri, ki so enaki kot v dokazu~\ref{izr:napredek} so izpuščeni. V primerih, ki so drugačni, omenimo le spremenjen ali dodan del.
+	Primeri, ki so enaki kot v dokazu~\ref{izr:napredek}, so izpuščeni. V primerih, ki so drugačni, omenimo le spremenjen ali dodan del.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{TyProc-Run}, potem je $P$ enak $\tmrun{M}$. Ker ima $M$ tip, po posledici~\ref{pos:prazen-napredek-2} velja da, ali lahko $M$ naredi korak v $M'$ ali pa je $M$ delni rezultat.
@@ -602,7 +602,7 @@ Lemi~\ref{lem:weakening-values-2} in~\ref{lem:weakening-comp-2} se navezujeta en
 \begin{proof}
 	Dokazujemo s strukturno indukcijo na drevo izpeljave za $\Gamma_1, \Gamma_2 \types M \of \tycomp{A}{\o, \i}$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
-	Primeri, ki so enaki kot v dokazu~\ref{lem:weakening-comp} so izpuščeni.
+	Primeri, ki so enaki kot v dokazu~\ref{lem:weakening-comp}, so izpuščeni.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{TyComp-RecPromise}, potem je $M$ enak $$\tmwithrec{op}{x}{r}{N_1}{p}{N_2}.$$
@@ -786,7 +786,7 @@ Sledeči lemi o substituciji za vrednosti in izračune se nanašata ena na drugo
 \begin{proof}
 	Dokazujemo s strukturno indukcijo na drevo izpeljave za $\Gamma_1, x \of A, \Gamma_2 \types W \of B$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
-	Primeri, ki so enaki kot v dokazu~\ref{lem:substitucija-vrednosti} so izpuščeni.
+	Primeri, ki so enaki kot v dokazu~\ref{lem:substitucija-vrednosti}, so izpuščeni.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{TyVal-Var'}, potem je $W = y$.
@@ -809,7 +809,7 @@ Sledeči lemi o substituciji za vrednosti in izračune se nanašata ena na drugo
 \begin{proof}
 	Dokazujemo s strukturno indukcijo na drevo izpeljave za $\Gamma_1, x \of A, \Gamma_2 \types M \of \tycomp{B}{\o, \i}$.
 	Ločimo primere glede na zadnje uporabljeno pravilo.
-	Primeri, ki so enaki kot v dokazu~\ref{lem:substitucija-izračuni} so izpuščeni.
+	Primeri, ki so enaki kot v dokazu~\ref{lem:substitucija-izračuni}, so izpuščeni.
 	
 	\begin{itemize}
 		\item Če je zadnje pravilo \rulename{TyComp-Unbox}, potem je $M$ enak $$\tmunbox{W}{x}{N}.$$ Vrednost $W$ ima tip $B$ in izračun $N$ tip $\tycomp{B}{\o, \i}$.

@@ -1,32 +1,32 @@
 \section{Zaključek}
 
-Pokazali smo kako združiti asinhrono izvajanje programa v navezi z učinki in prestrezniki.
-Namesto da čakamo na odgovor v obliki prekinitve, izvajamo nadaljevanje.
+Pokazali smo, kako združiti asinhrono izvajanje programa v navezi z učinki in prestrezniki.
+Namesto, da čakamo na odgovor v obliki prekinitve, izvajamo nadaljevanje.
 Šele ko pride neka prekinitev, nanjo reagiramo.
 Glavne ideje so formalizirane v \lae-računu.
 Rešili smo tri primanjkljaje osnovne verzije.
 Dodali smo rekurzivne prestreznike, da nimamo potrebe po prekomerni uporabi pomožnih rekurzivnih funkcij.
-Kadar je smiselno dovolimo uporabo tovorov višjega rega.
+Kadar je smiselno, dovolimo uporabo tovorov višjega rega.
 Pri tem bistveno dovolimo uporabo funkcij v tovoru.
 Dodali smo tudi ustvarjanje novih procesov, s čimer lahko program naredimo še bolj asinhron in vzporeden.
 Pokazali smo izreka o napredku in ohranitvi za osnovno in razširjeno verzijo \lae-računa.
 
 \subsection{Implementacija}\label{sec:implementacija}
 
-Medtem ko je cilj \lae-računa, da pokaže pravilnost asinhronih konceptov prikazanih v prejšnjih poglavjih, je cilj jezika \aeff{}, da te koncepte lahko tudi preizkusimo in uporabimo. Zato ima jezik \aeff{} določene stvari, ki jih \lae-račun nima.
+Medtem ko je cilj \lae-računa, da pokaže pravilnost asinhronih konceptov, prikazanih v prejšnjih poglavjih, je cilj jezika \aeff{}, da te koncepte lahko tudi preizkusimo in uporabimo. Zato ima jezik \aeff{} določene stvari, ki jih \lae-račun nima.
 
 Jezik \aeff{} je implementiran v jeziku Ocaml. Implementacija je sestavljena iz treh glavnih delov.
-Parserja, ki prevede tekst v abstraktno sintaktično drevo (AST) in preveri ustreznost sintakse.  
+Razčlenjevalnika, ki prevede tekst v abstraktno sintaktično drevo (AST) in preveri ustreznost sintakse.  
 Pregledovalnika tipov, ki preveri, da ima dani program tip.
 In tolmača, ki izvaja korake, dokler ne pride do rezultata.
 
 
-Da \aeff{} postane bolj uporaben so mu dodane konstantni vrednosti $\true$ in $\false$, funkcije kot so $+, -, *, / ...$, reference in globalne spremenljivke.
-Dodamo tudi tip seznamov. Za prazen seznam uporabimo konstruktor []. Elementa mu lahko dodajamo z $::$, recimo 1::2::3::[].
+Da \aeff{} postane bolj uporaben, so mu dodane konstantni vrednosti $\true$ in $\false$, funkcije, kot so $+, -, *, / ...$, reference in globalne spremenljivke.
+Dodamo tudi tip seznamov. Za prazen seznam uporabimo konstruktor []. Elemente mu lahko dodajamo z $::$, recimo 1::2::3::[].
 Sedaj imamo problem, ker uporabljamo [] tako za sezname kot za zavite vrednosti.
 V poglavju~\ref{sec:razsirjen-lae}, kjer v dveh primerih uporabimo seznam, nadomestimo konstruktor za prazen seznam z $\mathsf{nil}$ in ohranimo [] za zavite vrednosti, ki so bistvene v tem delu.
 Nasprotno v dejanski implementaciji \aeff{} raje ohranimo [] za prazen seznam in spremenimo sintakso zavite vrednosti v $[|V|]$. 
-Dodana je kratka standardna knjižnica v kateri lahko najdemo osnovne funkcije kot so $\mathsf{nth}$, $\mathsf{map}$, $\mathsf{filter}$, $\mathsf{min}$, $\mathsf{max}$, $\mathsf{length}$, $\mathsf{fold\_left}$, $\mathsf{fold\_right}$...
+Dodana je kratka standardna knjižnica v kateri lahko najdemo osnovne funkcije kot so $\mathsf{nth}$, $\mathsf{map}$, $\mathsf{filter}$, $\mathsf{min}$, $\mathsf{max}$, $\mathsf{length}$, $\mathsf{fold\_left}$, $\mathsf{fold\_right}$,...
 
 %Izračun $M;N$ je sintaktičen sladkor za $\tmlet{\_}{M}{N}$, ki ga lahko uporabimo kadar rezultat izračuna $M$ ni uporabljen v $N$.
 
@@ -36,10 +36,10 @@ Nanj lahko gledamo kot na prestreznik, ki se sproži, le kadar je poleg pravega 
 Prvotna implementacija jezika \aeff{} izračuna tip programa z Hindley–Milnerjevim algoritmom. 
 Kasneje je bil sistem za preverjanje tipov spremenjen, da je uporabljal dvosmerni sistem tipov (bidirectional typing), ki temelji na algoritmu iz članka~\cite{bidirectional}.
 Glavna ideja dvosmernega sistema tipov je, da lahko dinamično izmenjuje med preverjanjem in računanjem tipa.
-Kadar so tipi pripisani izrazom, tip le preverimo, kar je enostavneje, kot ga izračunati in v primeru napake lahko izpiše boljše poročilo o napaki.
+Kadar so tipi pripisani izrazom, tip le preverimo, kar je enostavneje, kot ga izračunati, in v primeru napake lahko izpiše boljše poročilo o napaki.
 Vendar pa pripisovanje tipov ni obvezno in ga v tem primeru lahko izračunamo.
 Posledično lahko uporabnik poda tip le nekaterim delom programa, preostalim pa ne.
-Tako prva kot druga verzija ne preverjata tipe učinkov, ampak le standardni tip.
+Tako prva kot druga verzija ne preverjata tipov učinkov, ampak le tipe vrednosti.
 
 \subsection{Bodoče delo}
 
@@ -54,8 +54,8 @@ Ena izmed koristi je sledeča optimizacija.
 
 Naslednja optimizacija bi bila da, namesto da se signali počasi širijo navzven do nivoja procesov korak za korakom, bi se lahko razširili v enem samem velikem koraku.
 
-Sedaj ko imamo dinamično ustvarjanje procesov, lahko to potencialno ustvari zelo veliko novih procesov.
-Tej novo ustvarjeni procesi se običajno izvedejo relativno hitro v primerjavi z ročno ustvarjenimi.
+Sedaj, ko imamo dinamično ustvarjanje procesov, lahko to potencialno ustvari zelo veliko novih procesov.
+Ti novo ustvarjeni procesi se običajno izvedejo relativno hitro v primerjavi z ročno ustvarjenimi.
 Prav tako se običajno bistvene informacije prenesejo v druge procese z učinki in nas njihov rezultat ne zanima.
 Posledično imamo potencialno veliko procesov, ki bodo prejemali prekinitve, kar lahko drastično upočasni izvajanje.
 Potencialna rešitev bi bila možnost odstranitve posameznega procesa.
@@ -70,7 +70,7 @@ Potencialna rešitev bi bila možnost odstranitve posameznega procesa.
 \geslo{ground type}{osnovni tip}
 \geslo{handler}{prestreznik}
 \geslo{interrupt}{prekinitev}
-\geslo{join-semilattice}{$\sqcup$-polmreža}
+\geslo{join-semilattice}{$\cup$-polmreža}
 \geslo{mobile type}{prenosljiv tip}
 \geslo{promise}{obljuba}
 \geslo{signal}{signal}

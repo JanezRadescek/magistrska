@@ -1,6 +1,6 @@
 \section{Motivacijski primer} \label{sec:primeri-aeff}
 
-Poglejmo si sledeči sekvenčni sinhroni primer, katerega psevdokodo vidimo na programu~\ref{prog:primer-0}. Poračunati moramo zahtevno in počasno točno funkcijo in prikazati njen rezultat na zaslonu. Ker je počasna, preden se je dejansko lotimo, poračunamo še hitrejši približek in ga prikazujemo, dokler ga ne bo nadomestila točna vrednost. Nakar bomo nekaj časa računali prvo nadaljevanje neodvisno od točne vrednosti, nato pa še drugo nadaljevanje odvisno od točne vrednosti. 
+Poglejmo si sledeči sekvenčni sinhroni primer, katerega psevdokodo vidimo v programu~\ref{prog:primer-0}. Poračunati moramo zahtevno in počasno točno funkcijo in prikazati njen rezultat na zaslonu. Ker je počasna, preden se je dejansko lotimo, poračunamo še hitrejši približek in ga prikazujemo, dokler ga ne bo nadomestila točna vrednost. Nakar bomo nekaj časa računali prvo nadaljevanje neodvisno od točne vrednosti, nato pa še drugo nadaljevanje odvisno od točne vrednosti. 
 
 \begin{lstlisting}[caption={Sinhron sekvečni primer.},label={prog:primer-0},floatplacement=H]
 x' (*@$\defeq{}$@*) priblizek 42
@@ -12,11 +12,11 @@ nadaljevanje1 ()
 nadaljevanje2 x
 \end{lstlisting}
 
-Ta primer ima dve težavi, ki sta posledici sekvenčnega sinhronega izvajanja. Prvi problem je da, ker je program sekvenčni, ne moremo računati točne funkcije hkrati z približkom in posledično se program izvaja dlje časa. Tudi prikaz na zaslon je lahko iz vidika hitrega procesorja zelo počasno. Drugi problem pa je, da dokler se bo računala točna funkcija, ne moremo izvajati prvega nadaljevanja, čeprav je neodvisen od točnega rezultata. Posledično se program ne more odzvati na potencialen uporabnikov vhod ali kak drug učinek.  
+Ta primer ima dve težavi, ki sta posledici sekvenčnega sinhronega izvajanja. Prvi problem je da, ker je program sekvenčni, ne moremo računati točne funkcije hkrati s približkom in posledično se program izvaja dlje časa. Tudi prikaz na zaslon je lahko z vidika hitrega procesorja zelo počasen. Drugi problem pa je, da dokler se bo računala točna funkcija, ne moremo izvajati prvega nadaljevanja, čeprav je neodvisen od točnega rezultata. Posledično se program ne more odzvati na potencialen uporabnikov vhod ali kak drug učinek.  
 
 Obema težavama se lahko izognemo, če program napišemo v jeziku \aeff, kot vidimo v programu~\ref{prog:primer-1}. Celoten program razdelimo v dva procesa. Posamezen proces se začne z besedo $\tmkw{run}$. Različni procesi se lahko izvajajo vzporedno.
 Najprej s pomočjo učinka signal $\tmkw{\uparrow}\, \text{opravilo}\,42;$ v drug proces pošljemo število $42$. Signal se bo razširil navzgor po procesu. Ko bo prišel na nivo procesov, se bo razširil v drug proces in spremenil v prekinitev, ki bo potovala po procesu navznoter. V drugem procesu prestrežemo prekinitev s številko $42$ s pomočjo prestreznika $\tmwith{opravilo}{y}{M}{\_}{()}$ in jo vežemo v spremenljivko $y$. Nakar začnemo računati točno funkcijo z $\tmkw{let}\ x = \text{funkcija}(y)$. Ko končamo, pošljemo rezultat nazaj v glavni proces z $\tmkw{\uparrow}\, \text{rezultat}\,x$.
-Medtem ko se računa točna vrednost v drugem procesu se bistveno glavni proces ne zaustavi, ampak nadaljuje z izvajanjem. Najprej poračunamo približek $\tmkw{let}\ x' = \text{priblizek}(42)$ in ga prikažemo na zaslon z $\text{zaslon}(x');$. Nato nadaljujemo z izvajanjem prvega nadaljevanja $\text{nadaljevanje}1()$, ki je neodvisen od rezultata točne funkcije. Ko glavni proces prestreže točen rezultat z $$\tmwith{rezultat}{x}{M}{p}{...}$$ ga izpiše na zaslon in veže v spremenljivko p. V primeru, da končamo z aproksimacijo in prvim nadaljevanjem preden dobimo rezultat, ne smemo nadaljevati z drugim nadaljevanjem, saj le ta potrebuje rezultat. Blokada $\tmawait{p}{y}{...}$ blokira nadaljnje izvajanje, dokler se spremenljivka $p$ ne substituira z neko vrednostjo $\tmpromise{V}$. Takrat se bo $y$ v $\text{nadaljevanje}2(y)$ substituiral z vrednostjo $V$ in izvajanje se bo nadaljevalo.
+Medtem, ko se računa točna vrednost v drugem procesu, se bistveno glavni proces ne zaustavi, ampak nadaljuje z izvajanjem. Najprej poračunamo približek $\tmkw{let}\ x' = \text{priblizek}(42)$ in ga prikažemo na zaslon z $\text{zaslon}(x');$. Nato nadaljujemo z izvajanjem prvega nadaljevanja $\text{nadaljevanje}1()$, ki je neodvisno od rezultata točne funkcije. Ko glavni proces prestreže točen rezultat z $$\tmwith{rezultat}{x}{M}{p}{...}$$ ga izpiše na zaslon in veže v spremenljivko p. V primeru, da končamo z aproksimacijo in prvim nadaljevanjem, preden dobimo rezultat, ne smemo nadaljevati z drugim nadaljevanjem, saj le ta potrebuje rezultat. Blokada $\tmawait{p}{y}{...}$ blokira nadaljnje izvajanje, dokler se spremenljivka $p$ ne substituira z neko vrednostjo $\tmpromise{V}$. Takrat se bo $y$ v $\text{nadaljevanje}2(y)$ substituiral z vrednostjo $V$ in izvajanje se bo nadaljevalo.
 
 \begin{lstlisting}[caption={Asinhron vzporeden primer.},label={prog:primer-1},floatplacement=H]
 operation opravilo : int
@@ -49,7 +49,7 @@ run
 %V sinhronem izvajanju zatem ko pošljemo opravilo v drug proces, moramo čakati, da dobimo nazaj rezultat preden lahko nadaljujemo z izvajanjem izračuna $M_2$. 
 
 Na sliki~\ref{fig:async-illustration} lahko vidimo ilustrirano idejo asinhronega izvajanja programa~\ref{prog:primer-1}. 
-Potem ko prvi proces pošlje $\mathsf{opravilo}\ 42$ v drug proces ne čaka na odgovor, ampak nemudoma nadaljuje z izvajanjem svojega izračuna. Ko pride do prestreznika in še nimamo ustrezne prekinitve, ne čakamo na njo, ampak naprej izvaja kontinuacijo $M_2$. Ko dobi $\mathsf{rezultat}$ iz drugega procesa, ga prestreže in spet nemoteno nadaljuje izvajanje preostalega izračuna.
+Potem, ko prvi proces pošlje $\mathsf{opravilo}\ 42$ v drug proces, ne čaka na odgovor, ampak nemudoma nadaljuje z izvajanjem svojega izračuna. Ko pride do prestreznika in še nima ustrezne prekinitve, ne čaka na njo, ampak naprej izvaja kontinuacijo $M_2$. Ko dobi $\mathsf{rezultat}$ iz drugega procesa, ga prestreže in spet nemoteno nadaljuje izvajanje preostalega izračuna.
 
 %\begin{figure}[H]
 %	\centering
@@ -140,4 +140,4 @@ Potem ko prvi proces pošlje $\mathsf{opravilo}\ 42$ v drug proces ne čaka na o
 \end{figure}
 
 
-Na ta način smo izvajali glavni del programa hkrati z računanjem točne vrednosti. Pri tem pa nismo blokirali glavnega programa razen potencialno v blokadi, ko sicer program nebi bil več varen.
+Na ta način smo izvajali glavni del programa hkrati z računanjem točne vrednosti. Pri tem pa nismo blokirali glavnega programa razen potencialno v blokadi, ko sicer program ne bi bil več varen.

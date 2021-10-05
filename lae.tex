@@ -2,7 +2,7 @@
 
 Leta 1930 je Alonzo Chuch z namenom formalizacije koncepta izračunljivosti uvedel preprost teoretičen programski jezik imenovan $\lambda$-račun, ki je tudi Turingovo poln~\cite{rojas2015tutorial}.
 Od takrat je nastalo še mnogo drugih različnih verzij $\lambda$-računa.
-Račun \lae{} je osnovan na Levy $\lambda$-računu iz članka~\cite{levy}. Računu \lae{} dodamo izraze, ki poosebijo bistvo asinhrono vzporednega programiranja s pomočjo učinkov. Da \lae{}-račun nekoliko približamo vsakdanjim programskim jezikom, mu dodamo tudi izraze za  naravna števila, par, ujemanje vzorca... Še vedno pa izpustimo veliko izrazov, ki jih sicer imamo v jeziku \aeff{}.
+Račun \lae{} je osnovan na Levy $\lambda$-računu iz članka~\cite{levy}. Računu \lae{} dodamo izraze, ki poosebijo bistvo asinhrono vzporednega programiranja s pomočjo učinkov. Da \lae{}-račun nekoliko približamo vsakdanjim programskim jezikom, mu dodamo tudi izraze za  naravna števila, par, ujemanje vzorca,... Še vedno pa izpustimo veliko izrazov, ki jih sicer imamo v jeziku \aeff{}.
 
 
 \subsection{Izrazi}
@@ -15,10 +15,10 @@ Nova vrednost je \emph{obljuba}\footnote{Tudi nekateri drugi programski jeziki i
 Imamo običajne izračune, kot so vračanje vrednosti, zaporedje, ujemanje za pare in vsote in aplikacija.
 Poleg teh imamo tudi sledeče.
 
-\emph{Signal} $\tmopout{op}{V}{M}$ vsebuje operacijo $\op$, pripadajočo vrednost $V$ imenovano \emph{tovor} in nadaljevanje $M$\footnote{V \lae{}-računu ima signal eksplicitno kontinuacijo in obliko algebraične operacije. Nasprotno ima signal v jeziku \aeff{} (primer~\ref{prog:primer-1}) kontinuacijo implicitno in obliko generičnega učinka. Predstavitev operacij z učinki upravičita Plotkin in Power~\cite{op-eff}.}. Signal se razširi navzgor po izračunih, dokler ne pride na nivo procesov. Nakar se bo razširil v vse druge procese in ob tem spremenil v \emph{prekinitev} $\tmopin{op}{V}{M}$\footnote{Ni mišljeno da programer eksplicitno uporabi prekinitev, ampak nastane le s pretvorbo iz signala.}. Prekinitev je simetrična signalu, prav tako ima operacijo $\op$, vrednost $V$ in nadaljevanje $M$. Le da prekinitev potuje po izračunih navznoter namesto navzgor. Na ta način smo informacijo $V$ prenesli iz enega procesa na vse preostale in tako imamo vzpostavljeno komunikacijo med procesi. Da imamo asinhrono izvajanje lahko, namesto da se signal in prekinitev širita, delamo korake tudi v njunem nadaljevanju $M$.
+\emph{Signal} $\tmopout{op}{V}{M}$ vsebuje operacijo $\op$, pripadajočo vrednost $V$ imenovano \emph{tovor} in nadaljevanje $M$\footnote{V \lae{}-računu ima signal eksplicitno nadaljevanje in obliko algebraične operacije. Nasprotno ima signal v jeziku \aeff{} (primer~\ref{prog:primer-1}) nadaljevanje implicitno in obliko generičnega učinka. Predstavitev operacij z učinki upravičita Plotkin in Power~\cite{op-eff}.}. Signal se razširi navzgor po izračunih, dokler ne pride na nivo procesov. Nakar se bo razširil v vse druge procese in ob tem spremenil v \emph{prekinitev} $\tmopin{op}{V}{M}$\footnote{Ni mišljeno, da programer eksplicitno uporabi prekinitev, ampak, nastane le s pretvorbo iz signala.}. Prekinitev je simetrična signalu, prav tako ima operacijo $\op$, vrednost $V$ in nadaljevanje $M$, le da potuje po izračunih navzdol namesto navzgor. Na ta način smo informacijo $V$ prenesli iz enega procesa na vse preostale in tako imamo vzpostavljeno komunikacijo med procesi. Da imamo asinhrono izvajanje, lahko, namesto da se signal in prekinitev širita, delamo korake tudi v njunem nadaljevanju $M$.
 
 S pomočjo \emph{prestreznika} $\tmwith{op}{x}{M}{p}{N}$ prestrežemo tovor v prekinitvi. Prestreznik je sestavljen iz operacije $\op$, spremenljivke $x$, izračunom $M$ imenovanim \emph{sproženi izračun}, spremenljivko $p$ imenovano \emph{obljuba} in nadaljevanje $N$.
-Običajno se izvaja nadaljevanje $N$, med tem ko preostali deli čakajo. Ko pride prekinitev z istim imenom operacije, se spremenljivka $x$ substituira z tovorom $V$ v obljubi $M$. Nakar se prestreznik spremeni v zaporedje $\tmlet{p}{M[V/x]}{\tmopin{op}{V}{N}}$. Čeprav je prestreznik ujel prekinitev, se slednja vseeno naprej širi navznoter na nadaljevanju $N$. Ko prestreznik ujame ustrezno prekinitev rečemo, da se je izpolnila obljuba $p$.
+Običajno se izvaja nadaljevanje $N$, med tem ko preostali deli čakajo. Ko pride prekinitev z istim imenom operacije, se spremenljivka $x$ substituira z tovorom $V$ v sproženem izračunu $M$. Nakar se prestreznik spremeni v zaporedje $\tmlet{p}{M[V/x]}{\tmopin{op}{V}{N}}$. Čeprav je prestreznik ujel prekinitev, se slednja vseeno naprej širi navznoter na nadaljevanju $N$. Ko prestreznik ujame ustrezno prekinitev rečemo, da se je izpolnila obljuba $p$.
 Da preprečimo uporabo spremenljivke $p$ preden se je izpolnila, jo lahko uporabi le \emph{blokada} $\tmawait{V}{x}{M}$. V primeru da se obljuba $p$ še ni izpolnila in je vrednost $V$ v blokadi le $p$, bo blokada preprečevala izvajanje svojega nadaljevanja $M$. Če pa se je izpolnila, se bo pripadajoča vrednost vezala v novo navadno spremenljivko $x$. Nakar se bo izvajanje nadaljevalo.
 
 Osnovni proces je \emph{zagon} $\tmrun{M}$. Vsebuje le izračun $M$, ki se izvaja.
@@ -70,9 +70,9 @@ Osnovni proces je \emph{zagon} $\tmrun{M}$. Vsebuje le izračun $M$, ki se izvaj
 
 \subsection{Operacijska semantika}
 
-Sedaj ko poznamo izraze v \lae{}-računu si poglejmo kaj z njimi početi. Definirali bomo pravila kako spreminjati izračune, s čimer bomo izvajali program. 
+Sedaj, ko poznamo izraze v \lae{}-računu, si poglejmo, kaj z njimi početi. Definirali bomo pravila, kako spreminjati izračune, s čimer bomo izvajali program. 
 
-V nadaljevanju bomo uporabljali substitucije.  Substitucije na vrednostih in izračunih definiramo, kot vidimo na sliki~\ref{fig:substitucije}. Sledimo konvenciji, da če se v nekem kontekstu pojavijo vezane spremenljivke, jih izberemo drugače od prostih spremenljivk~\cite{barendregt}.
+V nadaljevanju bomo uporabljali substitucije.  Substitucije na vrednostih in izračunih definiramo, kot vidimo na sliki~\ref{fig:substitucije}. Sledimo dogovoru, da če se v nekem kontekstu pojavijo vezane spremenljivke, jih izberemo drugače od prostih spremenljivk~\cite{barendregt}.
 
 \begin{figure}[H]
 	\centering
@@ -112,7 +112,7 @@ V nadaljevanju bomo uporabljali substitucije.  Substitucije na vrednostih in izr
 \end{figure}
 
 
-Račun \lae{} opremimo z operacijsko semantiko malih korakov, ki je definirana z relacijo korak $M \reduces N$. Koraki za izračune so podani na sliki~\ref{fig:small-step-semantics-of-computations}. 
+Račun \lae{} opremimo z operacijsko semantiko malih korakov, ki je definirana z relacijo \emph{korakov} $M \reduces N$. Koraki za izračune so podani na sliki~\ref{fig:small-step-semantics-of-computations}. 
 
 \begin{figure}[H]
 	\centering
@@ -214,7 +214,7 @@ Prvo pravilo potegne blokado ven iz zaporedja. Drugo pravilo prestavi prekinitev
 \end{figure}
 
 Zagon dela korake tako, da dela korake na pripadajočem izračunu.
-Ko se signal širi navzgor se kopija pretvori v prekinitev in razširi na vzporedne procese. Lahko se izvaja tudi njegovo nadaljevanje.
+Ko se signal širi navzgor, se kopija pretvori v prekinitev in razširi na vzporedne procese. Lahko se izvaja tudi njegovo nadaljevanje.
 Prekinitev se širi navznoter. Kadar naleti na dva vzporedna procesa se razširi v oba. Lahko se izvaja njeno nadaljevanje. 
 Par procesov lahko naredi korak, če lahko eden izmed procesov naredi korak.
 Koraki za procese so podani na sliki~\ref{fig:small-step-semantics-of-processes}.
@@ -315,7 +315,7 @@ Tipe ločimo na tipe za vrednosti, izračune in procese. Vidimo jih na sliki~\re
 	\label{fig:tipi}
 \end{figure}
 
-Večina vrednosti dobi standardne tipe, kot so naravno število, enota, par, vsota in funkcijski tip. 
+Večina vrednosti dobi standardne tipe, kot so naravno število, enotski tip, produkt, vsota in funkcijski tip. 
 Ker funkcijski tip označuje funkcijo, ki vzame argument in mu priredi izračun, le tej pa imajo, kot bomo kasneje videli, poleg standardnih tipov, še tipe za učinke, ima tudi funkcijski tip dodane tipe za učinke.
 Dodatno uvedemo \emph{tip obljub} $\typromise{A}$, ki predstavlja obljube, izpolnjene z vrednostmi tipa A. 
 Tipom za vrednosti, ki ne vsebujejo funkcijskega tipa ali obljube, pravimo \emph{osnovni tipi}.
@@ -384,14 +384,14 @@ Pravila za določitev tipa vrednosti vidimo na sliki~\ref{fig:value-typing-rules
 	\label{fig:value-typing-rules}
 \end{figure}
 
-Izračunom poleg standardnega tipa dodamo še tipe signalov, ki jih lahko sprožijo, označene z $\o$ in tipe prekinitev, ki jih lahko prestrežejo, označene z $\i$.
+Izračunom poleg standardnega tipa dodamo še tipe signalov, ki jih lahko sprožijo, označene z $\o$, in tipe prekinitev, ki jih lahko prestrežejo, označene z $\i$.
 Tipi učinkov $\o$ in $\i$ so elementi množice $O$ oziroma $I$.
 Ko se signal sproži, le to nima direktnega vpliva na nadaljevanje izračuna. Naj bo $\sig = \{\op_1, ..., \op_n\}$ množica vseh operacij, ki jih imamo na voljo. Potem je množica $O$ preprosto potenčna množica množice $\sig$ in $\o$ predstavlja množico signalov, ki jih izračun lahko sproži. Tu bistveno ne zahtevamo, da izračun tudi dejansko sproži vse signale, ki bi jih lahko glede na $\o$.  
 Množica $I$ je nekoliko bolj zakomplicirana. Ko prestreznik ujame prekinitev, se bo nadaljevanju dodal sproženi izračun iz prestreznika. Slednji lahko vsebuje nove signale in prestreznike. Posledično lahko sedaj spremenjeni izračun začne oddajati nove signale in prestrezati nove prekinitve. Toda tudi novi prestrezniki lahko ponovno namestijo nove signale in nove prestreznike in tako naprej.
 To (potencialno neskončno) rekurzivno ponavljanje prestreznikov želimo prikazati v tipu.
 Množico $I$ definiramo kot največjo fiksno točko preslikave $\Omega$, definirane kot 
 $$\Omega(X) = \sig \Rightarrow (O \times X)_\bot ,$$
-kjer je $\Rightarrow$ potenciranje, $\times$ je kartezični produkt in $(-)_\bot$ je dvig. Dvig je disjunktna unija množice z $\bot$.
+kjer je $\Rightarrow$ potenciranje, $\times$ kartezični produkt in $(-)_\bot$ dvig. Dvig je disjunktna unija množice z $\bot$.
 Sledeča notacija $\i = \{\op_1 \mapsto (\o_1,\i_1),...,\op_k \mapsto (\o_k, \i_k)\}$ predstavlja $\i$, ki slika $\op_i$ v $(\o_i, \i_i)$ in vse ostale $\op \in \Sigma$ slika v $\bot$.
 %Preslikava $\Omega$ je endofunktor na kategoriji omega kompletnih delnih ureditvah 
 
@@ -399,9 +399,9 @@ Sledeča notacija $\i = \{\op_1 \mapsto (\o_1,\i_1),...,\op_k \mapsto (\o_k, \i_
 Sicer bo $\i$ slikal $\op$ v par $(\o', \i')$, kjer $\o'$ predstavlja nove signale in $\i'$ nove prestreznike v sproženih izračunih.
 Recimo izračun $$\tmopout{op}{V}{\tmwith{op'}{x}{\tmopout{op''}{W}{\tmreturn{\tmpromise{()}}}}{p}{\tmreturn{()}}}$$ ima tip učinkov $(\{\op\}, \{\op' \mapsto (\{\op''\},\{\})\})$, saj sproži signal $\op$ in ima prestreznik za $\op'$. Ko bo prestreznik prestregel prekinitev z operacijo $\op'$ se bo od sedaj naprej lahko sprožil tudi signal z operacijo $\op''$, ne bomo pa dodali nobenega novega prestreznika, ki bi lahko prestregel kakšno dodatno operacijo.
 
-Ko izračun od zunaj dobi novo prekinitev z operacijo $\op$, se izračunu lahko spremeni tip učinkov. Pravimo da je operacija $\op$ delovala na tip učinkov.
+Ko izračun od zunaj dobi novo prekinitev z operacijo $\op$, se izračunu lahko spremeni tip učinkov. Pravimo, da je operacija $\op$ delovala na tip učinkov.
 Če v izračunu ni ustreznega prestreznika in posledično $\i$ slika operacijo v $\bot$, potem prekinitev ne bo vplivala na izračun.
-Če pa imamo ustrezen prestreznik, kar se v tipu vidi tako da $i$ slika v nek $(\o',\i')$, potem nov tip signalov dobimo tako, da preprosto naredimo unijo $\o \cup \o'$. Ker se bo prekinitev razširila čez celotno nadaljevanje, bo sprožila vse ustrezne prestreznike in bo tip prekinitev sedaj kazal na $\bot$.
+Če pa imamo ustrezen prestreznik, kar se v tipu vidi tako, da $i$ slika v nek $(\o',\i')$, potem nov tip signalov dobimo tako, da preprosto naredimo unijo $\o \cup \o'$. Ker se bo prekinitev razširila čez celotno nadaljevanje, bo sprožila vse ustrezne prestreznike in bo tip prekinitev sedaj kazal na $\bot$.
 Nato naredimo ustrezno unijo $\i \cup \i'$, da dodamo nove učinke iz sproženih izračunov.
 Spremembe, ki se zgodijo ko izračun ali proces dobi novo prekinitev, natančneje definira sledeča preslikava.
 
@@ -455,7 +455,7 @@ Dokazujemo s koindukcijo, ki se jo lahko uporablja za dokazovanje lastnosti nesk
 \begin{proof}
 	\begin{enumerate}
 		\item Za $\i(\op) = \bot$ je pogoj iz definicije $\order{I}$ na prazno izpolnjen.
-		Naj bo sedaj $\i(\op) = (\o'',\i'')$. Tedaj sta iskana $\o'''$ in $\i'''$ iz definicije ravno $\o''$ in $\i''$. $\o''\order{O}\o''$ velja, ker je $\order{O}$ delna urejenost. $\i'' \order{I} \i''$ velja po koindukcijski predpostavki.
+		Naj bo sedaj $\i(\op) = (\o'',\i'')$. Tedaj sta iskana $\o'''$ in $\i'''$ iz definicije ravno $\o''$ in $\i''$. $\o''\order{O}\o''$ velja, ker je $\order{O}$ delna urejenost. Po koindukcijski predpostavki velja $\i'' \order{I} \i''$.
 		
 		\item Naj bo $\i(\op) = \bot$. Ker je $\i' \order{I} \i$, mora veljati $\i'(\op) = \bot$.
 		Naj bo sedaj $\i(\op) = (\o'', \i'')$ in $\i'(\op) = (\o''',\i''')$. Ker velja $\i \order{I} \i' \wedge \i' \order{I} \i$, velja $\o'' \order{O} \o''' \wedge \o''' \order{O} \o''$. Ker je $\order{O}$ delna urejenost, velja $\o'' = \o'''$. Ker velja $\i'' \order{I} \i''' \wedge \i''' \order{I} \i''$, po koindukcijski predpostavki velja $\i'' = \i'''$.
@@ -470,7 +470,7 @@ Dokazujemo s koindukcijo, ki se jo lahko uporablja za dokazovanje lastnosti nesk
 \end{proof}
 
 
-Sledeča lema pravi, da je $\cup$ na $I$ simetrična operacija, spoštuje $\order{I}$ in da je $I$ $\sqcup$-polmreža.
+Sledeča lema pravi, da je $\cup$ na $I$ simetrična operacija, spoštuje $\order{I}$ in da je $I$ $\cup$-polmreža.
 
 \begin{lema}\label{lem:effects-union}
 	\begin{enumerate}
@@ -496,17 +496,17 @@ Sledeča lema pravi, da je $\cup$ na $I$ simetrična operacija, spoštuje $\orde
 		
 		\item Za $\op$ za katere velja $\i_1(\op) = \bot$, je $(\i_1 \cup \i_2)(\op) = \i_2(\op)$. Ker je $\i_2 \order{I} \i_3$, velja $(\i_1 \cup \i_2)(\op) \order{O \times I} \i_3(\op)$.
 		Simetrično za $\op$ za katere je $\i_2(\op) = \bot$.
-		Naj bo sedaj $\i_1(\op) = (\o_1', \i_1')$ in $\i_2(\op) = (\o_2', \i_2')$ in $\i_3(\op) = (\o_3', \i_3')$. Ker je $O$ z $\order{O}$ $\sqcup$-polmreža velja $(\o_1' \cup \o_2') \order{O} \o_3'$. Ker je $\i_1' \order{I} \i_3'$ in $\i_2' \order{I} \i_3'$ je po koindukcijski predpostavki $(\i_1' \cup \i_2') \order{I} \i_3'$.
+		Naj bo sedaj $\i_1(\op) = (\o_1', \i_1')$ in $\i_2(\op) = (\o_2', \i_2')$ in $\i_3(\op) = (\o_3', \i_3')$. Ker je $O$ z $\order{O}$ $\cup$-polmreža velja $(\o_1' \cup \o_2') \order{O} \o_3'$. Ker je $\i_1' \order{I} \i_3'$ in $\i_2' \order{I} \i_3'$ je po koindukcijski predpostavki $(\i_1' \cup \i_2') \order{I} \i_3'$.
 	\end{enumerate}
 
 \end{proof}
 
 V lemi~\ref{lem:effects-order} navedimo nekaj lastnosti, ki jih bomo potrebovali kasneje v dokazu trditve o ohranitvi.
 Pri tem sta $\pi_1$ in $\pi_2$ prva in druga projekcija.
-Prva lastnost nam pove, da ko prekinitev sproži vse prestreznike to ne vpliva že obstoječe signale, kvečjemu lahko dobimo kakšen nov signal.
-Druga lastnost pravi, da ko operacija sproži vse prestreznike se bodo signali in prestrezniki v sproženih izračunih pridružili že obstoječim.
+Prva lastnost nam pove, da ko prekinitev sproži vse prestreznike, to ne vpliva že obstoječe signale, kvečjemu lahko dobimo kakšen nov signal.
+Druga lastnost pravi, da ko operacija sproži vse prestreznike, se bodo signali in prestrezniki v sproženih izračunih pridružili že obstoječim.
 Tretja lastnost pravi, da prekinitev ne vpliva na prestreznike z drugačnim imenom operacije.
-Četrta lastnost pravi da je $\opincomp{op}{}$ monotona preslikava.
+Četrta lastnost pravi, da je $\opincomp{op}{}$ monotona preslikava.
 
 \begin{lema}\label{lem:effects-order}
 	\begin{enumerate}
@@ -523,16 +523,16 @@ Tretja lastnost pravi, da prekinitev ne vpliva na prestreznike z drugačnim imen
 		\item Če $\i(\op) = (\o', \i')$ potem $\opincomp{op}{(\o, \i)} = (\o \cup \o' , \i[\op \mapsto \bot] \cup \i')$. Očitno velja $\o' \order{O} (\o \cup o')$.
 		Prav tako velja $\i' \order{I} (\i[\op \mapsto \bot] \cup \i')$ po lemi~\ref{lem:effects-union}.
 		\item Ločimo dve možnosti.
-		Prva možnost je, da $\i(op) = (\o'', \i'')$. Potem velja $\opincomp{\op}{(\o, \i)} = (\o \cup \o'' , \i[\op \mapsto \bot] \cup \i'')$.
+		Prva možnost je, da $\i(\op) = (\o'', \i'')$. Potem velja $\opincomp{\op}{(\o, \i)} = (\o \cup \o'' , \i[\op \mapsto \bot] \cup \i'')$.
 		Ker $\op \neq \op'$ velja $\i[\op \mapsto \bot](\op') = (\o', \i')$.
 		Posledično velja $(\o', \i') \order{O \times I} (\i[\op \mapsto \bot] \cup \i'')(\op')$, ker je $\i[\op \mapsto \bot] \order{I} \i[\op \mapsto \bot] \cup \i''$ in upoštevajoč definicijo $\order{I}$. Ker je $(\i[\op \mapsto \bot] \cup \i'')(\op') = (\pi_2(\opincomp{\op}{(\o, \i)}))(\op')$ je lastnost dokazana.
-		Druga možnost je $\i(op) = \bot$. Tedaj je $\opincomp{op}{(\o, \i)} = (\o, \i)$ in lastnost sledi. 
+		Druga možnost je $\i(\op) = \bot$. Tedaj je $\opincomp{op}{(\o, \i)} = (\o, \i)$ in lastnost sledi. 
 		\item Ker je $\i \order{I} \i'$, velja $(\_, \i'') = \i(op) \order{O \times I} \i'(op) = (\_, \i''')$. Posledično velja $\pi_2(\opincomp{op}{(\o, \i)}) = \i \cup \i'' \order{I} \i' \cup \i''' = \pi_2(\opincomp{op}{(\o', \i')})$.
 		Urejenost za tipe signalov pokažemo simetrično.
 	\end{enumerate}
 \end{proof}
 
-Za tip $\tycomp{A}{\o, \i}$ rečemo, da je pod tip tipa $\tycomp{A}{\o', \i'}$, če velja $(\o, \i) \order{O \times I} (\o', \i')$. Če lahko izračunu določimo nek podtip $\tycomp{A}{\o, \i}$ tipa $\tycomp{A}{\o', \i'}$, potem ima izračun tudi tip $\tycomp{A}{\o', \i'}$.
+Za tip $\tycomp{A}{\o, \i}$ rečemo, da je \emph{podtip} tipa $\tycomp{A}{\o', \i'}$, če velja $(\o, \i) \order{O \times I} (\o', \i')$. Če lahko izračunu določimo nek podtip $\tycomp{A}{\o, \i}$ tipa $\tycomp{A}{\o', \i'}$, potem ima izračun tudi tip $\tycomp{A}{\o', \i'}$.
 
 %Vsaki operaciji priredimo nek tip, kot vidimo na sliki~\ref{fig:tipi}.
 Sedaj si poglejmo še standardni del tipa izračunov.
@@ -543,7 +543,7 @@ $$ \tmwith{op}{x}{M}{p}{\tmopout{op'}{V}{N}} $$
 lahko naredi korak v izračun
 $$ \tmopout{op'}{V}{\tmwith{op}{x}{M}{p}{N}}$$
 (glej sliko~\ref{fig:small-step-semantics-of-computations}),
-je ključno da tovor $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu spremenljivka $p$ v vrednosti $V$ ni več dobro definiran. Da zagotovimo, da vrednost $V$ ne vsebuje spremenljivke $p$, omejimo tipe, ki pripadajo operacijam, na osnovne tipe. Vrednosti, ki imajo osnovni tip, namreč ne morejo vsebovati spremenljivke obljuba. To je močna omejitev, funkcijski tip na primer namreč ni osnovni. To omejitev bomo v poglavju~\ref{sec:razsirjen-lae} spremenili.
+je ključno da tovor $V$ ne vsebuje spremenljivke $p$, saj v drugem izračunu spremenljivka $p$ v vrednosti $V$ nima tipa. Da zagotovimo, da vrednost $V$ ne vsebuje spremenljivke $p$, omejimo tipe, ki pripadajo operacijam, na osnovne tipe. Vrednosti, ki imajo osnovni tip, namreč ne morejo vsebovati obljub. To je močna omejitev, funkcijski tip na primer namreč ni osnovni. To omejitev bomo v poglavju~\ref{sec:razsirjen-lae} spremenili.
 Prekinitev ima tip, ki ga dobimo tako, da na tipu nadaljevanja uporabimo preslikavo $\opincomp{op}$. Prav tako preverimo, da ima tovor tip, ki pripada operaciji $\op$. 
 Prestreznik ima isti tip kot njegovo nadaljevanje. Preverimo tudi, da je $\op$ ena izmed operacij, ki jo lahko prestrežemo in da ima sproženi izračun tip obljuba z učinki $\i(\op) = (\o', \i')$.
 Blokada ima isti tip kot njegovo nadaljevanje. Preverimo tudi da ima vrednost $V$ tip obljuba. 
@@ -702,8 +702,8 @@ Izrek o napredku nam pove da, če ima izračun tip, lahko naredimo korak ali pa 
 Izrek o ohranitvi nam pove da, če izračun, ki ima tip, naredi korak v nek drug izračun, bo pri tem ohranil tip.
 
 Kdaj točno je končan program v zadovoljivi obliki, nam povejo pravila na sliki~\ref{fig:results-rules}.
-Kadar se program ustavi si želimo, da bi se ustavil v neki dokončni obliki s katero bomo zadovoljni. 
-Za procese si želimo, da so se vsi dosegljivi signali razširili do vrha. Preostanek so pari procesov ali zagoni. Izračun v zagonu mora biti ali vračanje vrednosti ali pa izračun, ki ne more narediti nobenega koraka več, dokler ne prispe ustrezna prekinitev, se izpolni obljuba in blokada dovoli nadaljnje izvajanje. Čakati na obljubo, ki ne pripada nobenemu prestrezniku in se torej nikoli ne more izpolniti, nima smisla. Ko preverjamo delni rezultat izračunov, si v $\Psi$ beležimo obljube, ki pripadajo prestreznikom. Ko pridemo do blokade preverimo, da smo na pripadajočo obljubo nekje prej že naleteli.
+Kadar se program ustavi, si želimo, da bi se ustavil v neki dokončni obliki s katero bomo zadovoljni. 
+Za procese si želimo, da so se vsi dosegljivi signali razširili do vrha. Preostanek so pari procesov ali zagoni. Izračun v zagonu mora biti ali vračanje vrednosti ali pa izračun, ki ne more narediti nobenega koraka več, dokler ne prispe ustrezna prekinitev, se izpolni obljuba in blokada dovoli nadaljnje izvajanje. Čakati na obljubo, ki ne pripada nobenemu prestrezniku in se torej nikoli ne more izpolniti, nima smisla. Ko preverjamo delni rezultat izračunov, si v $\Psi$ beležimo obljube, ki pripadajo prestreznikom. Ko pridemo do blokade, preverimo, da smo na pripadajočo obljubo nekje prej že naleteli.
 Ker bomo za izračune posebej dokazali trditev o napredku, dodamo tudi, da je izračun kot samostojna enota v zaključeni obliki, ko so vsi dosegljivi signali priplavali do vrha, preostanek pa je ali vračanje vrednosti ali izračun, ki čaka na prekinitev.
 
 
@@ -1226,7 +1226,7 @@ Lemo o substituciji razdelimo na dve lemi, ki uporabljata druga drugo.
 	\end{itemize}
 \end{proof}
 
-Kadar ne dokazujemo na drevo izpeljave za tip izračuna, ne vemo, katero pravilo točno je bilo zadnje uporabljeno. Posledično ne moremo uporabiti uporabiti predpostavk pravila, ki bi nam povedale o tipih komponent, kljub temu, da imamo tip celega izračuna.
+Kadar ne dokazujemo, na drevo izpeljave za tip izračuna, ne vemo, katero pravilo točno je bilo zadnje uporabljeno. Posledično ne moremo uporabiti predpostavk pravila, ki bi nam povedale o tipih komponent, kljub temu, da imamo tip celega izračuna.
 S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke, čeprav v nekoliko šibkejši obliki.
 
 \begin{lema}\label{lem:inversion-lema}
@@ -1369,13 +1369,15 @@ S pomočjo leme o inverziji lahko vseeno deloma uporabimo ustrezne predpostavke,
 \end{proof}
 
 
-Ko imamo par dveh procesov in eden izmed njiju pošlje signal, se bo ta signal spremenil v prekinitev na drugem procesu.
+Ko imamo par procesov in eden izmed njiju pošlje signal, se bo ta signal spremenil v prekinitev na drugem procesu.
 Le to bo povzročilo, da se bo tip učinkov spremenil na drugem procesu. Trenutno je prekinitev edini izvor spremembe tipa.
-Najpreprostejši primer je ko imamo vzporedna signal in zagon.
-Ko proces naredi sledeči korak $$\tmpar{\tmopout{op}{V}{\tmrun{M_1}}}{\tmrun{M_2}} \reduces \tmopout{op}{V}{\tmpar{\tmrun{M_1}}{\tmopin{op}{V}{M_2}}}$$ bo pripadajoči tip naredil korak
+Najpreprostejši primer je, ko imamo vzporedna signal in zagon.
+Ko proces naredi sledeči korak 
+$$\tmpar{\tmopout{op}{V}{\tmrun{M_1}}}{\tmrun{M_2}} \reduces \tmopout{op}{V}{\tmpar{\tmrun{M_1}}{\tmopin{op}{V}{M_2}}},$$ 
+bo pripadajoči tip naredil korak
 $$\typar{\tyrun{A_1}{\o_1, \i_1}}{\tyrun{A_2}{\o_2, \i_2}} \tyreduces \typar{\tyrun{A_1}{\o_1, \i_1}}{\tyrun{A_2}{\opincomp{op}{(\o_2, \i_2)}}} \quad {\color{rulenameColor}(op \in o_1)}.$$
-Potencialno spremembo tipa najprej formaliziramo z pravili na osnovnih tipih, kot jih lahko vidimo na sliki~\ref{fig:process-type-reductions-basic}. Nato jih posplošimo še za splošen tip na sliki~\ref{fig:process-type-reductions}.
-Kako deluje operacija $\opincomp{op}{}$ na tipih procesov smo definirali že na sliki~\ref{fig:opin-proces}.
+Potencialno spremembo tipa najprej formaliziramo s pravili na osnovnih tipih, kot jih lahko vidimo na sliki~\ref{fig:process-type-reductions-basic}. Nato jih posplošimo še za splošen tip na sliki~\ref{fig:process-type-reductions}.
+Kako deluje operacija $\opincomp{op}{}$ na tipih procesov, smo definirali že na sliki~\ref{fig:opin-proces}.
 
 \begin{figure}[H]
 	\centering
