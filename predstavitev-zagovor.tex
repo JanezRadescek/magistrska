@@ -95,7 +95,6 @@ run
 \end{frame}
 
 \begin{frame}[fragile]{Uvod}
-	\jR{Dodaj levo zgoraj asinhron primer.}
 \tiny
 \begin{center}
 	\begin{tabular}{ c c c }
@@ -131,19 +130,52 @@ run
 \end{center}
 \end{frame}
 
-
-	\begin{frame}{Račun \lae{}}
-		\begin{itemize}
-			\item Programski jezik \aeff{} temelji na računu \lae{}.
-			\item Račun \lae{} je razširitev Levy $\lambda$ računa.
-			\item Izrazi, operacijska semantika in tipi.
-		\end{itemize}
-	\end{frame}
+\begin{frame}[fragile]{Uvod}
+	\tiny
+	\begin{center}
+		\hspace*{-9ex}\begin{tabular}{ c c c }
+			Proces 1: & & Proces 2:
+			\\
+			\\
+			$\tmkw{\uparrow}\, \mathsf{opravilo}\,42;M_1$ & $\optright{opravilo}{42}$ & $\tmwith{opravilo}{y}{N_1}{\_}{()}$
+			\\
+			\dreduces && \dreduces
+			\\
+			$\tmlet{x'}{\mathsf{priblizek}\ 42}{M_1'}$ & & $N_1[42/y]$
+			\\
+			\dreduces && \dreduces
+			\\
+			$\mathsf{zaslon}\ x';M_1''$ & & $N_1^1$
+			\\
+			\dreduces && \dreduces
+			\\
+			$\tmwith{rezultat}{x}{N_2}{p}{M_2}$ &  & $N_1^2$
+			\\
+			\dreduces && \dreduces
+			\\
+			... && ...
+			\\
+			\dreduces && \dreduces
+			\\
+			$\tmwith{rezultat}{x}{N_2}{p}{\tmawait{p}{y}{M_3}}$ &  & $N_1^n$
+			\\
+			\dreduces && \dreduces
+			\\
+			$\tmwith{rezultat}{x}{N_2}{p}{\colorbox{kost}{$\tmawait{p}{y}{M_3}$}}$ & $\optleft{rezultat}{X}$ & $\tmkw{\uparrow}\, \mathsf{rezultat}\,X;\tmreturn{()}$
+			\\
+			\dreduces && \dreduces
+			\\
+			$\tmlet{p}{N_2[X/x]}{\tmawait{p}{y}{M_3}}$ & & $\tmreturn{()}$
+			\\
+			\dreduces && \dreduces
+			\\
+			... && ...
+		\end{tabular}
+	\end{center}
+\end{frame}
 
 
 	\begin{frame}{Izrazi}
-
-
 		\begin{columns}[T]
 			\begin{column}{0.22\textwidth}
 				\begin{figure}[hp]
@@ -613,72 +645,48 @@ run
 	\end{frame}
 
 
+
 	\begin{frame}{Rezultati}
-			
-		%Običajno bi bil izračun return V rezultat. 
-		%Izračun await blokira dokler ustrezen prestreznik ne izpolni pripadajoče obljube. Ni nujno da bo vsak prestreznik ipolnil obljubo. Zato rezultatom dodamo izračune, ki čakajo izpolnitev obljube.
-		%Izračun je lahko v postopku izpolnitve obljube na katero čakamo. Takih izračunov ne damo med rezultatov.
 		
 		\begin{figure}
 			\centering
 			\tiny
-			\textbf{Čakajoči izrazi}
+			\textbf{Rezultati izračunov}
 			\begin{mathpar}
 				\coopinfer{}{
+					\RunResult {\Psi} {M}
 				}{
-					\awaiting p {\tmawait p x M}
+					\CompResult {\Psi} {\tmopout{op}{V}{M}}
 				}
-				\quad
+				\qquad
 				\coopinfer{}{
-					\awaiting p M
+					\RunResult {\Psi} {M}
 				}{
-					\awaiting p {\tmlet x M N}
-				}
-				\quad
-				\coopinfer{}{
-					\awaiting p M
-				}{
-					\awaiting p {\tmopin{op}{V}{M}}
+					\CompResult {\Psi} {M}
 				}
 			\end{mathpar}
-		
-			\textbf{Delni rezultati}
+			
+			\textbf{Delni rezultati izračunov}
 			\begin{mathpar}
-%				\coopinfer{}{
-%					\CompResult {\Psi} {M}
-%				}{
-%					\CompResult {\Psi} {\tmopout {op} V M}
-%				}
-%				\quad
-%				\coopinfer{}{
-%					\RunResult {\Psi} {M}
-%				}{
-%					\CompResult {\Psi} {M}
-%				}
-%				\vspace{-1ex}
-%				\\
 				\coopinfer{}{
 				}{
 					\RunResult {\Psi} {\tmreturn V}
 				}
-				\quad
+				\qquad
 				\coopinfer{}{
 					\RunResult {\Psi \cup \{p\}} {N}
 				}{
 					\RunResult {\Psi} {\tmwith {op} x M p N}
 				}
-				\quad
+				\\
 				\coopinfer{}{
-					p \in \Psi \\
-					\awaiting p M
+					p \in \Psi
 				}{
-					\RunResult {\Psi} {M}
+					\RunResult {\Psi} {\tmawait{p}{x}{M}}
 				}
 			\end{mathpar}
-		
-			%Proces je rezultat če so vsi signali prišli do korenin drevesa procesov in so vsi procesi
-		
-			\textbf{Rezultati}
+			
+			\textbf{Rezultati procesov}
 			\begin{mathpar}
 				\coopinfer{}{
 					\ProcResult {P}
@@ -691,108 +699,41 @@ run
 				}{
 					\ProcResult {P}
 				}
-				\qquad
-				\coopinfer{}{
-					\RunResult {\emptyset} {M}
-				}{
-					\ParResult {\tmrun M}
-				}
-				\qquad
+			\end{mathpar}
+			
+			\textbf{Delni rezultati procesov}
+			\begin{mathpar}
 				\coopinfer{}{
 					\ParResult P \\
 					\ParResult Q
 				}{
 					\ParResult {\tmpar P Q}
 				}
+				\qquad
+				\coopinfer{}{
+					\RunResult {\emptyset} {M}
+				}{
+					\ParResult {\tmrun M}
+				}
 			\end{mathpar}
-		
-		\end{figure}
-		
-	\end{frame}
-
-
-
-
-	
-
-	
-	\begin{frame}{Napredek}
-		\begin{lema}[1]
-			Če ima izračun $M$ v kontekstu $\Gamma$ tip $A$, je $M$ delni rezultat ali pa lahko naredi korak v izraz $M'$.
-		\end{lema}
-		
-		%glede na čas dokaz tudi leme, vsaj deloma.
-		
-					
-		\begin{izrek}[o napredku]
-			Če ima proces $M$ v kontekstu $\Gamma$ tip $A$, je $M$ rezultat ali pa lahko naredi korak v izraz $M'$.
-		\end{izrek}
-		
-		\begin{proof}
-			... 
-			%Predpostavimo da M ni rezultat. Hočemo dokazati da obstaja M* v katerega lahko naredimo korak. Sedaj dokazujemo z indukcijo na globino izpeljave tipa $A$. Recimo da smo na globini 1. Edina možnost, da smo dokazali A, je da smo uporabili pravilo tip run. Se pravi M'' ima tip A. Po lemmi 1 je M'' rezultat ali pa lahko naredi korak. Če bi bil M'' rezultat bi bil po pravilu rezultat run tudi M rezultat. Se pravi da M'' lahko naredi korak. Po pravilu za posamezen proces pa to pomeni da tudi M lahko naredi korak. Naj bo globina sedaj n>1. Tedaj smo A dokazali z pravilom tip vzporedna, tip proces signal ali tip proces prekinitev. Recimo da smo dokazali z pravilom tip vzporedna. A = (C || D). Če sta P in Q rezultata bi bil po pravilu rezultat vzporedna tudi M rezultat. Se pravi da eden izmed P ali Q ni rezultat. Po indukcijski predpostavki lahko tisti, ki ni rezultat naredi korak. Po pravilu za vrednotenje v kontekstu to pomeni da M lahko naredi korak. Podobno za  tip proces signal in tip proces prekinitev.
-		\end{proof}
-		%Kako lepo definirati globino iz dokaza??
-		
-	\end{frame}
-
-	
-		
-	\begin{frame}{Ohranitev}
 			
-		\begin{lema}[2]
-			Če ima izračun $M$ v kontekstu $\Gamma$ tip $A$ in naredi korak v izračun $M'$, ima $M'$ v kontekstu $\Gamma$ tip $A$
-		\end{lema}	
-				
-		\begin{izrek}[o ohranitvi]
-			Če ima proces $M$ v kontekstu $\Gamma$ tip $A$ in naredi korak v proces $M'$, ima $M'$ v kontekstu $\Gamma$ tip $A$.
-		\end{izrek}
-
+		\end{figure}
+		
 	\end{frame}
 
-
-
-	\begin{frame}{Rekurzivni prestrezniki}
-		\begin{figure}[hp]
-			\parbox{\textwidth}{
-				\centering
-				\tiny
-				\begin{align*}
-				\shortintertext{\textbf{Izračuni}}
-				M, N
-				\bnfis& ... \,\bnfor \tmwithrec{op}{f}{x \of A}{M \of \typromise{B}}{p}{N}                   
-				\end{align*}
-			} 
-		\end{figure}
 	
-		\begin{figure}[tp]
-			\centering
-			\tiny
-			\begin{align*}
-			\shortintertext{\textbf{Operacijska semantika}}
-			\tmopin{op}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, R/r]}{\tmopin{op}{V}{N}} \\
-			F &= \tmfun{x}{\tmwithrec{op}{x}{r}{M}{p}{\tmreturn{p}}} \\
-			\tmopin{op'}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmwithrec{op}{x}{r}{M}{p}{\tmopin{op'}{V}{N}}
-			\quad {\color{rulenameColor}(\op \neq \op')}
-			\end{align*}
-		\end{figure}
-		
-		\begin{figure}[tp]
-			\centering
-			\tiny
-			\textbf{Pravila za tipe izračunov}
-			\begin{mathpar}
-		\coopinfer{}{
-	({\o'} , {\i'}) \order{O \times I} \i\, (\op)\\
-	\Gamma, x \of \tymobile{A}_\op, r \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \{\op \mapsto (\o', \i')\}}} \types M : \tycomp{\typromise B}{\o',\i'} \\
-	\Gamma, p \of \typromise B \types N : \tycomp{C}{\o,\i}
-}{
-	\Gamma \types \tmwithrec{op}{x}{r}{M}{p}{N} \of \tycomp{C}{\o, \i}
-}
-			\end{mathpar}
-		\end{figure}
-		
+
+	
+	\begin{frame}{Izrek o varnosti}			
+		\begin{izrek}[o napredku]\label{izr:napredek}
+			Naj za proces $P$ velja $\emptyset \types P \of C$. Potem ali (i) obstaja proces $P'$, tak da $P \reduces P'$, ali pa (ii) velja $\ProcResult{P}$.
+		\end{izrek}
+	
+		\begin{izrek}[o ohranitvi]\label{izr:ohranitev}
+			Naj za proces $P$ velja $\Gamma \types P \of C$. Če proces $P$ naredi korak $P \reduces P'$, potem obstaja tak $C'$, da velja $C \tyreduces C'$ in $\Gamma \types P' \of C'$.
+		\end{izrek}
 	\end{frame}
+
 
 
 
@@ -854,8 +795,52 @@ run
 	\end{frame}
 
 
-	\begin{frame}{Dinamični procesi}
+
+	\begin{frame}{Rekurzivni prestrezniki}
+		\begin{figure}[hp]
+			\parbox{\textwidth}{
+				\centering
+				\tiny
+				\begin{align*}
+					\shortintertext{\textbf{Izračuni}}
+					M, N
+					\bnfis& ... \,\bnfor \tmwithrec{op}{f}{x \of A}{M \of \typromise{B}}{p}{N}                   
+				\end{align*}
+			} 
+		\end{figure}
 		
+		\begin{figure}[tp]
+			\centering
+			\tiny
+			\begin{align*}
+				\shortintertext{\textbf{Operacijska semantika}}
+				\tmopin{op}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmlet{p}{M[V/x, R/r]}{\tmopin{op}{V}{N}} \\
+				F &= \tmfun{x}{\tmwithrec{op}{x}{r}{M}{p}{\tmreturn{p}}} \\
+				\tmopin{op'}{V}{\tmwithrec{op}{x}{r}{M}{p}{N}} &\reduces \tmwithrec{op}{x}{r}{M}{p}{\tmopin{op'}{V}{N}}
+				\quad {\color{rulenameColor}(\op \neq \op')}
+			\end{align*}
+		\end{figure}
+		
+		\begin{figure}[tp]
+			\centering
+			\tiny
+			\textbf{Pravila za tipe izračunov}
+			\begin{mathpar}
+				\coopinfer{}{
+					({\o'} , {\i'}) \order{O \times I} \i\, (\op)\\
+					\Gamma, x \of \tymobile{A}_\op, r \of \tyfun{\tyunit}{\tycomp{\typromise{B}}{\emptyset, \{\op \mapsto (\o', \i')\}}} \types M : \tycomp{\typromise B}{\o',\i'} \\
+					\Gamma, p \of \typromise B \types N : \tycomp{C}{\o,\i}
+				}{
+					\Gamma \types \tmwithrec{op}{x}{r}{M}{p}{N} \of \tycomp{C}{\o, \i}
+				}
+			\end{mathpar}
+		\end{figure}
+	\end{frame}
+
+
+
+
+	\begin{frame}{Dinamični procesi}
 		\begin{figure}[hp]
 			\parbox{\textwidth}{
 				\centering
@@ -877,7 +862,6 @@ run
 			\end{align*}
 		\end{figure}
 	
-	
 		\begin{figure}[tp]
 			\centering
 			\tiny
@@ -889,20 +873,6 @@ run
 				}
 			\end{mathpar}
 		\end{figure}
-		
-	\end{frame}
-	
-	
-	
-	
-	\begin{frame}{Implementacija in prihodnje delo}
-		\begin{enumerate}
-			\item \aeff{} ima v primerjavi z \lae{} nekaj sintaktičnih sladkorjev in dodatnih izrazov.
-
-			\item Uporaba tipov učinkov v operacijski semantiki. Če $\Gamma \types M \of \tycomp{A}{\o,\i},\ \i(\op) = \bot$, potem $\opincomp{\op}{M} \reduces M$.
-			
-			\item Odstranjevanje procesov. Izračun $\tmkw{spawn}$ lahko ustvari veliko kratkotrajnih procesov.
-		\end{enumerate}
 	\end{frame}
 	
 	
